@@ -24,9 +24,13 @@ struct ContentView: View {
 
 struct Player: View {
     var body: some View {
+        VStack {
         Text("Hello Player")
         Image(systemName: "play.fill")
-
+                .resizable()
+                .frame(width: 56, height: 56, alignment: .center)
+                
+        }
     }
 }
 

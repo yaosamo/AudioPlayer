@@ -1,4 +1,4 @@
 # AudioPlayer
 iCloud audio books player
 
-https://pbs.twimg.com/media/FJR_Zy9VIAEkFMN?format=jpg&name=large
+![FJR_Zy9VIAEkFMN](https://user-images.githubusercontent.com/5090118/149841881-7f5590df-5400-4a71-834e-ee5fe2cb1972.jpeg)

@@ -16,6 +16,7 @@
 		5D9FD90C2791472100DF2F28 /* AudiobookPlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD90B2791472100DF2F28 /* AudiobookPlayerTests.swift */; };
 		5D9FD9162791472100DF2F28 /* AudiobookPlayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD9152791472100DF2F28 /* AudiobookPlayerUITests.swift */; };
 		5D9FD9182791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD9172791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift */; };
+		5DEB06D027967A81004FD4F6 /* audio.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5DEB06CF27967A81004FD4F6 /* audio.m4a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		5D9FD9112791472100DF2F28 /* AudiobookPlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AudiobookPlayerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D9FD9152791472100DF2F28 /* AudiobookPlayerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudiobookPlayerUITests.swift; sourceTree = "<group>"; };
 		5D9FD9172791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudiobookPlayerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		5DEB06CF27967A81004FD4F6 /* audio.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = audio.m4a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +80,7 @@
 		5D9FD8E92791472000DF2F28 = {
 			isa = PBXGroup;
 			children = (
+				5DEB06CF27967A81004FD4F6 /* audio.m4a */,
 				5D9FD8F42791472000DF2F28 /* AudiobookPlayer */,
 				5D9FD90A2791472100DF2F28 /* AudiobookPlayerTests */,
 				5D9FD9142791472100DF2F28 /* AudiobookPlayerUITests */,
@@ -237,6 +240,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DEB06D027967A81004FD4F6 /* audio.m4a in Resources */,
 				5D9FD8FD2791472100DF2F28 /* Preview Assets.xcassets in Resources */,
 				5D9FD8FA2791472100DF2F28 /* Assets.xcassets in Resources */,
 			);

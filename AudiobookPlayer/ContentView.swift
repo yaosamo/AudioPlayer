@@ -10,6 +10,24 @@ import CoreData
 import AVKit
 
 
+// SceneDelegate
+func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+      
+    
+    guard let windowScene = scene as? UIWindowScene else {
+        print("Returning because screne does not exist")
+        return
+            
+    }
+    
+    // Set here
+    UITableView.appearance().backgroundColor = .clear
+    let contentView = ContentView()
+    let window = UIWindow(windowScene: windowScene)
+    window.rootViewController = UIHostingController(rootView: contentView)
+    window.makeKeyAndVisible()
+}
+
 extension Text {
 
     func MainFont(_ Size : CGFloat) -> some View {
@@ -26,12 +44,19 @@ struct ContentView: View {
         animation: .default)
     private var items: FetchedResults<Item>
 
+    init() {
+           UITableView.appearance().backgroundColor = .clear
+       }
+    
     var body: some View {
         VStack {
             Playlist()
+               
+            
             Player()
             .frame(height: 330)
         }
+        .background(.black)
     }
 }
 
@@ -46,8 +71,10 @@ struct Player: View {
                     .MainFont(12)
                 Text("2010.03.10 Mazda")
                     .MainFont(24)
+                    .foregroundColor(.white)
                 Text("4:37:22")
                     .MainFont(12)
+                    .foregroundColor(.white)
             }
             .padding(.leading, 32)
                 Spacer()
@@ -60,7 +87,7 @@ struct Player: View {
                 .padding(8)
             
             Capsule()
-                .fill(Color.black).frame(height: 8)
+                .fill(Color.white).frame(height: 8)
                 .padding(8)
             }
             .padding([.top, .bottom], 40)
@@ -68,22 +95,23 @@ struct Player: View {
             HStack {
                 Image(systemName: "backward.fill")
                         .resizable()
-                        .frame(width: 32, height: 32, alignment: .center)
+                        .frame(width: 38, height: 24    , alignment: .center)
+                        .foregroundColor(.white)
                 
             Spacer()
             Image(systemName: "play.fill")
                     .resizable()
-                    .frame(width: 48, height: 48, alignment: .center)
+                    .frame(width: 32, height: 44, alignment: .center)
+                    .foregroundColor(.white)
+
                 Spacer()
                 Image(systemName: "forward.fill")
                         .resizable()
-                        .frame(width: 32, height: 32, alignment: .center)
+                        .frame(width: 38, height: 24, alignment: .center)
+                        .foregroundColor(.white)
             }
             .padding([.trailing, .leading], 72)
-                    
         }
-       
-        
     }
 }
 
@@ -100,8 +128,8 @@ struct Playlist: View {
 
                 }
             }
+            .background(.black)
         }
-
     }
 }
 

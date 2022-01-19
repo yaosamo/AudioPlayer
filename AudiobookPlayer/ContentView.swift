@@ -10,24 +10,6 @@ import CoreData
 import AVKit
 
 
-// SceneDelegate
-func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-      
-    
-    guard let windowScene = scene as? UIWindowScene else {
-        print("Returning because screne does not exist")
-        return
-            
-    }
-    
-    // Set here
-    UITableView.appearance().backgroundColor = .clear
-    let contentView = ContentView()
-    let window = UIWindow(windowScene: windowScene)
-    window.rootViewController = UIHostingController(rootView: contentView)
-    window.makeKeyAndVisible()
-}
-
 extension Text {
 
     func MainFont(_ Size : CGFloat) -> some View {
@@ -51,8 +33,6 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Playlist()
-               
-            
             Player()
             .frame(height: 330)
         }
@@ -117,17 +97,22 @@ struct Player: View {
 
 struct Playlist: View {
     let playlists = ["Marusya", "Brands", "Billionair", "MDS"]
-    
+ 
     var body: some View {
+
         NavigationView {
             List {
             ForEach(playlists, id: \.self) { item in
                 NavigationLink(destination: Text("Internal")) {
                 Text(item)
+                        .MainFont(32)
+                        .frame(height: 48)
+                        .navigationBarHidden(true)
+                            }
+                        }
+            .foregroundColor(.white)
+            .listRowBackground(Color.black)
                 }
-
-                }
-            }
             .background(.black)
         }
     }

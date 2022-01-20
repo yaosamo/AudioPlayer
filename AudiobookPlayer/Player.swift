@@ -10,14 +10,31 @@ import SwiftUI
 import CoreData
 import AVFoundation
 
+
+var player: AVAudioPlayer?
+
+func playSound() {
+    guard let path = Bundle.main.path(forResource: "audio", ofType:"m4a") else {
+        return }
+    let url = URL(fileURLWithPath: path)
+
+    do {
+        player = try AVAudioPlayer(contentsOf: url)
+    } catch let error {
+        print(error.localizedDescription)
+    }
+}
+
+
 struct Player: View {
     
     @State var time : CGFloat = 0
-    let iconplay : String = "play.fill"
-    let iconstop : String = "stop.fill"
-    @State var playericon : String = "play.fill"
-
+    let iconplay = "play.fill"
+    let iconstop = "pause.fill"
+    @State var playericon = "play.fill"
+    
     var body: some View {
+        
         VStack {
             HStack {
             VStack(alignment: .leading){
@@ -27,6 +44,7 @@ struct Player: View {
                 Text("2010.03.10 Mazda")
                     .MainFont(24)
                     .foregroundColor(.white)
+                    .padding([.top, .bottom], 1)
                 Text("4:37:22")
                     .MainFont(12)
                     .foregroundColor(.white)
@@ -51,24 +69,21 @@ struct Player: View {
             HStack {
                 Image(systemName: "backward.fill")
                         .resizable()
-                        .frame(width: 38, height: 24    , alignment: .center)
+                        .frame(width: 38, height: 24, alignment: .center)
                         .foregroundColor(.white)
-                
+        
             Spacer()
+                               
                 Button {
-                    if player?.isPlaying == true {
+                    let playing = Listening()
+                    switch playing {
+                    case true:
                         player?.stop()
                         playericon = iconplay
-                    }
-                    else {player?.play()
+                    case false:
+                        player?.play()
                         playericon = iconstop
                     }
-                    
-//                    DispatchQueue.global(qos: .background).async {
-//                        let screenWidth = UIScreen.main.bounds.width - 20
-//                        let currenttime = player!.currentTime / player!.duration
-//                    }
-                    
                 }
                 
             label: {
@@ -78,8 +93,6 @@ struct Player: View {
                     .foregroundColor(.white)
                 }
                 
-                
-
                 Spacer()
                 Image(systemName: "forward.fill")
                         .resizable()
@@ -94,21 +107,11 @@ struct Player: View {
     }
 }
 
-var player: AVAudioPlayer?
-
-func playSound() {
-    guard let path = Bundle.main.path(forResource: "audio", ofType:"m4a") else {
-        return }
-    let url = URL(fileURLWithPath: path)
-
-    do {
-        player = try AVAudioPlayer(contentsOf: url)
-        
-        
-    } catch let error {
-        print(error.localizedDescription)
-    }
+func Listening() -> Bool {
+    let playing = player?.isPlaying
+    return playing ?? false
 }
+
 
 struct Player_Previews: PreviewProvider {
     static var previews: some View {

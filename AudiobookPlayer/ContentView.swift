@@ -34,66 +34,12 @@ struct ContentView: View {
         VStack {
             Playlist()
             Player()
-            .frame(height: 330)
+            
         }
         .background(.black)
     }
 }
 
-
-struct Player: View {
-    var body: some View {
-        VStack {
-            HStack {
-            VStack(alignment: .leading){
-                Text("Yaosamo Airpods")
-                    .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
-                    .MainFont(12)
-                Text("2010.03.10 Mazda")
-                    .MainFont(24)
-                    .foregroundColor(.white)
-                Text("4:37:22")
-                    .MainFont(12)
-                    .foregroundColor(.white)
-            }
-            .padding(.leading, 32)
-                Spacer()
-            }
-            
-            
-            ZStack {
-            Capsule()
-                .fill(Color.white).frame(height: 8)
-                .padding(8)
-            
-            Capsule()
-                .fill(Color.white).frame(height: 8)
-                .padding(8)
-            }
-            .padding([.top, .bottom], 40)
-            
-            HStack {
-                Image(systemName: "backward.fill")
-                        .resizable()
-                        .frame(width: 38, height: 24    , alignment: .center)
-                        .foregroundColor(.white)
-                
-            Spacer()
-            Image(systemName: "play.fill")
-                    .resizable()
-                    .frame(width: 32, height: 44, alignment: .center)
-                    .foregroundColor(.white)
-
-                Spacer()
-                Image(systemName: "forward.fill")
-                        .resizable()
-                        .frame(width: 38, height: 24, alignment: .center)
-                        .foregroundColor(.white)
-            }
-            .padding([.trailing, .leading], 72)
-        }
-    }
-}
 
 struct Playlist: View {
     let playlists = ["Marusya", "Brands", "Billionair", "MDS"]

@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5D418A732799200D008DC6C6 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D418A722799200D008DC6C6 /* Player.swift */; };
-		5D418A75279926AE008DC6C6 /* apple.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 5D418A74279926AE008DC6C6 /* apple.mp3 */; };
+		5D418A75279926AE008DC6C6 /* song1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 5D418A74279926AE008DC6C6 /* song1.mp3 */; };
 		5D9FD8F62791472000DF2F28 /* AudiobookPlayerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD8F52791472000DF2F28 /* AudiobookPlayerApp.swift */; };
 		5D9FD8F82791472000DF2F28 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD8F72791472000DF2F28 /* ContentView.swift */; };
 		5D9FD8FA2791472100DF2F28 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D9FD8F92791472100DF2F28 /* Assets.xcassets */; };
@@ -18,7 +18,7 @@
 		5D9FD90C2791472100DF2F28 /* AudiobookPlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD90B2791472100DF2F28 /* AudiobookPlayerTests.swift */; };
 		5D9FD9162791472100DF2F28 /* AudiobookPlayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD9152791472100DF2F28 /* AudiobookPlayerUITests.swift */; };
 		5D9FD9182791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD9172791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift */; };
-		5DEB06D027967A81004FD4F6 /* audio.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5DEB06CF27967A81004FD4F6 /* audio.m4a */; };
+		5DEB06D027967A81004FD4F6 /* song2.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5DEB06CF27967A81004FD4F6 /* song2.m4a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,7 +40,7 @@
 
 /* Begin PBXFileReference section */
 		5D418A722799200D008DC6C6 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
-		5D418A74279926AE008DC6C6 /* apple.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = apple.mp3; sourceTree = "<group>"; };
+		5D418A74279926AE008DC6C6 /* song1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = song1.mp3; sourceTree = "<group>"; };
 		5D9FD8F22791472000DF2F28 /* AudiobookPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AudiobookPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D9FD8F52791472000DF2F28 /* AudiobookPlayerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudiobookPlayerApp.swift; sourceTree = "<group>"; };
 		5D9FD8F72791472000DF2F28 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -53,7 +53,7 @@
 		5D9FD9112791472100DF2F28 /* AudiobookPlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AudiobookPlayerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D9FD9152791472100DF2F28 /* AudiobookPlayerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudiobookPlayerUITests.swift; sourceTree = "<group>"; };
 		5D9FD9172791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudiobookPlayerUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		5DEB06CF27967A81004FD4F6 /* audio.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = audio.m4a; sourceTree = "<group>"; };
+		5DEB06CF27967A81004FD4F6 /* song2.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = song2.m4a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,8 +84,8 @@
 		5D9FD8E92791472000DF2F28 = {
 			isa = PBXGroup;
 			children = (
-				5D418A74279926AE008DC6C6 /* apple.mp3 */,
-				5DEB06CF27967A81004FD4F6 /* audio.m4a */,
+				5D418A74279926AE008DC6C6 /* song1.mp3 */,
+				5DEB06CF27967A81004FD4F6 /* song2.m4a */,
 				5D9FD8F42791472000DF2F28 /* AudiobookPlayer */,
 				5D9FD90A2791472100DF2F28 /* AudiobookPlayerTests */,
 				5D9FD9142791472100DF2F28 /* AudiobookPlayerUITests */,
@@ -246,8 +246,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D418A75279926AE008DC6C6 /* apple.mp3 in Resources */,
-				5DEB06D027967A81004FD4F6 /* audio.m4a in Resources */,
+				5D418A75279926AE008DC6C6 /* song1.mp3 in Resources */,
+				5DEB06D027967A81004FD4F6 /* song2.m4a in Resources */,
 				5D9FD8FD2791472100DF2F28 /* Preview Assets.xcassets in Resources */,
 				5D9FD8FA2791472100DF2F28 /* Assets.xcassets in Resources */,
 			);

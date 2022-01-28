@@ -41,13 +41,10 @@ struct Player: View {
                 Spacer()
             }
             
-            
-            
             ZStack(alignment: .leading) {
                 Capsule()
                     .fill(Color.white).frame(height: 8)
                     .padding(8)
-                
                 Capsule() // progress
                     .fill(Color.red).frame(width: time, height: 8)
                     .padding(8)
@@ -56,13 +53,20 @@ struct Player: View {
             .onAppear(perform: playSound)
             
             HStack {
-                Image(systemName:  "backward.fill")
+                Button {
+                    if currentSong > 0 {
+                        currentSong -= 1}
+                    playSound()
+                    player?.play()
+                    self.playing = true
+                    let _ = print("playing #:",currentSong)
+                }
+            label: {Image(systemName:  "backward.fill")
                     .resizable()
                     .frame(width: 38, height: 24, alignment: .center)
-                    .foregroundColor(.white)
-                
+                .foregroundColor(.white)
+            }
                 Spacer()
-                
                 Button {
                     let playing = Listening()
                     switch playing {
@@ -72,6 +76,8 @@ struct Player: View {
                     case false:
                         player?.play()
                         self.playing = true
+                        let _ = print("playing #:",currentSong)
+
                     }
                     // progressbar
                     DispatchQueue.global(qos: .background).async {
@@ -84,22 +90,30 @@ struct Player: View {
                         }
                     }
                 }
-                
             label: {
                 Image(systemName: self.playing ? iconstop : iconplay)
                     .font(.system(size: 42.0))
                     .frame(width: 32, height: 44, alignment: .center)
                     .foregroundColor(.white)
             }
-                
                 Spacer()
-                Image(systemName: "forward.fill")
+                Button {
+                    if currentSong < songs.count-1 {
+                        currentSong += 1}
+                    playSound()
+                    player?.play()
+                    self.playing = true
+                   
+                    let _ = print("playing #:",currentSong)
+                }
+            label: {Image(systemName: "forward.fill")
                     .resizable()
                     .frame(width: 38, height: 24, alignment: .center)
                     .foregroundColor(.white)
             }
+            } //hstack
             .padding([.trailing, .leading], 72)
-        }
+        } //vstack
         .frame(height: 330)
         .background(.black)
     }

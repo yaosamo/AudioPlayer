@@ -51,42 +51,41 @@ struct Playlist: View {
     
     
     var body: some View {
-//        HStack {
-//            Button(action: addPlaylist) {
-//                Image(systemName: "plus")
-//                    .foregroundColor(.white)
-//                    .font(.system(size: 32.0))
-//                    .padding([.top, .leading], 40)
-//            }
-//            Spacer()
-//        }
+        //        HStack {
+        //            Button(action: addPlaylist) {
+        //                Image(systemName: "plus")
+        //                    .foregroundColor(.white)
+        //                    .font(.system(size: 32.0))
+        //                    .padding([.top, .leading], 40)
+        //            }
+        //            Spacer()
+        //        }
         
         NavigationView {
             List {
+                Button(action: addPlaylist) {
+                    Image(systemName: "plus")
+                        .foregroundColor(.white)
+                        .font(.system(size: 32.0))
+                        .padding([.top, .bottom], 16)
+                }
+
                 ForEach(items, id: \.self) { item in
                     NavigationLink(destination: Text("Internal")) {
                         Text(item.name!)
                             .MainFont(32)
                             .frame(height: 48)
                             .foregroundColor(colorslist[0])
-//                            .navigationBarHidden(true)
+                            .navigationBarHidden(true)
                     }
                 }
                 .onDelete(perform: deleteItems)
                 .foregroundColor(.white)
+                .listRowSeparator(.hidden)
                 .listRowBackground(Color.black)
             }
+            .listStyle(.inset)
             .background(.black)
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarLeading) {
-                                        Button(action: addPlaylist) {
-                                            Image(systemName: "plus")
-                                                .foregroundColor(.white)
-                                                .font(.system(size: 24.0))
-                                                .padding([.leading, .top], 16)
-                                        }
-                            }
-                        }
         }
     }
     

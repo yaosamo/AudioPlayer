@@ -16,6 +16,7 @@ struct PersistenceController {
         for _ in 0..<4 {
             let newItem = Item(context: viewContext)
             newItem.name = "Marusya"
+//            newItem.url = URL(fileURLWithPath: "/test/null")
         }
         do {
             try viewContext.save()

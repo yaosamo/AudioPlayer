@@ -3,8 +3,9 @@
     <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
         <attribute name="color" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="url" optional="YES" attributeType="URI" defaultValueString="yaosamo"/>
     </entity>
     <elements>
-        <element name="Item" positionX="-63" positionY="-18" width="128" height="59"/>
+        <element name="Item" positionX="-63" positionY="-18" width="128" height="74"/>
     </elements>
 </model>

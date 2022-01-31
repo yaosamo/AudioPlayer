@@ -9,8 +9,9 @@
 /* Begin PBXBuildFile section */
 		5D0985A927A308D300DABA9B /* song2.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5D0985A627A308D300DABA9B /* song2.m4a */; };
 		5D0985AA27A308D300DABA9B /* song1.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5D0985A727A308D300DABA9B /* song1.m4a */; };
-		5D0985AB27A308D300DABA9B /* song3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 5D0985A827A308D300DABA9B /* song3.mp3 */; };
+		5D29DFEE27A66383009FCA65 /* Books.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D29DFED27A66383009FCA65 /* Books.swift */; };
 		5D418A732799200D008DC6C6 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D418A722799200D008DC6C6 /* Player.swift */; };
+		5D46F1A227A5105E0056910C /* song3.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5D46F1A127A5105E0056910C /* song3.m4a */; };
 		5D9FD8F62791472000DF2F28 /* AudiobookPlayerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD8F52791472000DF2F28 /* AudiobookPlayerApp.swift */; };
 		5D9FD8F82791472000DF2F28 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD8F72791472000DF2F28 /* ContentView.swift */; };
 		5D9FD8FA2791472100DF2F28 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D9FD8F92791472100DF2F28 /* Assets.xcassets */; };
@@ -42,8 +43,10 @@
 /* Begin PBXFileReference section */
 		5D0985A627A308D300DABA9B /* song2.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = song2.m4a; sourceTree = "<group>"; };
 		5D0985A727A308D300DABA9B /* song1.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = song1.m4a; sourceTree = "<group>"; };
-		5D0985A827A308D300DABA9B /* song3.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = song3.mp3; sourceTree = "<group>"; };
+		5D29DFED27A66383009FCA65 /* Books.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Books.swift; sourceTree = "<group>"; };
 		5D418A722799200D008DC6C6 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		5D46F1A027A481BB0056910C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		5D46F1A127A5105E0056910C /* song3.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = song3.m4a; sourceTree = "<group>"; };
 		5D9FD8F22791472000DF2F28 /* AudiobookPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AudiobookPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D9FD8F52791472000DF2F28 /* AudiobookPlayerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudiobookPlayerApp.swift; sourceTree = "<group>"; };
 		5D9FD8F72791472000DF2F28 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -88,7 +91,7 @@
 			children = (
 				5D0985A727A308D300DABA9B /* song1.m4a */,
 				5D0985A627A308D300DABA9B /* song2.m4a */,
-				5D0985A827A308D300DABA9B /* song3.mp3 */,
+				5D46F1A127A5105E0056910C /* song3.m4a */,
 				5D9FD8F42791472000DF2F28 /* AudiobookPlayer */,
 				5D9FD90A2791472100DF2F28 /* AudiobookPlayerTests */,
 				5D9FD9142791472100DF2F28 /* AudiobookPlayerUITests */,
@@ -109,9 +112,11 @@
 		5D9FD8F42791472000DF2F28 /* AudiobookPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				5D46F1A027A481BB0056910C /* Info.plist */,
 				5D9FD8F52791472000DF2F28 /* AudiobookPlayerApp.swift */,
 				5D9FD8F72791472000DF2F28 /* ContentView.swift */,
 				5D418A722799200D008DC6C6 /* Player.swift */,
+				5D29DFED27A66383009FCA65 /* Books.swift */,
 				5D9FD8F92791472100DF2F28 /* Assets.xcassets */,
 				5D9FD8FE2791472100DF2F28 /* Persistence.swift */,
 				5D9FD9002791472100DF2F28 /* AudiobookPlayer.xcdatamodeld */,
@@ -249,9 +254,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D46F1A227A5105E0056910C /* song3.m4a in Resources */,
 				5D0985A927A308D300DABA9B /* song2.m4a in Resources */,
 				5D0985AA27A308D300DABA9B /* song1.m4a in Resources */,
-				5D0985AB27A308D300DABA9B /* song3.mp3 in Resources */,
 				5D9FD8FD2791472100DF2F28 /* Preview Assets.xcassets in Resources */,
 				5D9FD8FA2791472100DF2F28 /* Assets.xcassets in Resources */,
 			);
@@ -283,6 +288,7 @@
 				5D9FD9022791472100DF2F28 /* AudiobookPlayer.xcdatamodeld in Sources */,
 				5D418A732799200D008DC6C6 /* Player.swift in Sources */,
 				5D9FD8F62791472000DF2F28 /* AudiobookPlayerApp.swift in Sources */,
+				5D29DFEE27A66383009FCA65 /* Books.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -446,6 +452,7 @@
 				DEVELOPMENT_TEAM = 6J57A4298A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AudiobookPlayer/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -475,6 +482,7 @@
 				DEVELOPMENT_TEAM = 6J57A4298A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AudiobookPlayer/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

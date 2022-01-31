@@ -48,30 +48,22 @@ struct Playlist: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.name, ascending: true)],
         animation: .default)
     private var items: FetchedResults<Item>
-    
+    let path = Bundle.main.path(forResource: "song1", ofType:"m4a")
     
     var body: some View {
-        //        HStack {
-        //            Button(action: addPlaylist) {
-        //                Image(systemName: "plus")
-        //                    .foregroundColor(.white)
-        //                    .font(.system(size: 32.0))
-        //                    .padding([.top, .leading], 40)
-        //            }
-        //            Spacer()
-        //        }
-        
+        let urllocal = URL(fileURLWithPath: path ?? "ni")
+
         NavigationView {
             List {
                 Button(action: addPlaylist) {
                     Image(systemName: "plus")
                         .foregroundColor(.white)
                         .font(.system(size: 32.0))
-                        .padding([.top, .bottom], 16)
+                        .padding([.top, .bottom], 16)   
                 }
-
+                .listRowBackground(Color.black)
                 ForEach(items, id: \.self) { item in
-                    NavigationLink(destination: Text("Internal")) {
+                    NavigationLink(destination: Text("hi")) {
                         Text(item.name!)
                             .MainFont(32)
                             .frame(height: 48)
@@ -80,7 +72,6 @@ struct Playlist: View {
                     }
                 }
                 .onDelete(perform: deleteItems)
-                .foregroundColor(.white)
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.black)
             }

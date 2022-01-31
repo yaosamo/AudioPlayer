@@ -25,8 +25,15 @@ struct Player: View {
     @State var songs = ["song1","song2","song3"]
     @State var currentSong = 0
     
+    let heinz : String = "/Users/yaroslavsamoylov/Library/Developer/CoreSimulator/Devices/4E61E03D-8DD0-4288-9612-40F045692795/data/Library/Mobile%20Documents/com~apple~CloudDocs/_Storage/Audio-books/%D0%91%D1%80%D0%B5%D0%BD%D0%B4%D1%8F%D1%82%D0%B8%D0%BD%D0%B0/2008.02.05%20Heinz.mp3"
+
+//    /Users/yaroslavsamoylov/Library/Developer/CoreSimulator/Devices/4E61E03D-8DD0-4288-9612-40F045692795/data/Containers/Bundle/Application/A3CB4A0B-EB8F-4014-A867-88B6881ECD4B/AudiobookPlayer.app/song1.m4a
+    
+//    /Users/yaroslavsamoylov/Library/Developer/CoreSimulator/Devices/4E61E03D-8DD0-4288-9612-40F045692795/data/Containers/Bundle/Application/A3CB4A0B-EB8F-4014-A867-88B6881ECD4B/AudiobookPlayer.app/song1.m4a
+    
+    
     var body: some View {
-        
+        let playURL : URL = URL(fileURLWithPath: heinz)
         VStack {
             HStack {
                 VStack(alignment: .leading){
@@ -146,10 +153,13 @@ struct Player: View {
         
         guard let path = Bundle.main.path(forResource: songs[currentSong], ofType:"m4a") else {
             return }
-
-        let url = URL(fileURLWithPath: path)
+        let url2 = URL(fileURLWithPath: path)
+        let url = URL(string: heinz)
+        let _ = print("--------PATH-------",path)
+        let _ = print("---------URL------",url)
+        
         do {
-            player = try AVAudioPlayer(contentsOf: url)
+            player = try AVAudioPlayer(contentsOf: url ?? url2)
             let _ = print("Playsoung func init")
             let _ = print("playing #:", currentSong)
 

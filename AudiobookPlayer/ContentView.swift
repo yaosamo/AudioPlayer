@@ -63,8 +63,8 @@ struct Playlist: View {
                 }
                 .listRowBackground(Color.black)
                 ForEach(items, id: \.self) { item in
-                    NavigationLink(destination: Text("hi")) {
-                        Text(item.name!)
+                    NavigationLink(destination: Books(urlPreview: item.url ?? urllocal, item: item)) {
+                        Text(item.name ?? "Noname")
                             .MainFont(32)
                             .frame(height: 48)
                             .foregroundColor(colorslist[0])

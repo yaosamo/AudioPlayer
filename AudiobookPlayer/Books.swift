@@ -10,38 +10,47 @@ import SwiftUI
 
 struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @State var urlPreview: URL
-    @State var Book: Book
-    @State var Playlist: Playlist
-  
-//    @State private var document: InputDoument = InputDoument(input: "")
-      @State private var presentImporter: Bool = false
+    
+    @State var playlist: Playlist
+    @State var books: Array<Book>
+    
+    //    @State private var document: InputDoument = InputDoument(input: "")
+    @State private var presentImporter: Bool = false
     var body: some View {
-        Text("\(Book.name!)")
-        Text("URL: \((Book.url ?? URL(string: "ok")) ?? urlPreview)")
-
+        
+        ForEach(books, id: \.self) { book in
+            let _ = print("-------- books inside -------", books)
+            HStack {
+            Text("\(book.name!)")
+                .padding(.bottom, 2)
+                Spacer()
+            }
+        }
+        
         Button {presentImporter = true}
         
     label: { Label("Import book", systemImage: "square.and.arrow.down")}
     .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3]) { result in
-                switch result {
-                case .success(let url):
-                    print(url)
-                
-                    viewContext.performAndWait {
-                        Playlist.url = url
-//                        Playlist.name = url.lastPathComponent
-                    }
-                    try? viewContext.save()
-                    let _ = print("url added to book")
-                    
-                case .failure(let error):
-                    print(error)
+        switch result {
+        case .success(let url):
+            print(url)
             
-                }
-        
-           
+            let newBook = Book(context: viewContext)
+            newBook.name = "\(url.lastPathComponent)"
+            newBook.url = url
+            newBook.origin = playlist.self
+
+            
+            try? viewContext.save()
+            let _ = print("New book", newBook.name)
+            let _ = print("inside", newBook.origin)
+
+        case .failure(let error):
+            print(error)
+            
+        }
     }
+    
     }
 }
 

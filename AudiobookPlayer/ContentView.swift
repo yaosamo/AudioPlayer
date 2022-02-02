@@ -63,17 +63,16 @@ struct Playlists: View {
                 }
                 .listRowBackground(Color.black)
                 ForEach(allplaylists, id: \.self) { playlist in
-                   
-                    ForEach(Array(playlist.book! as Set), id: \.self) { book in
-    
-                        NavigationLink(destination: Books(urlPreview: playlist.url ?? urllocal, Book: book as! Book, Playlist: playlist))  {
+                
+                    NavigationLink(destination: Books(playlist: playlist, books: Array(playlist.book! as! Set<Book>)))  {
+                        let _ = print("------ books outside -----", playlist.book as Any)
                             Text(playlist.name ?? "Noname")
                                 .MainFont(32)
                                 .frame(height: 48)
                                 .foregroundColor(colorslist[0])
                                 .navigationBarHidden(true)
                         }
-                    } // playlist.book ForEach
+                    
                 } // allplaylists ForEach
                 .onDelete(perform: deleteItems)
                 .listRowSeparator(.hidden)
@@ -86,15 +85,12 @@ struct Playlists: View {
     
     private func addPlaylist() {
         withAnimation {
-            let newBook1 = Book(context: viewContext)
-            newBook1.name = "First audio book"
-            newBook1.url = URL(string: "file// url to first book")
-//            newBook1.origin = Playlist(context: viewContext)
-//            newBook1.origin?.name = "MDS"
-           
-            let newBook2 = Book(context: viewContext)
-            newBook2.name = "Second audio book"
-            newBook2.url = URL(string: "file// url to 2nd book")
+            let newPlaylist = Playlist(context: viewContext)
+            newPlaylist.name = "First audio"
+//
+//            let newBook2 = Book(context: viewContext)
+//            newBook2.name = "Second audio book"
+//            newBook2.url = URL(string: "file// url to 2nd book")
 //            newBook2.origin = Playlist(context: viewContext)
 //            newBook2.origin?.name = "MDS"
             

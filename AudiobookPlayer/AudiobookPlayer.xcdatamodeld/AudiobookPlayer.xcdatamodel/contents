@@ -8,11 +8,10 @@
     <entity name="Playlist" representedClassName="Playlist" syncable="YES" codeGenerationType="class">
         <attribute name="color" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="url" optional="YES" attributeType="URI" defaultValueString="yaosamo"/>
         <relationship name="book" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Book" inverseName="origin" inverseEntity="Book"/>
     </entity>
     <elements>
-        <element name="Book" positionX="174.9140625" positionY="-3.41015625" width="136.06640625" height="88"/>
-        <element name="Playlist" positionX="-63" positionY="-18" width="103.98828125" height="103"/>
+        <element name="Book" positionX="-54" positionY="-9" width="128" height="74"/>
+        <element name="Playlist" positionX="-36" positionY="27" width="128" height="74"/>
     </elements>
 </model>

@@ -22,7 +22,7 @@ struct ContentView: View {
     }
     var body: some View {
         VStack {
-            Playlist()
+            Playlists()
             Player()
         }
         .background(.black)
@@ -33,7 +33,7 @@ struct ColorModel {
     let colour: UIColor
 }
 
-struct Playlist: View {
+struct Playlists: View {
     let playlists = ["Marusya", "Brands", "Billionair", "MDS"]
     var biege = UIColor(red: 0.88, green: 0.83, blue: 0.68, alpha: 1.00)
     let lightblue = UIColor(red: 0.62, green: 0.78, blue: 0.78, alpha: 1.00)
@@ -45,32 +45,36 @@ struct Playlist: View {
     @Environment(\.managedObjectContext) private var viewContext
     
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.name, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
         animation: .default)
-    private var items: FetchedResults<Item>
+    private var allplaylists: FetchedResults<Playlist>
     let path = Bundle.main.path(forResource: "song1", ofType:"m4a")
     
     var body: some View {
         let urllocal = URL(fileURLWithPath: path ?? "ni")
-
+        
         NavigationView {
             List {
                 Button(action: addPlaylist) {
                     Image(systemName: "plus")
                         .foregroundColor(.white)
                         .font(.system(size: 32.0))
-                        .padding([.top, .bottom], 16)   
+                        .padding([.top, .bottom], 16)
                 }
                 .listRowBackground(Color.black)
-                ForEach(items, id: \.self) { item in
-                    NavigationLink(destination: Books(urlPreview: item.url ?? urllocal, item: item)) {
-                        Text(item.name ?? "Noname")
-                            .MainFont(32)
-                            .frame(height: 48)
-                            .foregroundColor(colorslist[0])
-                            .navigationBarHidden(true)
-                    }
-                }
+                ForEach(allplaylists, id: \.self) { playlist in
+                   
+                    ForEach(Array(playlist.book! as Set), id: \.self) { book in
+    
+                        NavigationLink(destination: Books(urlPreview: playlist.url ?? urllocal, Book: book as! Book, Playlist: playlist))  {
+                            Text(playlist.name ?? "Noname")
+                                .MainFont(32)
+                                .frame(height: 48)
+                                .foregroundColor(colorslist[0])
+                                .navigationBarHidden(true)
+                        }
+                    } // playlist.book ForEach
+                } // allplaylists ForEach
                 .onDelete(perform: deleteItems)
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.black)
@@ -82,9 +86,18 @@ struct Playlist: View {
     
     private func addPlaylist() {
         withAnimation {
-            let newPlaylist = Item(context: viewContext)
-            newPlaylist.name = "New Playlist"
-            newPlaylist.color = ""
+            let newBook1 = Book(context: viewContext)
+            newBook1.name = "First audio book"
+            newBook1.url = URL(string: "file// url to first book")
+//            newBook1.origin = Playlist(context: viewContext)
+//            newBook1.origin?.name = "MDS"
+           
+            let newBook2 = Book(context: viewContext)
+            newBook2.name = "Second audio book"
+            newBook2.url = URL(string: "file// url to 2nd book")
+//            newBook2.origin = Playlist(context: viewContext)
+//            newBook2.origin?.name = "MDS"
+            
             try? viewContext.save()
             let _ = print("new playlist created")
         }
@@ -92,7 +105,7 @@ struct Playlist: View {
     
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
+            offsets.map { allplaylists[$0] }.forEach(viewContext.delete)
             
             do {
                 try viewContext.save()

@@ -89,6 +89,7 @@
 		5D9FD8E92791472000DF2F28 = {
 			isa = PBXGroup;
 			children = (
+				5DBA036227AA45AA0094F424 /* CoreData */,
 				5D0985A727A308D300DABA9B /* song1.m4a */,
 				5D0985A627A308D300DABA9B /* song2.m4a */,
 				5D46F1A127A5105E0056910C /* song3.m4a */,
@@ -148,6 +149,13 @@
 				5D9FD9172791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift */,
 			);
 			path = AudiobookPlayerUITests;
+			sourceTree = "<group>";
+		};
+		5DBA036227AA45AA0094F424 /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = CoreData;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -376,7 +384,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -431,7 +439,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

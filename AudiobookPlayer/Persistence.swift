@@ -14,7 +14,7 @@ struct PersistenceController {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
         for _ in 0..<4 {
-            let newItem = Item(context: viewContext)
+            let newItem = Playlist(context: viewContext)
             newItem.name = "Marusya"
 //            newItem.url = URL(fileURLWithPath: "/test/null")
         }

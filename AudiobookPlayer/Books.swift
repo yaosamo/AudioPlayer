@@ -11,12 +11,15 @@ import SwiftUI
 struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State var urlPreview: URL
-    @State var item: Item
+    @State var Book: Book
+    @State var Playlist: Playlist
+  
 //    @State private var document: InputDoument = InputDoument(input: "")
       @State private var presentImporter: Bool = false
     var body: some View {
-        Text("This is url for this book: \(urlPreview)")
-        
+        Text("\(Book.name!)")
+        Text("URL: \((Book.url ?? URL(string: "ok")) ?? urlPreview)")
+
         Button {presentImporter = true}
         
     label: { Label("Import book", systemImage: "square.and.arrow.down")}
@@ -26,10 +29,11 @@ struct Books: View {
                     print(url)
                 
                     viewContext.performAndWait {
-                        item.url = url
-                }
+                        Playlist.url = url
+//                        Playlist.name = url.lastPathComponent
+                    }
                     try? viewContext.save()
-                    let _ = print("url added")
+                    let _ = print("url added to book")
                     
                 case .failure(let error):
                     print(error)

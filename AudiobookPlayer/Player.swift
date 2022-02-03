@@ -93,7 +93,6 @@ struct Player: View {
             }
                 Spacer()
                 Button {
-                    var playing = Listening()
                     switch playing {
                     case true:
                         player?.stop()

@@ -23,6 +23,7 @@ struct Books: View {
                     let _ = print("play me")
                     let playme = book.url
                     playSound(playNow: playme!)
+                    player?.play()
                 })
                 .font(.system(size: 24, design: .rounded))
             }

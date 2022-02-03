@@ -29,18 +29,12 @@ struct ContentView: View {
     }
 }
 
-struct ColorModel {
-    let colour: UIColor
-}
-
 struct Playlists: View {
-    let playlists = ["Marusya", "Brands", "Billionair", "MDS"]
     var biege = UIColor(red: 0.88, green: 0.83, blue: 0.68, alpha: 1.00)
     let lightblue = UIColor(red: 0.62, green: 0.78, blue: 0.78, alpha: 1.00)
     let purple = UIColor(red: 0.40, green: 0.45, blue: 0.94, alpha: 1.00)
     let brown = UIColor(red: 0.69, green: 0.33, blue: 0.22, alpha: 1.00)
     var colorslist : [Color] = [Color(red: 0.88, green: 0.83, blue: 0.68), Color(red: 0.62, green: 0.78, blue: 0.78), Color(red: 0.40, green: 0.45, blue: 0.94), Color(red: 0.69, green: 0.33, blue: 0.22)]
-    
     
     @Environment(\.managedObjectContext) private var viewContext
     
@@ -51,8 +45,6 @@ struct Playlists: View {
     let path = Bundle.main.path(forResource: "song1", ofType:"m4a")
     
     var body: some View {
-        let urllocal = URL(fileURLWithPath: path ?? "ni")
-        
         NavigationView {
             List {
                 Button(action: addPlaylist) {
@@ -65,7 +57,6 @@ struct Playlists: View {
                 ForEach(allplaylists, id: \.self) { playlist in
                 
                     NavigationLink(destination: Books(playlist: playlist, books: Array(playlist.book! as! Set<Book>)))  {
-                        let _ = print("------ books outside -----", playlist.book as Any)
                             Text(playlist.name ?? "Noname")
                                 .MainFont(32)
                                 .frame(height: 48)
@@ -86,14 +77,7 @@ struct Playlists: View {
     private func addPlaylist() {
         withAnimation {
             let newPlaylist = Playlist(context: viewContext)
-            newPlaylist.name = "First audio"
-//
-//            let newBook2 = Book(context: viewContext)
-//            newBook2.name = "Second audio book"
-//            newBook2.url = URL(string: "file// url to 2nd book")
-//            newBook2.origin = Playlist(context: viewContext)
-//            newBook2.origin?.name = "MDS"
-            
+            newPlaylist.name = "Playlist"
             try? viewContext.save()
             let _ = print("new playlist created")
         }

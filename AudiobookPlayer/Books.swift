@@ -13,16 +13,14 @@ struct Books: View {
     
     @State var playlist: Playlist
     @State var books: Array<Book>
-    
-    //    @State private var document: InputDoument = InputDoument(input: "")
     @State private var presentImporter: Bool = false
+    
     var body: some View {
         
         ForEach(books, id: \.self) { book in
-            let _ = print("-------- books inside -------", books)
             HStack {
-            Text("\(book.name!)")
-                .padding(.bottom, 2)
+                Text("\(book.name!)")
+                    .padding(.bottom, 2)
                 Spacer()
             }
         }
@@ -39,18 +37,15 @@ struct Books: View {
             newBook.name = "\(url.lastPathComponent)"
             newBook.url = url
             newBook.origin = playlist.self
-
             
             try? viewContext.save()
-            let _ = print("New book", newBook.name)
-            let _ = print("inside", newBook.origin)
-
+            let _ = print("New book", newBook.name as Any)
+            let _ = print("inside", newBook.origin as Any)
+            
         case .failure(let error):
             print(error)
-            
         }
     }
-    
     }
 }
 

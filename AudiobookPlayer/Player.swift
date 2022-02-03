@@ -12,28 +12,26 @@ import AVFoundation
 
 
 var player: AVAudioPlayer?
+var currentSong = 0
+var del = AVdelegate()
+var ended = false
+var playing = false
 
 struct Player: View {
     
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
-    @State var data : Data = .init(count: 0)
-    @State var del = AVdelegate()
+    
     @State var time : CGFloat = 0
-    @State var playing = false
-    @State var ended = false
+   
     @State var songs = ["song1","song2","song3"]
-    @State var currentSong = 0
+    
     
     let heinz : String = "/Users/yaroslavsamoylov/Library/Developer/CoreSimulator/Devices/4E61E03D-8DD0-4288-9612-40F045692795/data/Library/Mobile%20Documents/com~apple~CloudDocs/_Storage/Audio-books/%D0%91%D1%80%D0%B5%D0%BD%D0%B4%D1%8F%D1%82%D0%B8%D0%BD%D0%B0/2008.02.05%20Heinz.mp3"
+    
+    let defaultURL = URL(string: "heinz")
 
-//    /Users/yaroslavsamoylov/Library/Developer/CoreSimulator/Devices/4E61E03D-8DD0-4288-9612-40F045692795/data/Containers/Bundle/Application/A3CB4A0B-EB8F-4014-A867-88B6881ECD4B/AudiobookPlayer.app/song1.m4a
-    
-//    /Users/yaroslavsamoylov/Library/Developer/CoreSimulator/Devices/4E61E03D-8DD0-4288-9612-40F045692795/data/Containers/Bundle/Application/A3CB4A0B-EB8F-4014-A867-88B6881ECD4B/AudiobookPlayer.app/song1.m4a
-    
-    
     var body: some View {
-        let playURL : URL = URL(fileURLWithPath: heinz)
         VStack {
             HStack {
                 VStack(alignment: .leading){
@@ -78,15 +76,15 @@ struct Player: View {
                         }))
             }
             .padding([.top, .bottom], 40)
-            .onAppear(perform: playSound)
+//            .onAppear(perform: playSound(playNow: defaultURL))
 
             HStack {
                 Button {
                     if currentSong > 0 {
                         currentSong -= 1}
-                    playSound()
+                    playSound(playNow: defaultURL!)
                     player?.play()
-                    self.playing = true
+                    playing = true
                 }
             label: {Image(systemName:  "backward.fill")
                     .resizable()
@@ -95,14 +93,14 @@ struct Player: View {
             }
                 Spacer()
                 Button {
-                    let playing = Listening()
+                    var playing = Listening()
                     switch playing {
                     case true:
                         player?.stop()
-                        self.playing = false
+                        playing = false
                     case false:
                         player?.play()
-                        self.playing = true
+                        playing = true
                     }
                     if ended {
                         player?.currentTime = 0
@@ -117,13 +115,11 @@ struct Player: View {
                             let duration = player?.duration
                             let labelPosition = CGFloat(currentTime! / duration!) * screenWidth
                             self.time = labelPosition
-
-
                         }
                     }
                 }
             label: {
-                Image(systemName: self.playing && !ended ? iconstop : iconplay)
+                Image(systemName: playing && !ended ? iconstop : iconplay)
                     .font(.system(size: 42.0))
                     .frame(width: 32, height: 44, alignment: .center)
                     .foregroundColor(.white)
@@ -132,9 +128,9 @@ struct Player: View {
                 Button {
                     if songs.count-1 != currentSong {
                         currentSong += 1}
-                    playSound()
+                    playSound(playNow: defaultURL!)
                     player?.play()
-                    self.playing = true
+                    playing = true
                 }
             label: {
                 Image(systemName: "forward.fill")
@@ -148,47 +144,47 @@ struct Player: View {
         .frame(height: 330)
         .background(.black)
     }
-    
-    func playSound() {
-        
-        guard let path = Bundle.main.path(forResource: songs[currentSong], ofType:"m4a") else {
-            return }
-        let url2 = URL(fileURLWithPath: path)
-        let url = URL(string: heinz)
-        let _ = print("--------PATH-------",path)
-        let _ = print("---------URL------",url)
-        
-        do {
-            player = try AVAudioPlayer(contentsOf: url ?? url2)
-            let _ = print("Playsoung func init")
-            let _ = print("playing #:", currentSong)
+}
 
-            player?.delegate = del
-            
-            NotificationCenter.default.addObserver(forName: NSNotification.Name("ended"), object: nil, queue: .main) { (_) in
-                ended = true
-                playing = false
-                player?.stop()
-                let _ = print("Song finished")
-                Autoplay()
-            }
-        } catch let error {
-            print(error.localizedDescription)
-        }
-    }
+
+func playSound(playNow: URL) {
     
-    func Autoplay() {
-        if songs.count-1 != currentSong {
-            currentSong += 1}
-        let _ = print("Starting to play #:", currentSong)
-        player?.prepareToPlay()
-        ended = false
+//    guard let path = Bundle.main.path(forResource: songs[currentSong], ofType:"m4a") else {
+//        return }
+//    let url2 = URL(fileURLWithPath: path)
+//    let url = URL(string: heinz)
+    
+    do {
+        player = try AVAudioPlayer(contentsOf: playNow)
+        let _ = print("Playsoung func init")
+        let _ = print("playing #:", currentSong)
+
+        player?.delegate = del
         
-        playSound()
-        player?.play()
-        playing = true
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("ended"), object: nil, queue: .main) { (_) in
+            ended = true
+            playing = false
+            player?.stop()
+            let _ = print("Song finished")
+//            Autoplay() enable after refactoring
+        }
+    } catch let error {
+        print(error.localizedDescription)
     }
 }
+
+// Refactor this to get Indeces of books array
+//func Autoplay() {
+//    if songs.count-1 != currentSong {
+//        currentSong += 1}
+//    let _ = print("Starting to play #:", currentSong)
+//    player?.prepareToPlay()
+//    ended = false
+//
+//    playSound()
+//    player?.play()
+//    playing = true
+//}
 
 func Listening() -> Bool {
     let playing = player?.isPlaying

@@ -10,7 +10,7 @@ import CoreData
 import AVKit
 
 
-extension Text {
+public extension Text {
     func MainFont(_ Size : CGFloat) -> some View {
         self.font(.system(size: Size, weight: .medium, design: .rounded))
     }

@@ -16,14 +16,22 @@ struct Books: View {
     @State private var presentImporter: Bool = false
     
     var body: some View {
-        
+        List {
         ForEach(books, id: \.self) { book in
-            HStack {
-                Text("\(book.name!)")
-                    .padding(.bottom, 2)
-                Spacer()
+       
+                Button("\(book.name ?? "")", action: {
+                    let _ = print("play me")
+                    let playme = book.url
+                    playSound(playNow: playme!)
+                })
+                .font(.system(size: 24, design: .rounded))
             }
+        .onDelete(perform: deleteItems)
+        .listRowSeparator(.hidden)
+//        .listRowBackground(Color.black)
         }
+        .listStyle(.inset)
+//        .background(.black)
         
         Button {presentImporter = true}
         
@@ -46,6 +54,22 @@ struct Books: View {
             print(error)
         }
     }
+        
+    }
+    
+    private func deleteItems(offsets: IndexSet) {
+        withAnimation {
+            offsets.map { books[$0] }.forEach(viewContext.delete)
+            
+            do {
+                try viewContext.save()
+            } catch {
+                // Replace this implementation with code to handle the error appropriately.
+                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            }
+        }
     }
 }
 

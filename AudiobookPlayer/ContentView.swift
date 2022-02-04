@@ -17,13 +17,15 @@ public extension Text {
 }
 
 struct ContentView: View {
+    @StateObject var AudioObject = AudioPlayerStatus()
+
     init() {
         UITableView.appearance().backgroundColor = .clear
     }
     var body: some View {
         VStack {
             Playlists()
-            Player()
+            Player(PlayerStatus: AudioObject)
         }
         .background(.black)
     }
@@ -37,7 +39,8 @@ struct Playlists: View {
     var colorslist : [Color] = [Color(red: 0.88, green: 0.83, blue: 0.68), Color(red: 0.62, green: 0.78, blue: 0.78), Color(red: 0.40, green: 0.45, blue: 0.94), Color(red: 0.69, green: 0.33, blue: 0.22)]
     
     @Environment(\.managedObjectContext) private var viewContext
-    
+    @StateObject var AudioObject = AudioPlayerStatus()
+
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
         animation: .default)
@@ -56,7 +59,7 @@ struct Playlists: View {
                 .listRowBackground(Color.black)
                 ForEach(allplaylists, id: \.self) { playlist in
                 
-                    NavigationLink(destination: Books(playlist: playlist, books: Array(playlist.book! as! Set<Book>)))  {
+                    NavigationLink(destination: Books(PlayerStatus: AudioObject, playlist: playlist, books: Array(playlist.book! as! Set<Book>)))  {
                             Text(playlist.name ?? "Noname")
                                 .MainFont(32)
                                 .frame(height: 48)

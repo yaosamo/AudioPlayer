@@ -10,7 +10,8 @@ import SwiftUI
 
 struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
-    
+    @ObservedObject var PlayerStatus: AudioPlayerStatus
+
     @State var playlist: Playlist
     @State var books: Array<Book>
     @State private var presentImporter: Bool = false
@@ -22,8 +23,11 @@ struct Books: View {
                 Button("\(book.name ?? "")", action: {
                     let _ = print("play me")
                     let playme = book.url
-                    playSound(playNow: playme!)
-                    player?.play()
+                    PlayerStatus.playing = true
+                    Audioplayer(playNow: playme!)
+                    
+                    let _ = print("Playing [book]",PlayerStatus.playing )
+
                 })
                 .font(.system(size: 24, design: .rounded))
             }

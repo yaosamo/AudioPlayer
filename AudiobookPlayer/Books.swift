@@ -8,26 +8,28 @@
 import Foundation
 import SwiftUI
 
+
 struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @ObservedObject var PlayerStatus: AudioPlayerStatus
-
+    @ObservedObject var progress: UserProgress
     @State var playlist: Playlist
     @State var books: Array<Book>
     @State private var presentImporter: Bool = false
+   
     
     var body: some View {
+//        Button("Increase Score") {
+//            progress.score.toggle()
+//                }
+
         List {
         ForEach(books, id: \.self) { book in
        
                 Button("\(book.name ?? "")", action: {
                     let _ = print("play me")
                     let playme = book.url
-                    PlayerStatus.playing = true
                     Audioplayer(playNow: playme!)
-                    
-                    let _ = print("Playing [book]",PlayerStatus.playing )
-
+                    progress.score.toggle()
                 })
                 .font(.system(size: 24, design: .rounded))
             }

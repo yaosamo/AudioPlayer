@@ -15,23 +15,20 @@ var currentSong = 0
 var del = AVdelegate()
 var ended = false
 
-class AudioPlayerStatus: ObservableObject {
-    @Published var playing = false
-}
-
 struct Player: View {
     
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
-    @ObservedObject var PlayerStatus: AudioPlayerStatus
+    @ObservedObject var progress : UserProgress
     @State var time : CGFloat = 0
     @State var songs = ["song1","song2","song3"]
+    @State var playing = false
     
     let defaultURL = URL(string: "/Users/yaroslavsamoylov/Library/Developer/CoreSimulator/Devices/4E61E03D-8DD0-4288-9612-40F045692795/data/Library/Mobile%20Documents/com~apple~CloudDocs/_Storage/Audio-books/%D0%91%D1%80%D0%B5%D0%BD%D0%B4%D1%8F%D1%82%D0%B8%D0%BD%D0%B0/2008.02.05%20Heinz.mp3")
     
     var body: some View {
-        let _ = print("Playing [Player Structure]", PlayerStatus.playing)
-
+//        let _ = print("Playing [Player Structure]", PlayerStatus.playing)
+    
         VStack {
             HStack {
                 VStack(alignment: .leading){
@@ -78,9 +75,9 @@ struct Player: View {
                 Button {
                     if currentSong > 0 {
                         currentSong -= 1}
-                    Audioplayer(playNow: defaultURL!)
+//                    Audioplayer(playNow: defaultURL!)
                     player?.play()
-                    PlayerStatus.playing = true
+                    playing = true
                 }
             label: {
                 Image(systemName:  "backward.fill")
@@ -93,7 +90,7 @@ struct Player: View {
                     playerUIcontrol()
                 }
             label: {
-                Image(systemName: PlayerStatus.playing ? iconstop : iconplay)
+                Image(systemName: progress.score ? iconstop : iconplay)
                     .font(.system(size: 42.0))
                     .frame(width: 32, height: 44, alignment: .center)
                     .foregroundColor(.white)
@@ -104,7 +101,7 @@ struct Player: View {
 //                        currentSong += 1}
 //                    Audioplayer(playNow: defaultURL!)
 //                    player?.play()
-                    PlayerStatus.playing = true
+                    playing = true
                 }
             label: {
                 Image(systemName: "forward.fill")
@@ -117,6 +114,7 @@ struct Player: View {
         } //vstack
         .frame(height: 330)
         .background(.black)
+        
     }
        
   
@@ -124,10 +122,10 @@ struct Player: View {
         switch player?.isPlaying {
         case true:
             player?.stop()
-            PlayerStatus.playing = false
+            progress.score = false
         case false:
             player?.play()
-            PlayerStatus.playing = true
+            progress.score = true
         default:
             let _ = print("Nothing")
         }
@@ -168,9 +166,6 @@ func Audioplayer(playNow: URL) {
     }
    
     player?.play()
-
-//    let _ = print("Playing [playSound]", PlayerStatus.playing)
-
 }
 
 // Refactor this to get Indeces of books array

@@ -11,7 +11,7 @@ import CoreData
 import AVFoundation
 
 var player: AVAudioPlayer?
-var currentSong = 0
+var nextBook = 0
 var del = AVdelegate()
 var ended = false
 
@@ -19,16 +19,14 @@ struct Player: View {
     
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
-    @ObservedObject var progress : UserProgress
+    @ObservedObject var PlayerStatus: AudioPlayerStatus
     @State var time : CGFloat = 0
     @State var songs = ["song1","song2","song3"]
-    @State var playing = false
     
     let defaultURL = URL(string: "/Users/yaroslavsamoylov/Library/Developer/CoreSimulator/Devices/4E61E03D-8DD0-4288-9612-40F045692795/data/Library/Mobile%20Documents/com~apple~CloudDocs/_Storage/Audio-books/%D0%91%D1%80%D0%B5%D0%BD%D0%B4%D1%8F%D1%82%D0%B8%D0%BD%D0%B0/2008.02.05%20Heinz.mp3")
     
     var body: some View {
-//        let _ = print("Playing [Player Structure]", PlayerStatus.playing)
-    
+        
         VStack {
             HStack {
                 VStack(alignment: .leading){
@@ -58,7 +56,7 @@ struct Player: View {
                     .onChanged({ (value) in
 
                             let x = value.location.x
-                            time = x
+                        time = x
                             
                         }).onEnded({ (value) in
                             
@@ -69,15 +67,14 @@ struct Player: View {
                         }))
             }
             .padding([.top, .bottom], 40)
-//            .onAppear(perform: { playSound(playNow: defaultURL!) })
 
             HStack {
                 Button {
-                    if currentSong > 0 {
-                        currentSong -= 1}
+//                    if currentSong > 0 {
+//                        currentSong -= 1}
 //                    Audioplayer(playNow: defaultURL!)
                     player?.play()
-                    playing = true
+                    PlayerStatus.playing = true
                 }
             label: {
                 Image(systemName:  "backward.fill")
@@ -90,7 +87,7 @@ struct Player: View {
                     playerUIcontrol()
                 }
             label: {
-                Image(systemName: progress.score ? iconstop : iconplay)
+                Image(systemName: PlayerStatus.playing ? iconstop : iconplay)
                     .font(.system(size: 42.0))
                     .frame(width: 32, height: 44, alignment: .center)
                     .foregroundColor(.white)
@@ -101,7 +98,7 @@ struct Player: View {
 //                        currentSong += 1}
 //                    Audioplayer(playNow: defaultURL!)
 //                    player?.play()
-                    playing = true
+                    PlayerStatus.playing = true
                 }
             label: {
                 Image(systemName: "forward.fill")
@@ -114,18 +111,16 @@ struct Player: View {
         } //vstack
         .frame(height: 330)
         .background(.black)
-        
     }
-       
   
     func playerUIcontrol() {
         switch player?.isPlaying {
         case true:
             player?.stop()
-            progress.score = false
+            PlayerStatus.playing = false
         case false:
             player?.play()
-            progress.score = true
+            PlayerStatus.playing = true
         default:
             let _ = print("Nothing")
         }
@@ -134,58 +129,59 @@ struct Player: View {
             time = 0
             ended = false
         }
-    //    Refactor progressbar
-//        DispatchQueue.global(qos: .background).async {
-//            while true {
-//                let screenWidth = UIScreen.main.bounds.width - 24
-//                let currentTime = player?.currentTime
-//                let duration = player?.duration
-//                let labelPosition = CGFloat(currentTime! / duration!) * screenWidth
-//                self.time = labelPosition
-//            }
-//        }
+        if(PlayerStatus.playing) {
+    //        Refactor progressbar
+        DispatchQueue.global(qos: .background).async {
+            while true {
+                let screenWidth = UIScreen.main.bounds.width - 24
+                let currentTime = player?.currentTime
+                let duration = player?.duration
+                let labelPosition = CGFloat(currentTime! / duration!) * screenWidth
+                self.time = labelPosition
+            }
+        }
     }
+    }
+    
 }
 
-func Audioplayer(playNow: URL) {
-    
+func Audioplayer(playNow: URL, books: Array<Book>) {
+    @State var playNext = playNow
     do {
-        player = try AVAudioPlayer(contentsOf: playNow)
-        let _ = print("playing #:", currentSong)
+        player = try AVAudioPlayer(contentsOf: playNext)
+        let _ = print("playing #:", playNow.lastPathComponent)
         
         player?.delegate = del
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name("ended"), object: nil, queue: .main) { (_) in
-            ended = true
             player?.stop()
-            let _ = print("Song finished")
-//          Autoplay() enable after refactoring
+            ended = true
+            let _ = print("---- Book has ended ----")
+            Autoplay(books: books)
         }
     } catch let error {
         print(error.localizedDescription)
     }
-   
     player?.play()
 }
 
-// Refactor this to get Indeces of books array
-//func Autoplay() {
-//    if songs.count-1 != currentSong {
-//        currentSong += 1}
-//    let _ = print("Starting to play #:", currentSong)
-//    player?.prepareToPlay()
-//    ended = false
-//
-//    playSound()
-//    player?.play()
-//    playing = true
-//}
+func Autoplay(books: Array<Book>) {
+    let playNow = player?.url
+    let finishedBook = books.firstIndex(where: {$0.url == playNow})
+    let _ = print("----- Just finished book #", finishedBook!)
+    let LastBook = books.count-1
+    if (finishedBook! < LastBook) {
+        nextBook += 1
+        }
+    player?.prepareToPlay()
+    let playNext = books[nextBook].url!
+    let _ = print("----- Starting to play book #", nextBook, playNext.lastPathComponent)
 
-//func Listening() -> Bool {
-//    let playing = player?.isPlaying
-//    let _ = print("---- Is Playing [listening func]", playing)
-//    return playing ?? false
-//}
+    player?.prepareToPlay()
+    ended = false
+
+    Audioplayer(playNow: playNext, books: books)
+}
 
 class AVdelegate : NSObject,AVAudioPlayerDelegate{
     

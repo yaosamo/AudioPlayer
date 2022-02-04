@@ -9,28 +9,25 @@ import SwiftUI
 import CoreData
 import AVKit
 
-class UserProgress: ObservableObject {
-    @Published var score = false
+class AudioPlayerStatus: ObservableObject {
     @Published var playing = false
 }
 
 
 struct ContentView: View {
-//    @StateObject var progress = UserProgress()
+    @StateObject var PlayerStatus = AudioPlayerStatus()
 
     init() {
         UITableView.appearance().backgroundColor = .clear
     }
     var body: some View {
         VStack {
-           
-            Playlists()
+            Playlists(PlayerStatus: PlayerStatus)
+            Player(PlayerStatus: PlayerStatus)
         }
         .background(.black)
     }
 }
-
-
 
 
 struct ContentView_Previews: PreviewProvider {

@@ -23,10 +23,7 @@ struct Player: View {
     @State var time : CGFloat = 0
     @State var songs = ["song1","song2","song3"]
     
-    let defaultURL = URL(string: "/Users/yaroslavsamoylov/Library/Developer/CoreSimulator/Devices/4E61E03D-8DD0-4288-9612-40F045692795/data/Library/Mobile%20Documents/com~apple~CloudDocs/_Storage/Audio-books/%D0%91%D1%80%D0%B5%D0%BD%D0%B4%D1%8F%D1%82%D0%B8%D0%BD%D0%B0/2008.02.05%20Heinz.mp3")
-    
     var body: some View {
-        
         VStack {
             HStack {
                 VStack(alignment: .leading){
@@ -184,9 +181,7 @@ func Autoplay(books: Array<Book>) {
 }
 
 class AVdelegate : NSObject,AVAudioPlayerDelegate{
-    
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        
         NotificationCenter.default.post(name: NSNotification.Name("ended"), object: nil)
     }
 }

@@ -15,51 +15,50 @@ struct Books: View {
     @State var playlist: Playlist
     @State var books: Array<Book>
     @State private var presentImporter: Bool = false
-   
+    
     
     var body: some View {
-
+        
         List {
-        ForEach(books, id: \.self) { book in
+
+            ForEach(books, id: \.self) { book in
                 Button("\(book.name ?? "")", action: {
                     let _ = print("----- play -----", book.url?.lastPathComponent as Any)
                     let playNow = book.url
                     Audioplayer(playNow: playNow!, books: books)
                     PlayerStatus.playing = true
-                
                 })
-                .font(.system(size: 24, design: .rounded))
+                    .font(.system(size: 24, design: .rounded))
             }
-        .onDelete(perform: deleteItems)
-        .listRowSeparator(.hidden)
-//        .listRowBackground(Color.black)
+            .onDelete(perform: deleteItems)
+            .listRowSeparator(.hidden)
+            //        .listRowBackground(Color.black)
         }
         .listStyle(.inset)
-//        .background(.black)
-        
-        Button {presentImporter = true}
-        
-    label: { Label("Import book", systemImage: "square.and.arrow.down")}
-    .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3]) { result in
-        switch result {
-        case .success(let url):
-            print(url)
-            
-            let newBook = Book(context: viewContext)
-            newBook.name = "\(url.lastPathComponent)"
-            newBook.url = url
-            newBook.origin = playlist.self
-            
-            try? viewContext.save()
-            let _ = print("New book", newBook.name as Any)
-            let _ = print("inside", newBook.origin as Any)
-            
-        case .failure(let error):
-            print(error)
+        //        .background(.black)
+        .toolbar {
+            Button {presentImporter.toggle()}
+               label: { Label("Import book", systemImage: "square.and.arrow.down")}
+        }
+        .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3]) { result in
+            switch result {
+            case .success(let url):
+                print(url)
+                
+                let newBook = Book(context: viewContext)
+                newBook.name = "\(url.lastPathComponent)"
+                newBook.url = url
+                newBook.origin = playlist.self
+                
+                try? viewContext.save()
+                let _ = print("New book", newBook.name as Any)
+                let _ = print("inside", newBook.origin as Any)
+            case .failure(let error):
+                print(error)
+            }
         }
     }
-        
-    }
+    
     
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
@@ -74,21 +73,5 @@ struct Books: View {
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
-    }
-}
-
-
-class ViewModel: ObservableObject {
-    
-    var readString = ""
-    func viewFile(fileUrl: URL) {
-        do {
-            readString = try String(contentsOf: fileUrl)
-        } catch {
-            print("Error reading file")
-            print(error.localizedDescription)
-        }
-        
-        print("File contents: \(readString)")
     }
 }

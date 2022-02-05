@@ -52,7 +52,6 @@ struct Playlists: View {
                                 .foregroundColor(colorslist[0])
                                 .navigationBarHidden(true)
                         }
-                    
                 } // allplaylists ForEach
                 .onDelete(perform: deleteItems)
                 .listRowSeparator(.hidden)

@@ -22,12 +22,13 @@ struct Player: View {
     @ObservedObject var PlayerStatus: AudioPlayerStatus
     @State var time : CGFloat = 0
     @State var songs = ["song1","song2","song3"]
+
     
     var body: some View {
         VStack {
             HStack {
                 VStack(alignment: .leading){
-                    Text("Yaosamo Airpods")
+                    Text(PlayerStatus.speaker)
                         .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
                         .MainFont(12)
                     Text("2010.03.10 Mazda")
@@ -64,6 +65,11 @@ struct Player: View {
                         }))
             }
             .padding([.top, .bottom], 40)
+            .onAppear { let audioSession = AVAudioSession.sharedInstance().currentRoute
+                for output in audioSession.outputs {
+                    PlayerStatus.speaker = output.portName
+            }
+            }
 
             HStack {
                 Button {

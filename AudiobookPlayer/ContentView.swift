@@ -11,6 +11,7 @@ import AVKit
 
 class AudioPlayerStatus: ObservableObject {
     @Published var playing = false
+    @Published var speaker = ""
 }
 
 

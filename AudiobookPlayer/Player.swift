@@ -11,9 +11,12 @@ import CoreData
 import AVFoundation
 
 var player: AVAudioPlayer?
+var AVplayer2: AVPlayer?
 var nextBook = 0
 var del = AVdelegate()
 var ended = false
+var playSpeed: Float = 1.0
+
 
 struct Player: View {
     
@@ -65,7 +68,10 @@ struct Player: View {
                         }))
             }
             .padding([.top, .bottom], 40)
-            .onAppear { let audioSession = AVAudioSession.sharedInstance().currentRoute
+            .onAppear {
+                let audioSession = AVAudioSession.sharedInstance().currentRoute
+//                let sound = NSURL(fileURLWithPath: Bundle.main.pathForResource("song1", ofType: "m4a")!)
+//                Audioplayer(playNow: sound as URL)
                 for output in audioSession.outputs {
                     PlayerStatus.speaker = output.portName
             }
@@ -132,27 +138,33 @@ struct Player: View {
             time = 0
             ended = false
         }
-        if(PlayerStatus.playing) {
-    //        Refactor progressbar
-        DispatchQueue.global(qos: .background).async {
-            while true {
-                let screenWidth = UIScreen.main.bounds.width - 24
-                let currentTime = player?.currentTime
-                let duration = player?.duration
-                let labelPosition = CGFloat(currentTime! / duration!) * screenWidth
-                self.time = labelPosition
-            }
-        }
-    }
+//        if(PlayerStatus.playing) {
+//    //        Refactor progressbar
+//        DispatchQueue.global(qos: .background).async {
+//            while true {
+//                let screenWidth = UIScreen.main.bounds.width - 24
+//                let currentTime = player?.currentTime
+//                let duration = player?.duration
+//                let labelPosition = CGFloat(currentTime! / duration!) * screenWidth
+//                self.time = labelPosition
+//            }
+//        }
+//    }
     }
     
 }
 
 func Audioplayer(playNow: URL, books: Array<Book>) {
     @State var playNext = playNow
+    
+    let audioSession = AVAudioSession.sharedInstance()
+
     do {
-        player = try AVAudioPlayer(contentsOf: playNext)
-        let _ = print("playing #:", playNow.lastPathComponent)
+        try audioSession.setCategory(AVAudioSession.Category.playback)
+//        player = try? AVAudioPlayer(contentsOf: playNext)
+        AVplayer2 = try? AVPlayer(url: playNext)
+        
+        let _ = print("playing #:", playNext.lastPathComponent)
         
         player?.delegate = del
         
@@ -163,9 +175,9 @@ func Audioplayer(playNow: URL, books: Array<Book>) {
             Autoplay(books: books)
         }
     } catch let error {
-        print(error.localizedDescription)
+        print("Player Error", error.localizedDescription)
     }
-    player?.play()
+    AVplayer2?.play()
 }
 
 func Autoplay(books: Array<Book>) {

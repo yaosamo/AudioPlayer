@@ -12,6 +12,7 @@ import AVFoundation
 
 var player: AVAudioPlayer?
 var AVplayer2: AVPlayer?
+var AVplayerItem: AVPlayerItem?
 var nextBook = 0
 var del = AVdelegate()
 var ended = false
@@ -156,13 +157,23 @@ struct Player: View {
 
 func Audioplayer(playNow: URL, books: Array<Book>) {
     @State var playNext = playNow
+    let urlWEB = URL(string: "file:///private/var/mobile/Containers/Shared/AppGroup/A8A1B8EF-B8C6-42F1-9BF4-951F40616BDC/File%20Provider%20Storage/2008.02.05%20Heinz.mp3")
     
-    let audioSession = AVAudioSession.sharedInstance()
-
     do {
-        try audioSession.setCategory(AVAudioSession.Category.playback)
+      
+        let Doc1 =  FileManager.default.url(forUbiquityContainerIdentifier: "iCloud.ChameleonPlayer")
+//        let Doc2 =  FileManager.SearchPathDirectory.sharedPublicDirectory
+//        let Doc3 =  FileManager.default.urls(for: .developerDirectory, in: .userDomainMask).first!
+//        let Doc4 =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+//        let Doc5 =  FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first!
+        let _ = print("----- Doc1", Doc1)
+  
+//        let destinationUrl = documentsDirectoryURL.appendingPathComponent("\(reciter.name): \(surah.number)")
+//            print(destinationUrl)
+        
+        let AVplayerItem:AVPlayerItem = AVPlayerItem(url: playNext)
 //        player = try? AVAudioPlayer(contentsOf: playNext)
-        AVplayer2 = try? AVPlayer(url: playNext)
+        AVplayer2 = AVPlayer(playerItem: AVplayerItem)
         
         let _ = print("playing #:", playNext.lastPathComponent)
         

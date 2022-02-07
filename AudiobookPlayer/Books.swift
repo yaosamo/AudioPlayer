@@ -20,7 +20,6 @@ struct Books: View {
                       
     var body: some View {
         
-        let _ = print("Song 1 url", sound)
         List {
 
             ForEach(books, id: \.self) { book in

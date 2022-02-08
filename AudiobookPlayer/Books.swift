@@ -17,17 +17,15 @@ struct Books: View {
     @State private var presentImporter: Bool = false
     let sound = NSURL(fileURLWithPath: Bundle.main.path(forResource: "song1", ofType: "m4a")!)
     
-                      
+    
     var body: some View {
         
-        let _ = print("Song 1 url", sound)
         List {
-
+            
             ForEach(books, id: \.self) { book in
                 Button("\(book.name ?? "")", action: {
-                    let _ = print("----- play -----", book.url as Any)
-                    let playNow = book.url
-                    Audioplayer(playNow: playNow ?? sound as URL, books: books)
+                    let playNow = book.urldata
+                    Audioplayer(playNow: playNow!, books: books)
                     PlayerStatus.playing = true
                 })
                     .font(.system(size: 24, design: .rounded))
@@ -40,21 +38,31 @@ struct Books: View {
         //        .background(.black)
         .toolbar {
             Button {presentImporter.toggle()}
-               label: { Label("Import book", systemImage: "square.and.arrow.down")}
+        label: { Label("Import book", systemImage: "square.and.arrow.down")}
         }
         .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3]) { result in
             switch result {
             case .success(let url):
-                print(url)
-                
+                // Start accessing secured url
+                let StartAccess = url.startAccessingSecurityScopedResource()
+                defer {
+                    // Must stop accessing once stop using
+                    if StartAccess {
+                        url.stopAccessingSecurityScopedResource()
+                    }
+                }
+                // Creating new book
                 let newBook = Book(context: viewContext)
+                let _ = print("---- Access Granted?", url.startAccessingSecurityScopedResource())
+                // Getting bookmarkData of the URL
+                let bookmarkData = try? url.bookmarkData()
                 newBook.name = "\(url.lastPathComponent)"
-                newBook.url = url
+                // Save bookmarkURL into CoreData
+                newBook.urldata = bookmarkData
+                // Specifiying parent item in CoreData
                 newBook.origin = playlist.self
-                
                 try? viewContext.save()
-                let _ = print("New book", newBook.name as Any)
-                let _ = print("inside", newBook.origin as Any)
+        
             case .failure(let error):
                 print(error)
             }

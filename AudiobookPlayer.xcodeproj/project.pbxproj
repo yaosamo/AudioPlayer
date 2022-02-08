@@ -22,7 +22,7 @@
 		5D9FD90C2791472100DF2F28 /* AudiobookPlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD90B2791472100DF2F28 /* AudiobookPlayerTests.swift */; };
 		5D9FD9162791472100DF2F28 /* AudiobookPlayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD9152791472100DF2F28 /* AudiobookPlayerUITests.swift */; };
 		5D9FD9182791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD9172791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift */; };
-		5DDB807127B0E4310057B9E1 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DDB807027B0E4310057B9E1 /* CloudKit.framework */; };
+		5DB7847527B185F600EDAA59 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DDB807027B0E4310057B9E1 /* CloudKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,7 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5DDB807127B0E4310057B9E1 /* CloudKit.framework in Frameworks */,
+				5DB7847527B185F600EDAA59 /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -11,7 +11,7 @@ import CoreData
 import AVFoundation
 
 var player: AVAudioPlayer?
-var AVplayer2: AVPlayer?
+var player2: AVPlayer?
 var AVplayerItem: AVPlayerItem?
 var nextBook = 0
 var del = AVdelegate()
@@ -26,7 +26,7 @@ struct Player: View {
     @ObservedObject var PlayerStatus: AudioPlayerStatus
     @State var time : CGFloat = 0
     @State var songs = ["song1","song2","song3"]
-
+    
     
     var body: some View {
         VStack {
@@ -55,34 +55,34 @@ struct Player: View {
                     .fill(Color.red).frame(width: time, height: 8)
                     .padding(8)
                     .gesture(DragGesture()
-                    .onChanged({ (value) in
-
-                            let x = value.location.x
+                                .onChanged({ (value) in
+                        
+                        let x = value.location.x
                         time = x
-                            
-                        }).onEnded({ (value) in
-                            
-                            let x = value.location.x
-                            let screen = UIScreen.main.bounds.width - 24
-                            let percent = x / screen
-                            player?.currentTime = Double(percent) * player!.duration
-                        }))
+                        
+                    }).onEnded({ (value) in
+                        
+                        let x = value.location.x
+                        let screen = UIScreen.main.bounds.width - 24
+                        let percent = x / screen
+                        player?.currentTime = Double(percent) * player!.duration
+                    }))
             }
             .padding([.top, .bottom], 40)
             .onAppear {
                 let audioSession = AVAudioSession.sharedInstance().currentRoute
-//                let sound = NSURL(fileURLWithPath: Bundle.main.pathForResource("song1", ofType: "m4a")!)
-//                Audioplayer(playNow: sound as URL)
+                //                let sound = NSURL(fileURLWithPath: Bundle.main.pathForResource("song1", ofType: "m4a")!)
+                //                Audioplayer(playNow: sound as URL)
                 for output in audioSession.outputs {
                     PlayerStatus.speaker = output.portName
+                }
             }
-            }
-
+            
             HStack {
                 Button {
-//                    if currentSong > 0 {
-//                        currentSong -= 1}
-//                    Audioplayer(playNow: defaultURL!)
+                    //                    if currentSong > 0 {
+                    //                        currentSong -= 1}
+                    //                    Audioplayer(playNow: defaultURL!)
                     player?.play()
                     PlayerStatus.playing = true
                 }
@@ -104,10 +104,10 @@ struct Player: View {
             }
                 Spacer()
                 Button {
-//                    if songs.count-1 != currentSong {
-//                        currentSong += 1}
-//                    Audioplayer(playNow: defaultURL!)
-//                    player?.play()
+                    //                    if songs.count-1 != currentSong {
+                    //                        currentSong += 1}
+                    //                    Audioplayer(playNow: defaultURL!)
+                    //                    player?.play()
                     PlayerStatus.playing = true
                 }
             label: {
@@ -122,7 +122,7 @@ struct Player: View {
         .frame(height: 330)
         .background(.black)
     }
-  
+    
     func playerUIcontrol() {
         switch player?.isPlaying {
         case true:
@@ -139,56 +139,42 @@ struct Player: View {
             time = 0
             ended = false
         }
-//        if(PlayerStatus.playing) {
-//    //        Refactor progressbar
-//        DispatchQueue.global(qos: .background).async {
-//            while true {
-//                let screenWidth = UIScreen.main.bounds.width - 24
-//                let currentTime = player?.currentTime
-//                let duration = player?.duration
-//                let labelPosition = CGFloat(currentTime! / duration!) * screenWidth
-//                self.time = labelPosition
-//            }
-//        }
-//    }
+        //        if(PlayerStatus.playing) {
+        //    //        Refactor progressbar
+        //        DispatchQueue.global(qos: .background).async {
+        //            while true {
+        //                let screenWidth = UIScreen.main.bounds.width - 24
+        //                let currentTime = player?.currentTime
+        //                let duration = player?.duration
+        //                let labelPosition = CGFloat(currentTime! / duration!) * screenWidth
+        //                self.time = labelPosition
+        //            }
+        //        }
+        //    }
     }
     
 }
 
-func Audioplayer(playNow: URL, books: Array<Book>) {
-    @State var playNext = playNow
-    let urlWEB = URL(string: "file:///private/var/mobile/Containers/Shared/AppGroup/A8A1B8EF-B8C6-42F1-9BF4-951F40616BDC/File%20Provider%20Storage/2008.02.05%20Heinz.mp3")
+func Audioplayer(bookmarkData: Data, books: Array<Book>) {
+    
+    // Restore security scoped bookmark
+    var bookmarkDataIsStale = false
+    let playNow = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
     
     do {
-      
-        let Doc1 =  FileManager.default.url(forUbiquityContainerIdentifier: "iCloud.ChameleonPlayer")
-//        let Doc2 =  FileManager.SearchPathDirectory.sharedPublicDirectory
-//        let Doc3 =  FileManager.default.urls(for: .developerDirectory, in: .userDomainMask).first!
-//        let Doc4 =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//        let Doc5 =  FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first!
-        let _ = print("----- Doc1", Doc1)
-  
-//        let destinationUrl = documentsDirectoryURL.appendingPathComponent("\(reciter.name): \(surah.number)")
-//            print(destinationUrl)
-        
-        let AVplayerItem:AVPlayerItem = AVPlayerItem(url: playNext)
-//        player = try? AVAudioPlayer(contentsOf: playNext)
-        AVplayer2 = AVPlayer(playerItem: AVplayerItem)
-        
-        let _ = print("playing #:", playNext.lastPathComponent)
-        
+        player = try AVAudioPlayer(contentsOf: playNow!)
+        // Delegate listen when audio is finished
         player?.delegate = del
-        
         NotificationCenter.default.addObserver(forName: NSNotification.Name("ended"), object: nil, queue: .main) { (_) in
             player?.stop()
             ended = true
             let _ = print("---- Book has ended ----")
-            Autoplay(books: books)
         }
     } catch let error {
         print("Player Error", error.localizedDescription)
     }
-    AVplayer2?.play()
+    player?.prepareToPlay()
+    player?.play()
 }
 
 func Autoplay(books: Array<Book>) {
@@ -198,15 +184,15 @@ func Autoplay(books: Array<Book>) {
     let LastBook = books.count-1
     if (finishedBook! < LastBook) {
         nextBook += 1
-        }
+    }
     player?.prepareToPlay()
     let playNext = books[nextBook].url!
     let _ = print("----- Starting to play book #", nextBook, playNext.lastPathComponent)
-
+    
     player?.prepareToPlay()
     ended = false
-
-    Audioplayer(playNow: playNext, books: books)
+    
+    //    Audioplayer(playNow: playNext, books: books)
 }
 
 class AVdelegate : NSObject,AVAudioPlayerDelegate{

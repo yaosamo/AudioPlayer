@@ -3,6 +3,7 @@
     <entity name="Book" representedClassName="Book" syncable="YES" codeGenerationType="class">
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="url" optional="YES" attributeType="URI"/>
+        <attribute name="urldata" optional="YES" attributeType="Binary"/>
         <relationship name="origin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Playlist" inverseName="book" inverseEntity="Playlist"/>
     </entity>
     <entity name="Playlist" representedClassName="Playlist" syncable="YES" codeGenerationType="class">
@@ -11,7 +12,7 @@
         <relationship name="book" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Book" inverseName="origin" inverseEntity="Book"/>
     </entity>
     <elements>
-        <element name="Book" positionX="-54" positionY="-9" width="128" height="74"/>
+        <element name="Book" positionX="-54" positionY="-9" width="128" height="89"/>
         <element name="Playlist" positionX="-36" positionY="27" width="128" height="74"/>
     </elements>
 </model>

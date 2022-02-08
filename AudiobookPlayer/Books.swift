@@ -25,7 +25,7 @@ struct Books: View {
             ForEach(books, id: \.self) { book in
                 Button("\(book.name ?? "")", action: {
                     let playNow = book.urldata
-                    Audioplayer(playNow: playNow!, books: books)
+                    Audioplayer(bookmarkData: playNow!, books: books)
                     PlayerStatus.playing = true
                 })
                     .font(.system(size: 24, design: .rounded))
@@ -40,9 +40,27 @@ struct Books: View {
             Button {presentImporter.toggle()}
         label: { Label("Import book", systemImage: "square.and.arrow.down")}
         }
+        //        .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], onCompletion: function)
+        //        func importImage(_ res: Result<URL, Error>) {
+        //                do{
+        //                    let fileUrl = try res.get()
+        //                    print(fileUrl)
+        //
+        //                    guard fileUrl.startAccessingSecurityScopedResource() else { return }
+        //                    if let imageData = try? Data(contentsOf: fileUrl),
+        //                       let image = UIImage(data: imageData) {
+        //                        self.images[index] = image
+        //                    }
+        //                    fileUrl.stopAccessingSecurityScopedResource()
+        //                } catch{
+        //                    print ("error reading")
+        //                    print (error.localizedDescription)
+        //                }
+        //            }
         .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3]) { result in
             switch result {
             case .success(let url):
+                
                 // Start accessing secured url
                 let StartAccess = url.startAccessingSecurityScopedResource()
                 defer {
@@ -62,7 +80,7 @@ struct Books: View {
                 // Specifiying parent item in CoreData
                 newBook.origin = playlist.self
                 try? viewContext.save()
-        
+                
             case .failure(let error):
                 print(error)
             }

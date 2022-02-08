@@ -11,8 +11,6 @@ import CoreData
 import AVFoundation
 
 var player: AVAudioPlayer?
-var player2: AVPlayer?
-var AVplayerItem: AVPlayerItem?
 var nextBook = 0
 var del = AVdelegate()
 var ended = false
@@ -139,18 +137,18 @@ struct Player: View {
             time = 0
             ended = false
         }
-        //        if(PlayerStatus.playing) {
-        //    //        Refactor progressbar
-        //        DispatchQueue.global(qos: .background).async {
-        //            while true {
-        //                let screenWidth = UIScreen.main.bounds.width - 24
-        //                let currentTime = player?.currentTime
-        //                let duration = player?.duration
-        //                let labelPosition = CGFloat(currentTime! / duration!) * screenWidth
-        //                self.time = labelPosition
-        //            }
-        //        }
-        //    }
+                if(PlayerStatus.playing) {
+            //        Refactor progressbar
+                DispatchQueue.global(qos: .background).async {
+                    while true {
+                        let screenWidth = UIScreen.main.bounds.width - 24
+                        let currentTime = player?.currentTime
+                        let duration = player?.duration
+                        let labelPosition = CGFloat(currentTime! / duration!) * screenWidth
+                        self.time = labelPosition
+                    }
+                }
+            }
     }
     
 }
@@ -198,6 +196,7 @@ func Autoplay(books: Array<Book>) {
 class AVdelegate : NSObject,AVAudioPlayerDelegate{
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         NotificationCenter.default.post(name: NSNotification.Name("ended"), object: nil)
+        player.stop()
     }
 }
 

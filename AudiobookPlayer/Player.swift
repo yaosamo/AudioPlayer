@@ -153,7 +153,7 @@ struct Player: View {
     
 }
 
-func Audioplayer(bookmarkData: Data, books: Array<Book>) {
+func Audioplayer(bookmarkData: Data) {
     
     // Restore security scoped bookmark
     var bookmarkDataIsStale = false
@@ -162,36 +162,30 @@ func Audioplayer(bookmarkData: Data, books: Array<Book>) {
     do {
         player = try AVAudioPlayer(contentsOf: playNow!)
         // Delegate listen when audio is finished
-        player?.delegate = del
-        NotificationCenter.default.addObserver(forName: NSNotification.Name("ended"), object: nil, queue: .main) { (_) in
-            player?.stop()
-            ended = true
-            let _ = print("---- Book has ended ----")
-        }
     } catch let error {
         print("Player Error", error.localizedDescription)
     }
     player?.prepareToPlay()
     player?.play()
 }
-
-func Autoplay(books: Array<Book>) {
-    let playNow = player?.url
-    let finishedBook = books.firstIndex(where: {$0.url == playNow})
-    let _ = print("----- Just finished book #", finishedBook!)
-    let LastBook = books.count-1
-    if (finishedBook! < LastBook) {
-        nextBook += 1
-    }
-    player?.prepareToPlay()
-    let playNext = books[nextBook].url!
-    let _ = print("----- Starting to play book #", nextBook, playNext.lastPathComponent)
-    
-    player?.prepareToPlay()
-    ended = false
-    
-    //    Audioplayer(playNow: playNext, books: books)
-}
+//
+//func Autoplay(books: Array<Book>) {
+//    let playNow = player?.url
+//    let finishedBook = books.firstIndex(where: {$0.url == playNow})
+//    let _ = print("----- Just finished book #", finishedBook!)
+//    let LastBook = books.count-1
+//    if (finishedBook! < LastBook) {
+//        nextBook += 1
+//    }
+//    player?.prepareToPlay()
+//    let playNext = books[nextBook].url!
+//    let _ = print("----- Starting to play book #", nextBook, playNext.lastPathComponent)
+//
+//    player?.prepareToPlay()
+//    ended = false
+//
+//    //    Audioplayer(playNow: playNext, books: books)
+//}
 
 class AVdelegate : NSObject,AVAudioPlayerDelegate{
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
@@ -199,13 +193,3 @@ class AVdelegate : NSObject,AVAudioPlayerDelegate{
         player.stop()
     }
 }
-
-//
-//struct Player_Previews: PreviewProvider {
-//    @StateObject var APlayerStatus = AudioPlayerStatus()
-//
-//    static var previews: some View {
-//        Player(PlayerStatus: APlayerStatus)
-//            .previewLayout(.sizeThatFits)
-//    }
-//}

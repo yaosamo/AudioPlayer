@@ -34,10 +34,8 @@ struct Books: View {
             }
             .onDelete(perform: deleteItems)
             .listRowSeparator(.hidden)
-            //        .listRowBackground(Color.black)
         }
         .listStyle(.inset)
-        //        .background(.black)
         .toolbar {
             Button {presentImporter.toggle()}
                label: { Label("Import book", systemImage: "square.and.arrow.down")}

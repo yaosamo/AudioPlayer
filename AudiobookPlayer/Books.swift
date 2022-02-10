@@ -25,7 +25,7 @@ struct Books: View {
             ForEach(books, id: \.self) { book in
                 Button("\(book.name ?? "")", action: {
                     let playNow = book.urldata
-                    Audioplayer(bookmarkData: playNow!, books: books)
+                    Audioplayer(bookmarkData: playNow!)
                     PlayerStatus.playing = true
                 })
                     .font(.system(size: 24, design: .rounded))

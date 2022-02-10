@@ -24,7 +24,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Playlists(PlayerStatus: PlayerStatus)
-            Player(PlayerStatus: PlayerStatus)
+            PlayerUI()
         }
         .background(.black)
     }

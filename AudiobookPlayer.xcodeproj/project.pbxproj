@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5D0985A927A308D300DABA9B /* song2.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5D0985A627A308D300DABA9B /* song2.m4a */; };
 		5D0985AA27A308D300DABA9B /* song1.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5D0985A727A308D300DABA9B /* song1.m4a */; };
+		5D27663427B4D79200CA322F /* PlayerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D27663327B4D79200CA322F /* PlayerEngine.swift */; };
 		5D29DFEE27A66383009FCA65 /* Books.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D29DFED27A66383009FCA65 /* Books.swift */; };
 		5D418A732799200D008DC6C6 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D418A722799200D008DC6C6 /* Player.swift */; };
 		5D46F1A227A5105E0056910C /* song3.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5D46F1A127A5105E0056910C /* song3.m4a */; };
@@ -45,6 +46,7 @@
 /* Begin PBXFileReference section */
 		5D0985A627A308D300DABA9B /* song2.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = song2.m4a; sourceTree = "<group>"; };
 		5D0985A727A308D300DABA9B /* song1.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = song1.m4a; sourceTree = "<group>"; };
+		5D27663327B4D79200CA322F /* PlayerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerEngine.swift; sourceTree = "<group>"; };
 		5D29DFED27A66383009FCA65 /* Books.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Books.swift; sourceTree = "<group>"; };
 		5D418A722799200D008DC6C6 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		5D46F1A027A481BB0056910C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 				5D9FD8F72791472000DF2F28 /* ContentView.swift */,
 				5D9C801D27ACF90E009D3A41 /* Playlists.swift */,
 				5D418A722799200D008DC6C6 /* Player.swift */,
+				5D27663327B4D79200CA322F /* PlayerEngine.swift */,
 				5D29DFED27A66383009FCA65 /* Books.swift */,
 				5D9FD8F92791472100DF2F28 /* Assets.xcassets */,
 				5D9FD8FE2791472100DF2F28 /* Persistence.swift */,
@@ -308,6 +311,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D27663427B4D79200CA322F /* PlayerEngine.swift in Sources */,
 				5D9FD8FF2791472100DF2F28 /* Persistence.swift in Sources */,
 				5D9FD8F82791472000DF2F28 /* ContentView.swift in Sources */,
 				5D9FD9022791472100DF2F28 /* AudiobookPlayer.xcdatamodeld in Sources */,

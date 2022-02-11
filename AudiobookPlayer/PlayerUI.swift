@@ -15,17 +15,24 @@ struct PlayerUI: View {
     
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
-//    @ObservedObject var PlayerStatus: AudioPlayerStatus
-    @State var time : CGFloat = 0
-    @State var PlayerStatus = IsPlaying()
+    @ObservedObject var PlayerStatus: AudioPlayerStatus
+    @State var time : CGFloat = 0 // current player progress
+    @State var bookname : String = "" // book playing
+    @State var speaker : String = "" // Speaker connected
+    
+    
+    // Observe various notifications.
+    let notificationCenter = NotificationCenter.default
     
     var body: some View {
 
+        // The sample audio player.
+        let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
         
         VStack {
             HStack {
                 VStack(alignment: .leading){
-                    Text("PlayerStatus.speaker")
+                    Text(PlayerStatus.speaker)
                         .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
                         .MainFont(12)
                     Text("2010.03.10 Mazda")
@@ -64,10 +71,8 @@ struct PlayerUI: View {
             .padding([.top, .bottom], 40)
             .onAppear {
                 let audioSession = AVAudioSession.sharedInstance().currentRoute
-                //                let sound = NSURL(fileURLWithPath: Bundle.main.pathForResource("song1", ofType: "m4a")!)
-                //                Audioplayer(playNow: sound as URL)
                 for output in audioSession.outputs {
-//                    PlayerStatus.speaker = output.portName
+                    PlayerStatus.speaker = output.portName
                 }
             }
             
@@ -87,10 +92,10 @@ struct PlayerUI: View {
             }
                 Spacer()
                 Button {
-                    playerUIcontrol()
+                    audioplayer.TogglePlayPause()
                 }
             label: {
-                Image(systemName: IsPlaying() ? iconstop : iconplay)
+                Image(systemName: PlayerStatus.playing ? iconstop : iconplay)
                     .font(.system(size: 42.0))
                     .frame(width: 32, height: 44, alignment: .center)
                     .foregroundColor(.white)
@@ -115,6 +120,8 @@ struct PlayerUI: View {
         .frame(height: 330)
         .background(.black)
     }
+   
+    
     
     func playerUIcontrol() {
         switch player?.isPlaying {

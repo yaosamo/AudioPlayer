@@ -12,35 +12,60 @@ import AVFoundation
 
 var player: AVAudioPlayer?
 var nextBook = 0
-var del = AVdelegate()
+//var del = AVdelegate()
 var ended = false
 var playSpeed: Float = 1.0
 
+struct AudioPlayer {
+    @ObservedObject var PlayerStatus: AudioPlayerStatus
 
-
-func Audioplayer(bookmarkData: Data) {
-    
-    // Restore security scoped bookmark
-    var bookmarkDataIsStale = false
-    let playNow = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
-    
-    do {
-        player = try AVAudioPlayer(contentsOf: playNow!)
-    } catch let error {
-        print("Player Error", error.localizedDescription)
+    func PlayManager(bookmarkData: Data) {
+        
+        // Restore security scoped bookmark
+        var bookmarkDataIsStale = false
+        let playNow = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
+        print("Please put \(playNow!.lastPathComponent) on")
+        
+        do {
+            player = try AVAudioPlayer(contentsOf: playNow!)
+        } catch let error {
+            print("Player Error", error.localizedDescription)
+        }
+        Play()
     }
-    player?.prepareToPlay()
-    player?.play()
+    
+    
+    func TogglePlayPause() {
+        switch IsPlaying() {
+        case true:
+            Stop()
+        case false:
+            Play()
+        }
+    }
+    
+    
+    func Play() {
+        print("Play requested")
+        player?.prepareToPlay()
+        player?.play()
+        if IsPlaying() == true {PlayerStatus.playing = true}
+        else {print("Nothing to play hey")}
+    }
+    
+    func Stop() {
+        print("Stop requested")
+        player?.stop()
+        PlayerStatus.playing = false
+    }
+    
+    func IsPlaying() -> Bool {
+        let PlayerPlaying = player?.isPlaying
+        return PlayerPlaying ?? false
+    }
+    
 }
 
-func Play() {
-    print("Play requested")
-}
-
-func IsPlaying() -> Bool {
-    let PlayerPlaying = player?.isPlaying
-    return PlayerPlaying ?? false
-}
 
 //
 //func Autoplay(books: Array<Book>) {
@@ -60,10 +85,10 @@ func IsPlaying() -> Bool {
 //
 //    //    Audioplayer(playNow: playNext, books: books)
 //}
-
-class AVdelegate : NSObject,AVAudioPlayerDelegate{
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        NotificationCenter.default.post(name: NSNotification.Name("ended"), object: nil)
-        player.stop()
-    }
-}
+//
+//class AVdelegate : NSObject,AVAudioPlayerDelegate{
+//    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+//        NotificationCenter.default.post(name: NSNotification.Name("ended"), object: nil)
+//        player.stop()
+//    }
+//}

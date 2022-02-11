@@ -16,17 +16,19 @@ struct Books: View {
     @State var books: Array<Book>
     @State private var presentImporter: Bool = false
     let sound = NSURL(fileURLWithPath: Bundle.main.path(forResource: "song1", ofType: "m4a")!)
-    
-    
+
+
     var body: some View {
+        
+        // The sample audio player.
+        let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
         
         List {
             
             ForEach(books, id: \.self) { book in
                 Button("\(book.name ?? "")", action: {
                     let playNow = book.urldata
-                    Audioplayer(bookmarkData: playNow!)
-                    PlayerStatus.playing = true
+                    audioplayer.PlayManager(bookmarkData: playNow!)
                 })
                     .font(.system(size: 24, design: .rounded))
             }

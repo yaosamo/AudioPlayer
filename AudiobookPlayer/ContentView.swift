@@ -10,10 +10,11 @@ import CoreData
 import AVKit
 
 class AudioPlayerStatus: ObservableObject {
+    
     @Published var playing = false
     @Published var speaker = ""
+    
 }
-
 
 struct ContentView: View {
     @StateObject var PlayerStatus = AudioPlayerStatus()
@@ -24,7 +25,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Playlists(PlayerStatus: PlayerStatus)
-            PlayerUI()
+            PlayerUI(PlayerStatus: PlayerStatus)
         }
         .background(.black)
     }

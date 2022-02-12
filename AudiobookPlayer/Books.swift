@@ -31,7 +31,8 @@ struct Books: View {
                     // Pass array of all audiobooks to our playlist
                     PlayerStatus.currentPlaylist = books
                     PlayerStatus.currentlyPlayingID = CurrentItemID
-                    audioplayer.Playlist(CurrentItemID: CurrentItemID)
+                    audioplayer.PlayManager(bookmarkData: book.urldata!)
+                    let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
                     
                 })
                     .font(.system(size: 24, design: .rounded))

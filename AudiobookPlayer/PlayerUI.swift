@@ -78,11 +78,7 @@ struct PlayerUI: View {
             
             HStack {
                 Button {
-                    //                    if currentSong > 0 {
-                    //                        currentSong -= 1}
-                    //                    Audioplayer(playNow: defaultURL!)
-                    player?.play()
-//                    PlayerStatus.playing = true
+                    audioplayer.PreviousBook()
                 }
             label: {
                 Image(systemName:  "backward.fill")
@@ -102,11 +98,7 @@ struct PlayerUI: View {
             }
                 Spacer()
                 Button {
-                    //                    if songs.count-1 != currentSong {
-                    //                        currentSong += 1}
-                    //                    Audioplayer(playNow: defaultURL!)
-                    //                    player?.play()
-//                    PlayerStatus.playing = true
+                    audioplayer.NextBook()
                 }
             label: {
                 Image(systemName: "forward.fill")

@@ -18,14 +18,29 @@ var playSpeed: Float = 1.0
 
 struct AudioPlayer {
     @ObservedObject var PlayerStatus: AudioPlayerStatus
+    @State var PlayingID : Int = 0
+    
+    func Playlist(books: Array<Book>, PlayNow: ObjectIdentifier) {
+        print("Playlist in")
+        let CurrentItem = books.firstIndex(where: { $0.id == PlayNow} )!
+        PlayManager(bookmarkData: books[CurrentItem].urldata!)
+    }
+    
+    func SeekToCurrentItem() {
+        print("Switch playlist item")
+    }
+    
+    func ContainsItem() {
+        print("Check if Current Item exists then return bool")
 
+    }
+    
     func PlayManager(bookmarkData: Data) {
-        
-        // Restore security scoped bookmark
+//      Restore security scoped bookmark
         var bookmarkDataIsStale = false
         let playNow = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
         print("Please put \(playNow!.lastPathComponent) on")
-        
+
         do {
             player = try AVAudioPlayer(contentsOf: playNow!)
         } catch let error {
@@ -34,23 +49,34 @@ struct AudioPlayer {
         Play()
     }
     
+    func PreviousBook() {
+        print("Please play previous book")
+    }
+    
+    func NextBook() {
+        print("Please play next book")
+    }
+    
     
     func TogglePlayPause() {
-        switch IsPlaying() {
-        case true:
+        if IsPlaying() {
             Stop()
-        case false:
+        }
+        else {
             Play()
         }
     }
-    
     
     func Play() {
         print("Play requested")
         player?.prepareToPlay()
         player?.play()
-        if IsPlaying() == true {PlayerStatus.playing = true}
-        else {print("Nothing to play hey")}
+        if IsPlaying() {
+            PlayerStatus.playing = true
+        }
+        else {
+            print("Hey, nothing to play")   
+        }
     }
     
     func Stop() {
@@ -63,7 +89,6 @@ struct AudioPlayer {
         let PlayerPlaying = player?.isPlaying
         return PlayerPlaying ?? false
     }
-    
 }
 
 

@@ -27,8 +27,11 @@ struct Books: View {
             
             ForEach(books, id: \.self) { book in
                 Button("\(book.name ?? "")", action: {
-                    let playNow = book.urldata
-                    audioplayer.PlayManager(bookmarkData: playNow!)
+                    let playNow = book.id
+                    print("what", playNow)
+//                    audioplayer.Playlist(playAt: <#T##Int#>)
+                    // Pass array of all audiobooks to our playlist
+                    audioplayer.Playlist(books: books, PlayNow: playNow)
                 })
                     .font(.system(size: 24, design: .rounded))
             }

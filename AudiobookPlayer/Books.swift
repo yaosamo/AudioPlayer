@@ -30,6 +30,7 @@ struct Books: View {
                     let CurrentItemID = book.id
                     // Pass array of all audiobooks to our playlist
                     PlayerStatus.currentPlaylist = books
+                    PlayerStatus.currentlyPlayingID = CurrentItemID
                     audioplayer.Playlist(CurrentItemID: CurrentItemID)
                     
                 })

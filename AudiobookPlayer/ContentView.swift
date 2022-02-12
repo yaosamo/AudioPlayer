@@ -14,6 +14,7 @@ class AudioPlayerStatus: ObservableObject {
     @Published var playing = false
     @Published var speaker = ""
     @Published var currentlyPlayingIndex : Int?
+    @Published var currentlyPlayingID : ObjectIdentifier?
     @Published var currentPlaylist : Array<Book>?
 }
 

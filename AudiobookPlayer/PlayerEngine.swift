@@ -19,33 +19,42 @@ var playSpeed: Float = 1.0
 
 struct AudioPlayer {
     @ObservedObject var PlayerStatus: AudioPlayerStatus
-
+    
+        
     func Playlist(CurrentItemID: ObjectIdentifier) {
         // Assigning playlist
         let CurrentPlaylist = PlayerStatus.currentPlaylist!
         print("\(CurrentPlaylist.count) books in current playlist")
         
-        // Finding item that is currently playing
-        let CurrentPlayingIndex = CurrentPlaylist.firstIndex(where: { $0.id == CurrentItemID} )!
-        PlayerStatus.currentlyPlayingIndex = CurrentPlayingIndex
-        
+        let CurrentPlayingIndex = CurrentPlayingIndex()
         // Getting current item bookmarkData to for PlayerManager to get URL from it
         print("Now playing item #\(CurrentPlayingIndex)")
         let bookmarkData = CurrentPlaylist[CurrentPlayingIndex].urldata!
         PlayManager(bookmarkData: bookmarkData)
     }
+
     
-    func SeekToCurrentItem() {
-        print("check if item # exists")
-        print("Switch playlist item")
+    func CurrentPlayingIndex() -> Int {
+        
+        // Assigning playlist
+        let CurrentPlaylist = PlayerStatus.currentPlaylist!
+        print("\(CurrentPlaylist.count) books in current playlist")
+        
+        let CurrentItemID = PlayerStatus.currentlyPlayingID
+        
+        // Finding item that is currently playing
+        let CurrentPlayingIndex = CurrentPlaylist.firstIndex(where: { $0.id == CurrentItemID} )!
+        PlayerStatus.currentlyPlayingIndex = CurrentPlayingIndex
+        return CurrentPlayingIndex
+        
     }
     
     func PlayManager(bookmarkData: Data) {
-//      Restore security scoped bookmark
+        //      Restore security scoped bookmark
         var bookmarkDataIsStale = false
         let playNow = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
         print("Please put \(playNow!.lastPathComponent) on")
-
+        
         do {
             player = try AVAudioPlayer(contentsOf: playNow!)
         } catch let error {
@@ -80,7 +89,7 @@ struct AudioPlayer {
             PlayerStatus.playing = true
         }
         else {
-            print("Hey, nothing to play")   
+            print("Hey, nothing to play")
         }
     }
     
@@ -95,7 +104,6 @@ struct AudioPlayer {
         return PlayerPlaying ?? false
     }
 }
-
 
 //
 //func Autoplay(books: Array<Book>) {

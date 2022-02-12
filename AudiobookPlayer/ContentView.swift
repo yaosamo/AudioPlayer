@@ -13,7 +13,8 @@ class AudioPlayerStatus: ObservableObject {
     
     @Published var playing = false
     @Published var speaker = ""
-    @Published var currentItem : Int?
+    @Published var currentlyPlayingIndex : Int?
+    @Published var currentPlaylist : Array<Book>?
 }
 
 struct ContentView: View {

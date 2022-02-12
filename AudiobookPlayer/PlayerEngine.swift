@@ -19,20 +19,20 @@ var playSpeed: Float = 1.0
 
 struct AudioPlayer {
     @ObservedObject var PlayerStatus: AudioPlayerStatus
-    
-    struct playlist2 {
-        // Items in the playlist.
-        var items: [Books] = []
-        // The current item index, or nil if the player is in a stopped state.
-        var currentIndex: Int?
-    }
-    
-    func Playlist(books: Array<Book>, PlayNow: ObjectIdentifier) {
-        print("Playlist in")
-        let CurrentItem = books.firstIndex(where: { $0.id == PlayNow} )!
-//        let CurrentItem = books.map { $0.name.a}
-        PlayManager(bookmarkData: books[CurrentItem].urldata!)
-        print("------items--", playlist2().items)
+
+    func Playlist(CurrentItemID: ObjectIdentifier) {
+        // Assigning playlist
+        let CurrentPlaylist = PlayerStatus.currentPlaylist!
+        print("\(CurrentPlaylist.count) books in current playlist")
+        
+        // Finding item that is currently playing
+        let CurrentPlayingIndex = CurrentPlaylist.firstIndex(where: { $0.id == CurrentItemID} )!
+        PlayerStatus.currentlyPlayingIndex = CurrentPlayingIndex
+        
+        // Getting current item bookmarkData to for PlayerManager to get URL from it
+        print("Now playing item #\(CurrentPlayingIndex)")
+        let bookmarkData = CurrentPlaylist[CurrentPlayingIndex].urldata!
+        PlayManager(bookmarkData: bookmarkData)
     }
     
     func SeekToCurrentItem() {

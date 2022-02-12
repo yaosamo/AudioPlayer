@@ -32,6 +32,7 @@ struct Books: View {
 //                    audioplayer.Playlist(playAt: <#T##Int#>)
                     // Pass array of all audiobooks to our playlist
                     audioplayer.Playlist(books: books, PlayNow: playNow)
+                
                 })
                     .font(.system(size: 24, design: .rounded))
             }

@@ -11,6 +11,7 @@ import CoreData
 import AVFoundation
 
 var player: AVAudioPlayer?
+//var player2: AVPlayer?
 var nextBook = 0
 //var del = AVdelegate()
 var ended = false
@@ -18,21 +19,25 @@ var playSpeed: Float = 1.0
 
 struct AudioPlayer {
     @ObservedObject var PlayerStatus: AudioPlayerStatus
-    @State var PlayingID : Int = 0
+    
+    struct playlist2 {
+        // Items in the playlist.
+        var items: [Books] = []
+        // The current item index, or nil if the player is in a stopped state.
+        var currentIndex: Int?
+    }
     
     func Playlist(books: Array<Book>, PlayNow: ObjectIdentifier) {
         print("Playlist in")
         let CurrentItem = books.firstIndex(where: { $0.id == PlayNow} )!
+//        let CurrentItem = books.map { $0.name.a}
         PlayManager(bookmarkData: books[CurrentItem].urldata!)
+        print("------items--", playlist2().items)
     }
     
     func SeekToCurrentItem() {
+        print("check if item # exists")
         print("Switch playlist item")
-    }
-    
-    func ContainsItem() {
-        print("Check if Current Item exists then return bool")
-
     }
     
     func PlayManager(bookmarkData: Data) {

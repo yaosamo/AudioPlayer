@@ -11,14 +11,17 @@ import CoreData
 import AVFoundation
 
 var player: AVAudioPlayer?
-//var player2: AVPlayer?
 var nextBook = 0
-//var del = AVdelegate()
 var ended = false
 var playSpeed: Float = 1.0
 
 struct AudioPlayer {
     @ObservedObject var PlayerStatus: AudioPlayerStatus
+    let BookFinished = Notification.Name("BookFinished")
+    // Create observers for the notifications from the serializer.
+    let notificationCenter = NotificationCenter.default
+    let delegate = AVdelegate()
+
     
     // Get current book URL Data for Play Manager
     func Playlist(at NextBookIndex: Int) {
@@ -54,18 +57,30 @@ struct AudioPlayer {
     
     // Receive URLdata to play -> initiate play
     func PlayManager(bookmarkData: Data) {
+        
         // Restore security scoped bookmark
         var bookmarkDataIsStale = false
         let playNow = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
         print("Please put \(playNow!.lastPathComponent) on")
-        
         do {
+            // this codes for making this app ready to takeover the device audio
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback)
+            try AVAudioSession.sharedInstance().setActive(true)
+            
             player = try AVAudioPlayer(contentsOf: playNow!)
+            player?.delegate = delegate
+            
         } catch let error {
             print("Player Error", error.localizedDescription)
         }
         Play()
     }
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer,
+                                     successfully flag: Bool) {
+        print("Book finished")
+    }
+    
     
     func PreviousBook() {
         print("Please play previous book")
@@ -111,28 +126,11 @@ struct AudioPlayer {
     }
 }
 
-//
-//func Autoplay(books: Array<Book>) {
-//    let playNow = player?.url
-//    let finishedBook = books.firstIndex(where: {$0.url == playNow})
-//    let _ = print("----- Just finished book #", finishedBook!)
-//    let LastBook = books.count-1
-//    if (finishedBook! < LastBook) {
-//        nextBook += 1
-//    }
-//    player?.prepareToPlay()
-//    let playNext = books[nextBook].url!
-//    let _ = print("----- Starting to play book #", nextBook, playNext.lastPathComponent)
-//
-//    player?.prepareToPlay()
-//    ended = false
-//
-//    //    Audioplayer(playNow: playNext, books: books)
-//}
-//
-//class AVdelegate : NSObject,AVAudioPlayerDelegate{
-//    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-//        NotificationCenter.default.post(name: NSNotification.Name("ended"), object: nil)
-//        player.stop()
-//    }
-//}
+
+class AVdelegate : NSObject, AVAudioPlayerDelegate {
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        NotificationCenter.default.post(name: NSNotification.Name("ended"), object: nil)
+        print("Book has finished")
+        
+    }
+}

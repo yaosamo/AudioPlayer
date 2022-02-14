@@ -115,22 +115,22 @@ struct PlayerUI: View {
    
     
     
-    func playerUIcontrol() {
-        switch player?.isPlaying {
-        case true:
-            player?.stop()
-//            PlayerStatus.playing = false
-        case false:
-            player?.play()
-//            PlayerStatus.playing = true
-        default:
-            let _ = print("Nothing")
-        }
-        if ended {
-            player?.currentTime = 0
-            time = 0
-            ended = false
-        }
+//    func playerUIcontrol() {
+//        switch player?.isPlaying {
+//        case true:
+//            player?.stop()
+////            PlayerStatus.playing = false
+//        case false:
+//            player?.play()
+////            PlayerStatus.playing = true
+//        default:
+//            let _ = print("Nothing")
+//        }
+//        if ended {
+//            player?.currentTime = 0
+//            time = 0
+//            ended = false
+//        }
 //                if(PlayerStatus.playing) {
 //            //        Refactor progressbar
 //                DispatchQueue.global(qos: .background).async {
@@ -143,6 +143,5 @@ struct PlayerUI: View {
 //                    }
 //                }
 //            }
-    }
     
 }

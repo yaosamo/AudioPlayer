@@ -11,49 +11,24 @@ import CoreData
 import AVFoundation
 
 var player: AVAudioPlayer?
-var nextBook = 0
-var ended = false
-var playSpeed: Float = 1.0
+let delegate = BookFinished()
+
+
+class BookFinished : NSObject, AVAudioPlayerDelegate {
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        print("Book Finished Delegate")
+    }
+}
+
+
 
 struct AudioPlayer {
     @ObservedObject var PlayerStatus: AudioPlayerStatus
+  
     let BookFinished = Notification.Name("BookFinished")
-    // Create observers for the notifications from the serializer.
+    // Create observers for the notifications
     let notificationCenter = NotificationCenter.default
-    let delegate = AVdelegate()
-
     
-    // Get current book URL Data for Play Manager
-    func Playlist(at NextBookIndex: Int) {
-        // Getting current item bookmarkData
-        let bookmarkData = PlayerStatus.currentPlaylist![NextBookIndex].urldata!
-        let newBookID = PlayerStatus.currentPlaylist![NextBookIndex].id
-        print("Playlist set next book to play at: \(NextBookIndex)")
-        PlayerStatus.currentlyPlayingID = newBookID
-        PlayManager(bookmarkData: bookmarkData)
-    }
-    
-    // Defining index of currently playing book
-    func CurrentPlayingIndex() -> Int {
-        // Assign new variables
-        let CurrentItemID = PlayerStatus.currentlyPlayingID
-        let CurrentPlaylist = PlayerStatus.currentPlaylist!
-        // Finding item that is currently playing
-        let CurrentPlayingIndex = CurrentPlaylist.firstIndex(where: { $0.id == CurrentItemID} )!
-        PlayerStatus.currentlyPlayingIndex = CurrentPlayingIndex
-        return CurrentPlayingIndex
-    }
-    
-    // Checking if new book exists
-    func skipToCurrentItem(offsetBy offset: Int) {
-        print("\(PlayerStatus.currentPlaylist!.count) books in current playlist")
-        let NextBookIndex = CurrentPlayingIndex() + offset
-        if  (NextBookIndex <= PlayerStatus.currentPlaylist!.count-1) && (NextBookIndex >= 0) {
-            print("Requested book exists at:", NextBookIndex)
-            Playlist(at: NextBookIndex)
-        }
-        else { print("Requested book doesn't exist", NextBookIndex) }
-    }
     
     // Receive URLdata to play -> initiate play
     func PlayManager(bookmarkData: Data) {
@@ -76,9 +51,38 @@ struct AudioPlayer {
         Play()
     }
     
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer,
-                                     successfully flag: Bool) {
-        print("Book finished")
+    
+    // Get current book URL Data for Play Manager
+    func Playlist(at NextBookIndex: Int) {
+        // Getting current item bookmarkData
+        let bookmarkData = PlayerStatus.currentPlaylist![NextBookIndex].urldata!
+        let newBookID = PlayerStatus.currentPlaylist![NextBookIndex].id
+        print("Playlist set next book to play at: \(NextBookIndex)")
+        PlayerStatus.currentlyPlayingID = newBookID
+        PlayManager(bookmarkData: bookmarkData)
+    }
+    
+    
+    // Defining index of currently playing book
+    func CurrentPlayingIndex() -> Int {
+        // Assign new variables
+        let CurrentItemID = PlayerStatus.currentlyPlayingID
+        let CurrentPlaylist = PlayerStatus.currentPlaylist!
+        // Finding item that is currently playing
+        let CurrentPlayingIndex = CurrentPlaylist.firstIndex(where: { $0.id == CurrentItemID} )!
+        PlayerStatus.currentlyPlayingIndex = CurrentPlayingIndex
+        return CurrentPlayingIndex
+    }
+    
+    // Checking if new book exists
+    func skipToCurrentItem(offsetBy offset: Int) {
+        print("\(PlayerStatus.currentPlaylist!.count) books in current playlist")
+        let NextBookIndex = CurrentPlayingIndex() + offset
+        if  (NextBookIndex <= PlayerStatus.currentPlaylist!.count-1) && (NextBookIndex >= 0) {
+            print("Requested book exists at:", NextBookIndex)
+            Playlist(at: NextBookIndex)
+        }
+        else { print("Requested book doesn't exist", NextBookIndex) }
     }
     
     
@@ -127,10 +131,3 @@ struct AudioPlayer {
 }
 
 
-class AVdelegate : NSObject, AVAudioPlayerDelegate {
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        NotificationCenter.default.post(name: NSNotification.Name("ended"), object: nil)
-        print("Book has finished")
-        
-    }
-}

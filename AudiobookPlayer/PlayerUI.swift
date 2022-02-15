@@ -27,7 +27,7 @@ struct PlayerUI: View {
     var body: some View {
 
         // The sample audio player.
-//        let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
+        let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
         
         VStack {
             HStack {
@@ -78,7 +78,7 @@ struct PlayerUI: View {
             
             HStack {
                 Button {
-//                    audioplayer.PreviousBook()
+                    audioplayer.PreviousBook()
                 }
             label: {
                 Image(systemName:  "backward.fill")
@@ -88,7 +88,7 @@ struct PlayerUI: View {
             }
                 Spacer()
                 Button {
-//                    audioplayer.TogglePlayPause()
+                    audioplayer.TogglePlayPause()
                 }
             label: {
                 Image(systemName: PlayerStatus.playing ? iconstop : iconplay)
@@ -98,7 +98,7 @@ struct PlayerUI: View {
             }
                 Spacer()
                 Button {
-//                    audioplayer.NextBook()
+                    audioplayer.NextBook()
                 }
             label: {
                 Image(systemName: "forward.fill")

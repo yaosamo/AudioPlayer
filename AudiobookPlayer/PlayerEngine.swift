@@ -11,22 +11,32 @@ import CoreData
 import AVFoundation
 
 var player: AVAudioPlayer?
-let delegate = AudioPlayer()
+let delegate = BookFinished()
 
 
-class AudioPlayer : NSObject, AVAudioPlayerDelegate {
+class BookFinished : NSObject, AVAudioPlayerDelegate {
     
-  
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        print("Book Finished Player")
+        
+                NotificationCenter.default.post(name: NSNotification.Name("Finished"), object: nil)
+    }
+}
+
+
+
+
+struct AudioPlayer {
+    @ObservedObject var PlayerStatus: AudioPlayerStatus
     
     // Receive URLdata to play -> initiate play
-    func PlayManager(bookmarkData: Data, PlayerStatus: AudioPlayerStatus) {
-      
+    func PlayManager(bookmarkData: Data) {
+        
         // Restore security scoped bookmark
         var bookmarkDataIsStale = false
         let playNow = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
         print("Please put \(playNow!.lastPathComponent) on")
         do {
-           
             
             // this codes for making this app ready to takeover the device audio
             try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback)
@@ -34,25 +44,18 @@ class AudioPlayer : NSObject, AVAudioPlayerDelegate {
             
             player = try AVAudioPlayer(contentsOf: playNow!)
             player?.delegate = delegate
-           
+            
+                        NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
+                            NextBook()
+                            print("Next Please")
+                        }
             
         } catch let error {
             print("Player Error", error.localizedDescription)
         }
-        Engine(PlayerStatus: PlayerStatus).Play()
-        
+        Play()
     }
     
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool, PlayerStatus: AudioPlayerStatus) {
-        print("Book Finished Player")
-        Engine(PlayerStatus: PlayerStatus).NextBook()
-    }
-}
-    
-    
-struct Engine {
-    @ObservedObject var PlayerStatus: AudioPlayerStatus
-
     // Get current book URL Data for Play Manager
     func Playlist(at NextBookIndex: Int) {
         // Getting current item bookmarkData
@@ -60,10 +63,10 @@ struct Engine {
         let newBookID = PlayerStatus.currentPlaylist![NextBookIndex].id
         print("Playlist set next book to play at: \(NextBookIndex)")
         PlayerStatus.currentlyPlayingID = newBookID
-        AudioPlayer().PlayManager(bookmarkData: bookmarkData, PlayerStatus: PlayerStatus)
+        PlayManager(bookmarkData: bookmarkData)
     }
-
-
+    
+    
     // Defining index of currently playing book
     func CurrentPlayingIndex() -> Int {
         // Assign new variables
@@ -74,7 +77,7 @@ struct Engine {
         PlayerStatus.currentlyPlayingIndex = CurrentPlayingIndex
         return CurrentPlayingIndex
     }
-
+    
     // Checking if new book exists
     func skipToCurrentItem(offsetBy offset: Int) {
         print("\(PlayerStatus.currentPlaylist!.count) books in current playlist")
@@ -91,7 +94,7 @@ struct Engine {
         print("Please play previous book")
         skipToCurrentItem(offsetBy: -1)
     }
-
+    
     func NextBook() {
         print("Please play next book")
         skipToCurrentItem(offsetBy: +1)

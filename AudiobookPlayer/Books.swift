@@ -21,7 +21,7 @@ struct Books: View {
     var body: some View {
         
         // The sample audio player.
-        let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
+        let audioplayer = AudioPlayer()
         
         List {
             
@@ -31,8 +31,8 @@ struct Books: View {
                     // Pass array of all audiobooks to our playlist
                     PlayerStatus.currentPlaylist = books
                     PlayerStatus.currentlyPlayingID = CurrentItemID
-                    audioplayer.PlayManager(bookmarkData: book.urldata!)
-                    let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
+                    audioplayer.PlayManager(bookmarkData: book.urldata!, PlayerStatus: PlayerStatus)
+//                    let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
                     
                 })
                     .font(.system(size: 24, design: .rounded))

@@ -11,18 +11,18 @@ import SwiftUI
 
 struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
+    
     @ObservedObject var PlayerStatus: AudioPlayerStatus
     @State var playlist: Playlist
     @State var books: Array<Book>
     @State private var presentImporter: Bool = false
     let sound = NSURL(fileURLWithPath: Bundle.main.path(forResource: "song1", ofType: "m4a")!)
 
-
     var body: some View {
         
         // The sample audio player.
         let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
-        
+       
         List {
             
             ForEach(books, id: \.self) { book in
@@ -91,6 +91,8 @@ struct Books: View {
             }
         }
     }
+    
+
     
     
     private func deleteItems(offsets: IndexSet) {

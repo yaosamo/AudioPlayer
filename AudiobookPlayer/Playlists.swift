@@ -30,10 +30,10 @@ struct Playlists: View {
         animation: .default)
     private var allplaylists: FetchedResults<Playlist>
     let path = Bundle.main.path(forResource: "song1", ofType:"m4a")
-    
+    let booksorting =  NSSortDescriptor(key: "name", ascending: true)
+
     var body: some View {
         
-       
         NavigationView {
             List {
                 Button(action: addPlaylist) {
@@ -44,8 +44,10 @@ struct Playlists: View {
                 }
                 .listRowBackground(Color.black)
                 ForEach(allplaylists, id: \.self) { playlist in
-                
-                    NavigationLink(destination: Books(PlayerStatus: PlayerStatus, playlist: playlist, books: Array(playlist.book! as! Set<Book>)))  {
+                    
+                    let bookArray = playlist.book!.sortedArray(using: [booksorting]) as! [Book]
+                    
+                    NavigationLink(destination: Books(PlayerStatus: PlayerStatus, playlist: playlist, books: bookArray))  {
                             Text(playlist.name ?? "Noname")
                                 .MainFont(32)
                                 .frame(height: 48)

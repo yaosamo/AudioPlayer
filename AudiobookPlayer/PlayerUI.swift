@@ -19,10 +19,7 @@ struct PlayerUI: View {
     @State var time : CGFloat = 0 // current player progress
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
-    
-    
-    // Observe various notifications.
-    let notificationCenter = NotificationCenter.default
+
     
     var body: some View {
 

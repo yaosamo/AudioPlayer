@@ -16,8 +16,6 @@ class AudioPlayerStatus: ObservableObject {
     @Published var currentlyPlayingIndex : Int?
     @Published var currentlyPlayingID : ObjectIdentifier?
     @Published var currentPlaylist : Array<Book>?
-    @Published var bookhasfinished : Bool = false
-
 }
 
 struct ContentView: View {

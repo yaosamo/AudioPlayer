@@ -16,7 +16,6 @@ struct PersistenceController {
         for _ in 0..<4 {
             let newItem = Playlist(context: viewContext)
             newItem.name = "Marusya"
-//            newItem.url = URL(fileURLWithPath: "/test/null")
         }
         do {
             try viewContext.save()
@@ -36,7 +35,6 @@ struct PersistenceController {
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         }
-        container.viewContext.automaticallyMergesChangesFromParent = true
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
                 // Replace this implementation with code to handle the error appropriately.
@@ -53,5 +51,7 @@ struct PersistenceController {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
         })
+        container.viewContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
+        container.viewContext.automaticallyMergesChangesFromParent = true
     }
 }

@@ -29,7 +29,6 @@ struct Playlists: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
         animation: .default)
     private var allplaylists: FetchedResults<Playlist>
-    let path = Bundle.main.path(forResource: "song1", ofType:"m4a")
     let booksorting =  NSSortDescriptor(key: "name", ascending: true)
 
     var body: some View {
@@ -43,8 +42,8 @@ struct Playlists: View {
                         .padding([.top, .bottom], 16)
                 }
                 .listRowBackground(Color.black)
-                ForEach(allplaylists, id: \.self) { playlist in
-                    
+                ForEach(allplaylists) { playlist in
+                    // Converting NSSet to Array and aplying sorting by name
                     let bookArray = playlist.book!.sortedArray(using: [booksorting]) as! [Book]
                     
                     NavigationLink(destination: Books(PlayerStatus: PlayerStatus, playlist: playlist, books: bookArray))  {
@@ -62,7 +61,6 @@ struct Playlists: View {
             .listStyle(.inset)
             .background(.black)
         }
-        
     }
     
     private func addPlaylist() {

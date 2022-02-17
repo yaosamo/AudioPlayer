@@ -11,21 +11,20 @@ import SwiftUI
 
 struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
-    
     @ObservedObject var PlayerStatus: AudioPlayerStatus
     @State var playlist: Playlist
     @State var books: Array<Book>
     @State private var presentImporter: Bool = false
-    let sound = NSURL(fileURLWithPath: Bundle.main.path(forResource: "song1", ofType: "m4a")!)
+
 
     var body: some View {
         
         // The sample audio player.
         let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
-       
+        
         List {
-            
-            ForEach(books, id: \.self) { book in
+       
+            ForEach(books) { book in
                 Button("\(book.name ?? "")", action: {
                     let CurrentItemID = book.id
                     // Pass array of all audiobooks to our playlist
@@ -45,6 +44,7 @@ struct Books: View {
             Button {presentImporter.toggle()}
         label: { Label("Import book", systemImage: "square.and.arrow.down")}
         }
+    
         //        .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], onCompletion: function)
         //        func importImage(_ res: Result<URL, Error>) {
         //                do{
@@ -62,6 +62,7 @@ struct Books: View {
         //                    print (error.localizedDescription)
         //                }
         //            }
+        
         .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3]) { result in
             switch result {
             case .success(let url):
@@ -74,26 +75,33 @@ struct Books: View {
                         url.stopAccessingSecurityScopedResource()
                     }
                 }
-                // Creating new book
-                let newBook = Book(context: viewContext)
-                let _ = print("---- Access Granted?", url.startAccessingSecurityScopedResource())
-                // Getting bookmarkData of the URL
-                let bookmarkData = try? url.bookmarkData()
-                newBook.name = "\(url.lastPathComponent)"
-                // Save bookmarkURL into CoreData
-                newBook.urldata = bookmarkData
-                // Specifiying parent item in CoreData
-                newBook.origin = playlist.self
-                try? viewContext.save()
-                
+                addBook(url: url)
+            
             case .failure(let error):
                 print(error)
             }
         }
     }
     
-
     
+    private func addBook(url: URL) {
+        withAnimation {
+            // Creating new book
+            let newBook = Book(context: viewContext)
+            let _ = print("---- Access Granted?", url.startAccessingSecurityScopedResource())
+            // Getting bookmarkData of the URL
+            let bookmarkData = try? url.bookmarkData()
+            let shortURL = url.deletingPathExtension().lastPathComponent
+            newBook.name = "\(shortURL)"
+            // Save bookmarkURL into CoreData
+            newBook.urldata = bookmarkData
+            playlist.self.name = "New name"
+            // Specifiying parent item in CoreData
+            newBook.origin = playlist.self
+            try? viewContext.save()
+            let _ = print("new book created")
+        }
+    }
     
     private func deleteItems(offsets: IndexSet) {
         withAnimation {

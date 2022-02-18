@@ -19,7 +19,7 @@ struct PlayerUI: View {
     @State var time : String = "00:00:00" // current player progress
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
-
+    
     
     var body: some View {
         
@@ -43,13 +43,7 @@ struct PlayerUI: View {
                 }
                 .padding(.leading, 32)
                 .onAppear {
-                    Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
-                        if audioplayer.IsPlaying() {
-                            let seconds = player?.currentTime
-                            time = formatTimeFor(seconds: seconds ?? 0)
-                        }
-                    }
-                 
+                    timeUpdate()
                 }
                 Spacer()
             }
@@ -63,7 +57,7 @@ struct PlayerUI: View {
                     .padding(8)
                     .gesture(DragGesture()
                                 .onChanged({ (value) in
-                                              
+                        
                         
                     }).onEnded({ (value) in
                         
@@ -116,6 +110,15 @@ struct PlayerUI: View {
         } //vstack
         .frame(height: 330)
         .background(.black)
+    }
+    
+    func timeUpdate() {
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
+            if PlayerStatus.playing {
+                let seconds = player?.currentTime
+                time = formatTimeFor(seconds: seconds ?? 0)
+            }
+        }
     }
     
     func getHoursMinutesSecondsFrom(seconds: Double) -> (hours: Int, minutes: Int, seconds: Int) {

@@ -16,15 +16,16 @@ struct PlayerUI: View {
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
     @ObservedObject var PlayerStatus: AudioPlayerStatus
-    @State var time : CGFloat = 0 // current player progress
+    @State var time : String = "00:00:00" // current player progress
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
 
     
     var body: some View {
-
+        
         // The sample audio player.
         let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
+        let bookname = player?.url?.deletingPathExtension().lastPathComponent
         
         VStack {
             HStack {
@@ -32,15 +33,24 @@ struct PlayerUI: View {
                     Text(PlayerStatus.speaker)
                         .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
                         .MainFont(12)
-                    Text("2010.03.10 Mazda")
+                    Text("\(bookname ?? "Nothing to play")")
                         .MainFont(24)
                         .foregroundColor(.white)
                         .padding([.top, .bottom], 1)
-                    Text("4:37:22")
+                    Text("\(time)")
                         .MainFont(12)
                         .foregroundColor(.white)
                 }
                 .padding(.leading, 32)
+                .onAppear {
+                    Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
+                        if audioplayer.IsPlaying() {
+                            let seconds = player?.currentTime
+                            time = formatTimeFor(seconds: seconds ?? 0)
+                        }
+                    }
+                 
+                }
                 Spacer()
             }
             
@@ -49,13 +59,11 @@ struct PlayerUI: View {
                     .fill(Color.white).frame(height: 8)
                     .padding(8)
                 Capsule() // progress
-                    .fill(Color.red).frame(width: time, height: 8)
+                    .fill(Color.red).frame(width: 40, height: 8)
                     .padding(8)
                     .gesture(DragGesture()
                                 .onChanged({ (value) in
-                        
-                        let x = value.location.x
-                        time = x
+                                              
                         
                     }).onEnded({ (value) in
                         
@@ -109,36 +117,27 @@ struct PlayerUI: View {
         .frame(height: 330)
         .background(.black)
     }
-   
     
+    func getHoursMinutesSecondsFrom(seconds: Double) -> (hours: Int, minutes: Int, seconds: Int) {
+        let secs = Int(seconds)
+        let hours = secs / 3600
+        let minutes = (secs % 3600) / 60
+        let seconds = (secs % 3600) % 60
+        return (hours, minutes, seconds)
+    }
     
-//    func playerUIcontrol() {
-//        switch player?.isPlaying {
-//        case true:
-//            player?.stop()
-////            PlayerStatus.playing = false
-//        case false:
-//            player?.play()
-////            PlayerStatus.playing = true
-//        default:
-//            let _ = print("Nothing")
-//        }
-//        if ended {
-//            player?.currentTime = 0
-//            time = 0
-//            ended = false
-//        }
-//                if(PlayerStatus.playing) {
-//            //        Refactor progressbar
-//                DispatchQueue.global(qos: .background).async {
-//                    while true {
-//                        let screenWidth = UIScreen.main.bounds.width - 24
-//                        let currentTime = player?.currentTime
-//                        let duration = player?.duration
-//                        let labelPosition = CGFloat(currentTime! / duration!) * screenWidth
-//                        self.time = labelPosition
-//                    }
-//                }
-//            }
-    
+    func formatTimeFor(seconds: Double) -> String {
+        let result = getHoursMinutesSecondsFrom(seconds: seconds)
+        let hoursString = "0\(result.hours)"
+        var minutesString = "\(result.minutes)"
+        if minutesString.count == 1 {
+            minutesString = "0\(result.minutes)"
+        }
+        var secondsString = "\(result.seconds)"
+        if secondsString.count == 1 {
+            secondsString = "0\(result.seconds)"
+        }
+        let time = "\(hoursString):\(minutesString):\(secondsString)"
+        return time
+    }
 }

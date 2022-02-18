@@ -13,17 +13,17 @@ struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
     @ObservedObject var PlayerStatus: AudioPlayerStatus
     @State var playlist: Playlist
-    @State var books: Array<Book>
+    @State var books: Array<Book>?
     @State private var presentImporter: Bool = false
-
-
+    // sorting books by name
+    let booksorting =  NSSortDescriptor(key: "name", ascending: true)
+    
     var body: some View {
-        
         // The sample audio player.
         let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
-        
+        // Converting NSSet of playlists book to Array and aplying sorting by name
+        let books = playlist.book!.sortedArray(using: [booksorting]) as! [Book]
         List {
-       
             ForEach(books) { book in
                 Button("\(book.name ?? "")", action: {
                     let CurrentItemID = book.id
@@ -32,19 +32,21 @@ struct Books: View {
                     PlayerStatus.currentlyPlayingID = CurrentItemID
                     audioplayer.PlayManager(bookmarkData: book.urldata!)
                     let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
-                    
                 })
                     .font(.system(size: 24, design: .rounded))
             }
-            .onDelete(perform: deleteItems)
+            .onDelete(perform: { IndexSet in
+                deleteItems(offsets: IndexSet, books: books)
+            })
             .listRowSeparator(.hidden)
+            
         }
         .listStyle(.inset)
         .toolbar {
             Button {presentImporter.toggle()}
         label: { Label("Import book", systemImage: "square.and.arrow.down")}
         }
-    
+        
         //        .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], onCompletion: function)
         //        func importImage(_ res: Result<URL, Error>) {
         //                do{
@@ -76,7 +78,7 @@ struct Books: View {
                     }
                 }
                 addBook(url: url)
-            
+                
             case .failure(let error):
                 print(error)
             }
@@ -95,7 +97,6 @@ struct Books: View {
             newBook.name = "\(shortURL)"
             // Save bookmarkURL into CoreData
             newBook.urldata = bookmarkData
-            playlist.self.name = "New name"
             // Specifiying parent item in CoreData
             newBook.origin = playlist.self
             try? viewContext.save()
@@ -103,15 +104,13 @@ struct Books: View {
         }
     }
     
-    private func deleteItems(offsets: IndexSet) {
+    private func deleteItems(offsets: IndexSet, books: Array<Book>) {
         withAnimation {
             offsets.map { books[$0] }.forEach(viewContext.delete)
             
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }

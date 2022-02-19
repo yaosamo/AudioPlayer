@@ -16,6 +16,11 @@ public extension Text {
     }
 }
 
+var addPlaylistUI: some View {
+    Text("placeholder")
+}
+
+
 struct Playlists: View {
     var biege = UIColor(red: 0.88, green: 0.83, blue: 0.68, alpha: 1.00)
     let lightblue = UIColor(red: 0.62, green: 0.78, blue: 0.78, alpha: 1.00)
@@ -29,27 +34,60 @@ struct Playlists: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
         animation: .default)
     private var allplaylists: FetchedResults<Playlist>
-
+    @State private var showingPopover = false
+    @State private var playlistName = "Playlist"
+    
+    
     var body: some View {
         
         NavigationView {
             List {
-                Button(action: addPlaylist) {
-
+                // Add Playlist Button + pop-up
+                Button(action: {
+                    showingPopover.toggle()
+                }, label: {
                     Image(systemName: "plus")
                         .foregroundColor(.white)
                         .font(.system(size: 32.0))
                         .padding([.top, .bottom], 16)
-                }
-                .listRowBackground(Color.black)
+                })
+                    .popover(isPresented: $showingPopover) {
+                        HStack(alignment: .lastTextBaseline) {
+                            Spacer()
+                        Text("Name")
+                            Spacer()
+                        Button(action: {
+                            showingPopover = false
+                        }, label: {
+                            Image(systemName: "xmark")
+                                .foregroundColor(.white)
+                                .font(.system(size: 24.0))
+                                .padding([.top, .trailing], 16)
+                        })
+                        }
+                        Spacer()
+                        TextField("Name", text: $playlistName)
+                            .font(.system(size: 48, weight: .medium, design: .rounded))
+                            .frame(width: 200, alignment: .center)
+                        Spacer()
+                        Button(action: {
+                            addPlaylist(name: playlistName)
+                        }, label: {
+                            Image(systemName: "checkmark")
+                                .frame(width: 48, height: 48, alignment: .center)
+                        })
+                            
+                    }
+                    .listRowBackground(Color.black)
+                
                 ForEach(allplaylists) { playlist in
                     NavigationLink(destination: Books(PlayerStatus: PlayerStatus, playlist: playlist))  {
-                            Text(playlist.name ?? "Noname")
-                                .MainFont(32)
-                                .frame(height: 48)
-                                .foregroundColor(colorslist[0])
-                                .navigationBarHidden(true)
-                        }
+                        Text(playlist.name ?? "Noname")
+                            .MainFont(32)
+                            .frame(height: 48)
+                            .foregroundColor(colorslist[0])
+                            .navigationBarHidden(true)
+                    }
                 } // allplaylists ForEach
                 .onDelete(perform: deleteItems)
                 .listRowSeparator(.hidden)
@@ -59,14 +97,15 @@ struct Playlists: View {
             .background(.black)
         }
     }
-  
     
-    private func addPlaylist() {
+    
+    private func addPlaylist(name: String) {
         withAnimation {
             let newPlaylist = Playlist(context: viewContext)
-            newPlaylist.name = "Playlist"
+            newPlaylist.name = name
             try? viewContext.save()
             let _ = print("new playlist created")
+            showingPopover = false
         }
     }
     
@@ -84,4 +123,5 @@ struct Playlists: View {
             }
         }
     }
+    
 }

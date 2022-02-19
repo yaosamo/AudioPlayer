@@ -23,6 +23,15 @@ struct Books: View {
         let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
         // Converting NSSet of playlists book to Array and aplying sorting by name
         let books = playlist.book!.sortedArray(using: [booksorting]) as! [Book]
+        
+        ZStack(alignment: .topTrailing) {
+            Text(playlist.name!)
+                .rotationEffect(.degrees(-90))
+                .font(.system(size: 110, weight: .medium, design: .rounded))
+                .padding(.trailing, -160)
+                .padding(.top, 100)
+                .foregroundColor(Color(red: 0.88, green: 0.83, blue: 0.68))
+
         List {
             ForEach(books) { book in
                 Button("\(book.name ?? "")", action: {
@@ -39,13 +48,16 @@ struct Books: View {
                 deleteItems(offsets: IndexSet, books: books)
             })
             .listRowSeparator(.hidden)
+            .listRowBackground(Color(red: 0, green: 0, blue: 0, opacity: 0.0))
+
             
-        }
+        } // List
         .listStyle(.inset)
         .toolbar {
             Button {presentImporter.toggle()}
         label: { Label("Import book", systemImage: "square.and.arrow.down")}
         }
+        } // Vstack
         
         //        .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], onCompletion: function)
         //        func importImage(_ res: Result<URL, Error>) {

@@ -33,7 +33,7 @@ struct PlayerUI: View {
                     Text(PlayerStatus.speaker)
                         .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
                         .MainFont(12)
-                    Text("\(bookname ?? "Nothing to play")")
+                    Text("\(bookname ?? "Select something to play")")
                         .MainFont(24)
                         .foregroundColor(.white)
                         .padding([.top, .bottom], 1)
@@ -41,7 +41,7 @@ struct PlayerUI: View {
                         .MainFont(12)
                         .foregroundColor(.white)
                 }
-                .padding(.leading, 32)
+                .padding(.leading, 24)
                 .onAppear {
                     timeUpdate()
                 }

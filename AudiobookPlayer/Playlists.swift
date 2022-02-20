@@ -12,7 +12,7 @@ import CoreData
 
 public extension Text {
     func MainFont(_ Size : CGFloat) -> some View {
-        self.font(.system(size: Size, weight: .medium, design: .rounded))
+        self.font(.system(size: Size, weight: .regular, design: .rounded))
     }
 }
 
@@ -48,7 +48,7 @@ struct Playlists: View {
                 }, label: {
                     Image(systemName: "plus")
                         .foregroundColor(.white)
-                        .font(.system(size: 32.0))
+                        .font(.system(size: 32.0, weight: .regular, design: .rounded))
                         .padding([.top, .bottom], 16)
                 })
                     .popover(isPresented: $showingPopover) {
@@ -83,10 +83,11 @@ struct Playlists: View {
                 ForEach(allplaylists) { playlist in
                     NavigationLink(destination: Books(PlayerStatus: PlayerStatus, playlist: playlist))  {
                         Text(playlist.name ?? "Noname")
-                            .MainFont(32)
+                            .MainFont(40)
                             .frame(height: 48)
                             .foregroundColor(colorslist[0])
                             .navigationBarHidden(true)
+                            .padding(.bottom, 8)
                     }
                 } // allplaylists ForEach
                 .onDelete(perform: deleteItems)

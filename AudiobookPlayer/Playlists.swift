@@ -52,31 +52,43 @@ struct Playlists: View {
                         .padding([.top, .bottom], 16)
                 })
                     .popover(isPresented: $showingPopover) {
-                        HStack(alignment: .lastTextBaseline) {
-                            Spacer()
-                        Text("Name")
-                            Spacer()
-                        Button(action: {
-                            showingPopover = false
-                        }, label: {
-                            Image(systemName: "xmark")
-                                .foregroundColor(.white)
-                                .font(.system(size: 24.0))
-                                .padding([.top, .trailing], 16)
-                        })
+                      
+                        ZStack {
+                            HStack {
+                                Spacer()
+                            Button(action: {
+                                showingPopover = false
+                            }, label: {
+                                Image(systemName: "xmark")
+                                    .foregroundColor(whiteColor)
+                                    .font(.system(size: 24.0))
+                                    .padding([.top, .trailing], 24)
+                            })
+                            }
+                            
+                            Text("Name")
+                                .foregroundColor(whiteColor)
+                                .padding(.top, 32)
+                            
                         }
                         Spacer()
                         TextField("Name", text: $playlistName)
-                            .font(.system(size: 48, weight: .medium, design: .rounded))
-                            .frame(width: 200, alignment: .center)
+                            .font(.system(size: 64, weight: .medium, design: .rounded))
+                            .multilineTextAlignment(.center)
                         Spacer()
                         Button(action: {
                             addPlaylist(name: playlistName)
                         }, label: {
                             Image(systemName: "checkmark")
-                                .frame(width: 48, height: 48, alignment: .center)
+                                .font(.system(size: 24, weight: .medium, design: .rounded))
+                                .foregroundColor(whiteColor)
+                                .frame(width: 64, height: 64, alignment: .center)
+                                .background(Color(red: 0.22, green: 0.23, blue: 0.24))
+                                .clipShape(Circle())
+                               
                         })
                             
+                            .padding(.bottom, 32)
                     }
                     .listRowBackground(Color.black)
                 

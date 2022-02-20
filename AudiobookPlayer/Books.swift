@@ -41,11 +41,11 @@ struct Books: View {
         
         ZStack(alignment: .trailing) {
             Text(playlist.name!)
-                .frame(width: 400, height: 60, alignment: .trailing)
+                .frame(width: 600, height: 60, alignment: .trailing)
                 .rotationEffect(.degrees(-90))
                 .font(.system(size: 100, weight: .medium, design: .rounded))
-                .padding(.trailing, -190)
-                .padding(.top, 100)
+                .padding(.trailing, -250)
+                .padding(.top, 200)
                 .foregroundColor(Color(red: 0.88, green: 0.83, blue: 0.68))
             
             List {

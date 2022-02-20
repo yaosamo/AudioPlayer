@@ -8,6 +8,20 @@
 import Foundation
 import SwiftUI
 
+let inactive = Color(red: 0.40, green: 0.42, blue: 0.45)
+let active = Color(red: 0.99, green: 0.99, blue: 0.99)
+
+
+public extension Button {
+    func BookStyle() -> some View {
+
+        self
+            .font(.system(size: 24, design: .rounded))
+            .foregroundColor(active)
+            .padding(.bottom, 8)
+    }
+}
+
 
 struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -17,6 +31,7 @@ struct Books: View {
     @State private var presentImporter: Bool = false
     // sorting books by name
     let booksorting =  NSSortDescriptor(key: "name", ascending: true)
+    @State var CurrentBookIsOn = false
     
     var body: some View {
         // The sample audio player.
@@ -32,32 +47,40 @@ struct Books: View {
                 .padding(.trailing, -190)
                 .padding(.top, 100)
                 .foregroundColor(Color(red: 0.88, green: 0.83, blue: 0.68))
-
-        List {
-            ForEach(books) { book in
-                Button("\(book.name ?? "")", action: {
-                    let CurrentItemID = book.id
-                    // Pass array of all audiobooks to our playlist
-                    PlayerStatus.currentPlaylist = books
-                    PlayerStatus.currentlyPlayingID = CurrentItemID
-                    audioplayer.PlayManager(bookmarkData: book.urldata!)
-                    let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
-                })
-                    .font(.system(size: 24, design: .rounded))
-            }
-            .onDelete(perform: { IndexSet in
-                deleteItems(offsets: IndexSet, books: books)
-            })
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color(red: 0, green: 0, blue: 0, opacity: 0.0))
-
             
-        } // List
-        .listStyle(.inset)
-        .toolbar {
-            Button {presentImporter.toggle()}
-        label: { Label("Import book", systemImage: "square.and.arrow.down")}
-        }
+            List {
+                ForEach(books) { book in
+                    Button("\(book.name ?? "")", action: {
+                        let CurrentItemID = book.id
+                        // Pass array of all audiobooks to our playlist
+                        PlayerStatus.currentPlaylist = books
+                        PlayerStatus.currentlyPlayingID = CurrentItemID
+                        audioplayer.PlayManager(bookmarkData: book.urldata!)
+                        let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
+                    })
+                        .font(.system(size: 24, design: .rounded))
+                        .foregroundColor(book.id == PlayerStatus.currentlyPlayingID ? active : inactive)
+                        .padding(.bottom, 8)
+                        .onAppear {
+                            if book.id == PlayerStatus.currentlyPlayingID {
+                                CurrentBookIsOn = true
+                            }
+                        }
+                    
+                }
+                .onDelete(perform: { IndexSet in
+                    deleteItems(offsets: IndexSet, books: books)
+                })
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color(red: 0, green: 0, blue: 0, opacity: 0.0))
+                
+                
+            } // List
+            .listStyle(.inset)
+            .toolbar {
+                Button {presentImporter.toggle()}
+            label: { Label("Import book", systemImage: "square.and.arrow.down")}
+            }
         } // Vstack
         
         //        .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], onCompletion: function)

@@ -36,7 +36,7 @@ struct PlayerUI: View {
         
         // The sample audio player.
         let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
-        let bookname = player?.url?.deletingPathExtension().lastPathComponent
+        let bookname = PlayerStatus.bookname
         
         VStack {
             HStack {
@@ -44,10 +44,15 @@ struct PlayerUI: View {
                     Text(PlayerStatus.speaker)
                         .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
                         .MainFont(12)
+                    //Refactor animation
+                    withAnimation(Animation.linear(duration: 10).repeatForever(autoreverses: true)) {
                     Text("\(bookname ?? "Select something to play")")
                         .MainFont(24)
+                        .frame(height: 40, alignment: .leading)
                         .foregroundColor(.white)
                         .padding([.top, .bottom], 1)
+                    }
+
                     Text("\(time)")
                         .MainFont(12)
                         .foregroundColor(.white)
@@ -61,7 +66,7 @@ struct PlayerUI: View {
             
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(Color.white).frame(height: 8)
+                    .fill(Color(red: 0.1, green: 0.1, blue: 0.1)).frame(height: 8)
                     .padding(8)
                 Capsule() // progress
                     .fill(Color.red).frame(width: 40, height: 8)

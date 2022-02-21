@@ -38,8 +38,9 @@ struct AudioPlayer {
             // this codes for making this app ready to takeover the device audio
             try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback)
             try AVAudioSession.sharedInstance().setActive(true)
-            
+            // Start Playing
             player = try AVAudioPlayer(contentsOf: playNow!)
+           
             player?.delegate = delegate
             NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
                 if bookhasfinished {

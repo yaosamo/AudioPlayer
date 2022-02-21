@@ -11,22 +11,10 @@ import AVFoundation
 
 let inactive = Color(red: 0.40, green: 0.42, blue: 0.45)
 let active = Color(red: 0.99, green: 0.99, blue: 0.99)
-//
-//extension String {
-//    var decoded: String {
-//        let attr = try? NSAttributedString(data: Data(utf8), options: [
-//            .documentType: NSAttributedString.self,
-//            .characterEncoding: String.Encoding.windowsCP1251.rawValue
-//        ], documentAttributes: nil)
-//
-//        return attr?.string ?? self
-//    }
-//}
 
 
 public extension Button {
     func BookStyle() -> some View {
-
         self
             .font(.system(size: 24, design: .rounded))
             .foregroundColor(active)
@@ -62,31 +50,40 @@ struct Books: View {
             
             List {
                 ForEach(books) { book in
-                    Button("\(book.name ?? "")", action: {
+                    Button(action: {
                         let CurrentItemID = book.id
                         // Pass array of all audiobooks to our playlist
                         PlayerStatus.currentPlaylist = books
                         PlayerStatus.currentlyPlayingID = CurrentItemID
+                        PlayerStatus.bookname = book.name
                         audioplayer.PlayManager(bookmarkData: book.urldata!)
                         let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
+                        
+                    }, label: {
+                        
+                        VStack(alignment: .leading) {
+                        Text(book.name ?? "Unknown name")
+                            .frame(height: 24, alignment: .leading)
+                            .font(.system(size: 24, design: .rounded))
+                            .foregroundColor(book.id == PlayerStatus.currentlyPlayingID ? active : inactive)
+
+                        Text(book.author ?? "Unknown author")
+                            .font(.system(size: 16, design: .rounded))
+                            .foregroundColor(inactive)
+                    }
                     })
-                        .font(.system(size: 24, design: .rounded))
-                        .foregroundColor(book.id == PlayerStatus.currentlyPlayingID ? active : inactive)
                         .padding(.bottom, 8)
                         .onAppear {
                             if book.id == PlayerStatus.currentlyPlayingID {
                                 CurrentBookIsOn = true
                             }
                         }
-                    
                 }
                 .onDelete(perform: { IndexSet in
                     deleteItems(offsets: IndexSet, books: books)
                 })
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color(red: 0, green: 0, blue: 0, opacity: 0.0))
-                
-                
             } // List
             .listStyle(.inset)
             .toolbar {
@@ -126,7 +123,6 @@ struct Books: View {
                     }
                 }
                 addBook(url: url)
-                
             case .failure(let error):
                 print(error)
             }
@@ -135,15 +131,15 @@ struct Books: View {
     
     
     private func addBook(url: URL) {
-        metaData(url: url)
+        let meta = metaData(url: url)
         withAnimation {
             // Creating new book
             let newBook = Book(context: viewContext)
             let _ = print("---- Access Granted?", url.startAccessingSecurityScopedResource())
             // Getting bookmarkData of the URL
             let bookmarkData = try? url.bookmarkData()
-            let shortURL = url.deletingPathExtension().lastPathComponent
-            newBook.name = "\(shortURL)"
+            newBook.name = meta.bookTitle
+            newBook.author = meta.bookAuthor
             // Save bookmarkURL into CoreData
             newBook.urldata = bookmarkData
             // Specifiying parent item in CoreData
@@ -153,25 +149,49 @@ struct Books: View {
         }
     }
     
-    func metaData(url: URL) {
+    func metaData(url: URL) -> (bookTitle: String, bookAuthor: String) {
         let asset = AVAsset(url: url)
+        // return values
+        var bookTitle = ""
+        var bookAuthor = ""
         
-        for info in asset.commonMetadata {
-            if info.commonKey?.rawValue == "title" {
-                let bookTitle = info.value as! String
-                let cp1251Data = bookTitle.data(using: .windowsCP1252)
-                let decoded2 = String(data: cp1251Data ?? Data(), encoding: .windowsCP1251)
-
-                print("BookTitle original:", bookTitle)
-                print("BookTitle decoded:", decoded2)
-
+        // check if meta is not empty
+        if asset.commonMetadata.count > 0  {
+            for info in asset.commonMetadata {
+                print("In for loop")
+                if info.commonKey?.rawValue == "title" {
+                    let bookTitleraw = info.value as! String
+                    bookTitle = converter(raw: bookTitleraw)
+                }
+                if info.commonKey?.rawValue == "artist" {
+                    let bookArtistraw = info.value as! String
+                    bookAuthor = converter(raw: bookArtistraw)
+                }
             }
-//            if info.commonKey?.rawValue == "artist" {
-//                let bookAuthor = info.value as! String
-//                print("Author---", bookAuthor.decoded)
-//            }
+        // if meta is empty assign title as file name & author to Unknown
+        } else {
+            bookTitle = url.deletingPathExtension().lastPathComponent
+            print("Nothing found in data for Title")
+            bookAuthor = "Unknown author 🤷"
+            print("Nothing found in data for Author")
         }
         
+        // converting cyrillic encoding 1251 if needed
+        func converter(raw: String) -> String {
+            var cleanData = ""
+            let cp1252Data = raw.data(using: .windowsCP1252)
+            let decoded = String(data: cp1252Data ?? Data(), encoding: .windowsCP1251)!
+            // checking if decoded string was success
+            if decoded.count > 0 {
+                // return decoded
+                cleanData = decoded
+            } else {
+                // return original
+                cleanData = raw
+            }
+            return cleanData
+        }
+        return (bookTitle, bookAuthor)
     }
     
     

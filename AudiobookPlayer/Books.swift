@@ -7,9 +7,21 @@
 
 import Foundation
 import SwiftUI
+import AVFoundation
 
 let inactive = Color(red: 0.40, green: 0.42, blue: 0.45)
 let active = Color(red: 0.99, green: 0.99, blue: 0.99)
+//
+//extension String {
+//    var decoded: String {
+//        let attr = try? NSAttributedString(data: Data(utf8), options: [
+//            .documentType: NSAttributedString.self,
+//            .characterEncoding: String.Encoding.windowsCP1251.rawValue
+//        ], documentAttributes: nil)
+//
+//        return attr?.string ?? self
+//    }
+//}
 
 
 public extension Button {
@@ -44,7 +56,7 @@ struct Books: View {
                 .frame(width: 600, height: 60, alignment: .trailing)
                 .rotationEffect(.degrees(-90))
                 .font(.system(size: 100, weight: .medium, design: .rounded))
-                .padding(.trailing, -250)
+                .padding(.trailing, -284)
                 .padding(.top, 200)
                 .foregroundColor(Color(red: 0.88, green: 0.83, blue: 0.68))
             
@@ -123,6 +135,7 @@ struct Books: View {
     
     
     private func addBook(url: URL) {
+        metaData(url: url)
         withAnimation {
             // Creating new book
             let newBook = Book(context: viewContext)
@@ -139,6 +152,29 @@ struct Books: View {
             let _ = print("new book created")
         }
     }
+    
+    func metaData(url: URL) {
+        let asset = AVAsset(url: url)
+        
+        for info in asset.commonMetadata {
+            if info.commonKey?.rawValue == "title" {
+                let bookTitle = info.value as! String
+                let cp1251Data = bookTitle.data(using: .windowsCP1252)
+                let decoded2 = String(data: cp1251Data ?? Data(), encoding: .windowsCP1251)
+
+                print("BookTitle original:", bookTitle)
+                print("BookTitle decoded:", decoded2)
+
+            }
+//            if info.commonKey?.rawValue == "artist" {
+//                let bookAuthor = info.value as! String
+//                print("Author---", bookAuthor.decoded)
+//            }
+        }
+        
+    }
+    
+    
     
     private func deleteItems(offsets: IndexSet, books: Array<Book>) {
         withAnimation {

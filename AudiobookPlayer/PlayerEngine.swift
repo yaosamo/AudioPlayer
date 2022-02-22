@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import CoreData
 import AVFoundation
+import MediaPlayer
 
 var player: AVAudioPlayer?
 let delegate = BookFinished()
@@ -36,9 +37,10 @@ struct AudioPlayer {
         print("Please put \(playNow!.lastPathComponent) on")
         do {
             // this codes for making this app ready to takeover the device audio
-            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback)
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
             // Start Playing
+            setupRemoteTransportControls()
             player = try AVAudioPlayer(contentsOf: playNow!)
            
             player?.delegate = delegate
@@ -49,11 +51,12 @@ struct AudioPlayer {
                     bookhasfinished = false
                 }
             }
+            Play()
             
         } catch let error {
             print("Player Error", error.localizedDescription)
         }
-        Play()
+      
     }
     
     // Get current book URL Data for Play Manager
@@ -134,4 +137,36 @@ struct AudioPlayer {
         let PlayerPlaying = player?.isPlaying
         return PlayerPlaying ?? false
     }
+    
+    // meta for remote controller
+    
+    
+    
+}
+
+// remote controller
+//https://developer.apple.com/documentation/mediaplayer/mpremotecommand
+//https://developer.apple.com/documentation/avfoundation/media_playback_and_selection/creating_a_basic_video_player_ios_and_tvos/controlling_background_audio
+func setupRemoteTransportControls() {
+    // Get the shared MPRemoteCommandCenter
+    
+    let commandCenter = MPRemoteCommandCenter.shared()
+
+    // Add a handler for the play command.
+    commandCenter.playCommand.addTarget { [unowned player] event in
+        if player!.rate == 0.0 {
+            player!.play()
+            return .success
+        }
+        return .commandFailed
+    }
+
+        // Add handler for Pause Command
+        commandCenter.pauseCommand.addTarget { [unowned player] event in
+            if player!.rate == 1.0 {
+               player!.pause()
+                return .success
+            }
+            return .commandFailed
+        }
 }

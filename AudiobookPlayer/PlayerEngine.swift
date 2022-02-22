@@ -162,6 +162,18 @@ struct AudioPlayer {
                 }
                 return .commandFailed
             }
+        
+        // Add handler for next Command
+        commandCenter.nextTrackCommand.addTarget { _ in
+            NextBook()
+            return .commandFailed
+        }
+        
+        // Add handler for previous Command
+        commandCenter.previousTrackCommand.addTarget { _ in
+            PreviousBook()
+            return .commandFailed
+        }
     }
     
 }

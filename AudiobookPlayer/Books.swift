@@ -58,7 +58,7 @@ struct Books: View {
                         PlayerStatus.bookname = book.name
                         audioplayer.PlayManager(bookmarkData: book.urldata!)
                         let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
-                        
+
                     }, label: {
                         
                         VStack(alignment: .leading) {

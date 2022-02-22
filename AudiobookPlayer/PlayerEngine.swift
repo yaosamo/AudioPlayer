@@ -140,33 +140,33 @@ struct AudioPlayer {
     
     // meta for remote controller
     
-    
+    func setupRemoteTransportControls() {
+        // Get the shared MPRemoteCommandCenter
+        
+        let commandCenter = MPRemoteCommandCenter.shared()
+
+        // Add a handler for the play command.
+        commandCenter.playCommand.addTarget { _ in // check out player
+            if !PlayerStatus.playing {
+                Play()
+                return .success
+            }
+            return .commandFailed
+        }
+
+            // Add handler for Pause Command
+            commandCenter.pauseCommand.addTarget { _ in
+                if PlayerStatus.playing {
+                    Stop()
+                    return .success
+                }
+                return .commandFailed
+            }
+    }
     
 }
 
 // remote controller
 //https://developer.apple.com/documentation/mediaplayer/mpremotecommand
 //https://developer.apple.com/documentation/avfoundation/media_playback_and_selection/creating_a_basic_video_player_ios_and_tvos/controlling_background_audio
-func setupRemoteTransportControls() {
-    // Get the shared MPRemoteCommandCenter
-    
-    let commandCenter = MPRemoteCommandCenter.shared()
 
-    // Add a handler for the play command.
-    commandCenter.playCommand.addTarget { [unowned player] event in
-        if player!.rate == 0.0 {
-            player!.play()
-            return .success
-        }
-        return .commandFailed
-    }
-
-        // Add handler for Pause Command
-        commandCenter.pauseCommand.addTarget { [unowned player] event in
-            if player!.rate == 1.0 {
-               player!.pause()
-                return .success
-            }
-            return .commandFailed
-        }
-}

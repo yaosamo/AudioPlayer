@@ -17,12 +17,11 @@ class AudioPlayerStatus: ObservableObject {
     @Published var currentlyPlayingIndex : Int?
     @Published var currentlyPlayingID : ObjectIdentifier?
     @Published var currentPlaylist : Array<Book>?
-
 }
 
 struct ContentView: View {
     @StateObject var PlayerStatus = AudioPlayerStatus()
-
+    
     init() {
         UITableView.appearance().backgroundColor = .clear
     }

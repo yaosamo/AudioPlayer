@@ -58,19 +58,19 @@ struct Books: View {
                         PlayerStatus.bookname = book.name
                         audioplayer.PlayManager(bookmarkData: book.urldata!)
                         let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
-
+                        
                     }, label: {
                         
                         VStack(alignment: .leading) {
-                        Text(book.name ?? "Unknown name")
-                            .frame(height: 24, alignment: .leading)
-                            .font(.system(size: 24, design: .rounded))
-                            .foregroundColor(book.id == PlayerStatus.currentlyPlayingID ? active : inactive)
-
-                        Text(book.author ?? "Unknown author")
-                            .font(.system(size: 16, design: .rounded))
-                            .foregroundColor(inactive)
-                    }
+                            Text(book.name ?? "Unknown name")
+                                .frame(height: 24, alignment: .leading)
+                                .font(.system(size: 24, design: .rounded))
+                                .foregroundColor(book.id == PlayerStatus.currentlyPlayingID ? active : inactive)
+                            
+                            Text(book.author ?? "Unknown author")
+                                .font(.system(size: 16, design: .rounded))
+                                .foregroundColor(inactive)
+                        }
                     })
                         .padding(.bottom, 8)
                         .onAppear {
@@ -145,39 +145,53 @@ struct Books: View {
             // Specifiying parent item in CoreData
             newBook.origin = playlist.self
             try? viewContext.save()
-            let _ = print("new book created")
+            print("new book created")
         }
     }
     
     func metaData(url: URL) -> (bookTitle: String, bookAuthor: String) {
         let asset = AVAsset(url: url)
+        print("---- Entered Meta data----")
+        
         // return values
         var bookTitle = ""
         var bookAuthor = ""
         
-        // check if meta is not empty
-        if asset.commonMetadata.count > 0  {
+        
+        // Refactor https://developer.apple.com/documentation/avfoundation/media_assets_and_metadata/retrieving_media_metadata
+        
+        // check if meta is not empty getting meta for Title and artist
+        if asset.commonMetadata.count > 1  {
+            print("---- Meta Count: ----", asset.commonMetadata)
+            
             for info in asset.commonMetadata {
-                print("In for loop")
+                print("---- Entered LOOP ----")
                 if info.commonKey?.rawValue == "title" {
                     let bookTitleraw = info.value as! String
                     bookTitle = converter(raw: bookTitleraw)
+                    print("---- Decoded ----", bookTitle)
+                    print("---- RAW ----", bookTitleraw)
                 }
                 if info.commonKey?.rawValue == "artist" {
-                    let bookArtistraw = info.value as! String
-                    bookAuthor = converter(raw: bookArtistraw)
+                    let bookAuthorraw = info.value as! String
+                    bookAuthor = converter(raw: bookAuthorraw)
+                    print("---- Decoded ----", bookAuthor)
+                    print("---- RAW ----", bookAuthorraw)
                 }
             }
-        // if meta is empty assign title as file name & author to Unknown
+            print("---- Finished for loop ----")
+            
+            // if meta is empty assign title as file name & author to Unknown
         } else {
             bookTitle = url.deletingPathExtension().lastPathComponent
-            print("Nothing found in data for Title")
+            print("Nothing found in data for Title & Author")
             bookAuthor = "Unknown author 🤷"
-            print("Nothing found in data for Author")
         }
         
         // converting cyrillic encoding 1251 if needed
         func converter(raw: String) -> String {
+            print("---- Entered Converter ----")
+            
             var cleanData = ""
             let cp1252Data = raw.data(using: .windowsCP1252)
             let decoded = String(data: cp1252Data ?? Data(), encoding: .windowsCP1251)!
@@ -188,9 +202,11 @@ struct Books: View {
             } else {
                 // return original
                 cleanData = raw
+                
             }
             return cleanData
         }
+        
         return (bookTitle, bookAuthor)
     }
     

@@ -39,10 +39,13 @@ struct AudioPlayer {
             // this codes for making this app ready to takeover the device audio
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
-            // Start Playing
+            // setup controls for remote controller
             setupRemoteTransportControls()
+            // Start Playing
             player = try AVAudioPlayer(contentsOf: playNow!)
-           
+            // set meta data for remote controller
+            setupNowPlaying()
+            
             player?.delegate = delegate
             NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
                 if bookhasfinished {
@@ -56,7 +59,7 @@ struct AudioPlayer {
         } catch let error {
             print("Player Error", error.localizedDescription)
         }
-      
+        
     }
     
     // Get current book URL Data for Play Manager
@@ -138,13 +141,10 @@ struct AudioPlayer {
         return PlayerPlaying ?? false
     }
     
-    // meta for remote controller
-    
     func setupRemoteTransportControls() {
         // Get the shared MPRemoteCommandCenter
-        
         let commandCenter = MPRemoteCommandCenter.shared()
-
+        
         // Add a handler for the play command.
         commandCenter.playCommand.addTarget { _ in // check out player
             if !PlayerStatus.playing {
@@ -153,15 +153,15 @@ struct AudioPlayer {
             }
             return .commandFailed
         }
-
-            // Add handler for Pause Command
-            commandCenter.pauseCommand.addTarget { _ in
-                if PlayerStatus.playing {
-                    Stop()
-                    return .success
-                }
-                return .commandFailed
+        
+        // Add handler for Pause Command
+        commandCenter.pauseCommand.addTarget { _ in
+            if PlayerStatus.playing {
+                Stop()
+                return .success
             }
+            return .commandFailed
+        }
         
         // Add handler for next Command
         commandCenter.nextTrackCommand.addTarget { _ in
@@ -176,9 +176,46 @@ struct AudioPlayer {
         }
     }
     
+    // meta for remote controller
+    func setupNowPlaying() {
+        
+        var artwork = Optional(UIImage())
+        
+        let asset = AVAsset(url: player!.url!)
+        // getting artwork
+        let artworkItems = AVMetadataItem.metadataItems(from: asset.metadata,
+                                                        filteredByIdentifier: .commonIdentifierArtwork)
+        if let artworkItem = artworkItems.first {
+            // Coerce the value to a Data value using its dataValue property
+            if let imageData = artworkItem.dataValue {
+                artwork = UIImage(data: imageData)
+            } else {
+                // No image data was found.
+            }
+        }
+        
+        
+        // Define Now Playing Info
+        var nowPlayingInfo = [String : Any]()
+        nowPlayingInfo[MPMediaItemPropertyTitle] = PlayerStatus.bookname
+        
+        if let image = artwork {
+            nowPlayingInfo[MPMediaItemPropertyArtwork] =
+            MPMediaItemArtwork(boundsSize: image.size) { size in
+                return image
+            }
+        }
+        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player?.currentTime
+        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = player?.duration
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player?.rate
+        
+        // Set the metadata
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
+    
 }
 
 // remote controller
 //https://developer.apple.com/documentation/mediaplayer/mpremotecommand
-//https://developer.apple.com/documentation/avfoundation/media_playback_and_selection/creating_a_basic_video_player_ios_and_tvos/controlling_background_audio
+//we
 

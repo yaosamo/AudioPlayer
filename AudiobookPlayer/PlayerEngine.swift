@@ -14,6 +14,7 @@ import MediaPlayer
 var player: AVAudioPlayer?
 let delegate = BookFinished()
 var bookhasfinished = false
+var noRemoteController = true
 
 
 class BookFinished : NSObject, AVAudioPlayerDelegate {
@@ -39,13 +40,18 @@ struct AudioPlayer {
             // this codes for making this app ready to takeover the device audio
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
-            // setup controls for remote controller
-            setupRemoteTransportControls()
+            
             // Start Playing
             player = try AVAudioPlayer(contentsOf: playNow!)
-            // set meta data for remote controller
+            
+            // set remote controller and meta data for it + updating observabl object
             setupNowPlaying()
             
+            if noRemoteController {
+                setupRemoteTransportControls()
+            }
+            
+            // Delegate to listen when book finishes
             player?.delegate = delegate
             NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
                 if bookhasfinished {
@@ -62,14 +68,18 @@ struct AudioPlayer {
         
     }
     
+    
     // Get current book URL Data for Play Manager
     func Playlist(at nextBookIndex: Int) {
         // Getting current item bookmarkData
         let bookmarkData = PlayerStatus.currentPlaylist![nextBookIndex].urldata!
         let nextBookID = PlayerStatus.currentPlaylist![nextBookIndex].id
+        let nextBookName = PlayerStatus.currentPlaylist![nextBookIndex].name
         print("Playlist set next book to play at: \(nextBookIndex)")
+        // updating data for nextbook in observable object
         PlayerStatus.currentlyPlayingID = nextBookID
         PlayerStatus.currentlyPlayingIndex = nextBookIndex
+        PlayerStatus.bookname = nextBookName
         PlayManager(bookmarkData: bookmarkData)
     }
     
@@ -166,14 +176,15 @@ struct AudioPlayer {
         // Add handler for next Command
         commandCenter.nextTrackCommand.addTarget { _ in
             NextBook()
-            return .commandFailed
+            return .success
         }
         
         // Add handler for previous Command
         commandCenter.previousTrackCommand.addTarget { _ in
             PreviousBook()
-            return .commandFailed
+            return .success
         }
+        noRemoteController = false
     }
     
     // meta for remote controller
@@ -212,10 +223,5 @@ struct AudioPlayer {
         // Set the metadata
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
-    
 }
-
-// remote controller
-//https://developer.apple.com/documentation/mediaplayer/mpremotecommand
-//we
 

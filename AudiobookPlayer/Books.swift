@@ -151,36 +151,26 @@ struct Books: View {
     
     func metaData(url: URL) -> (bookTitle: String, bookAuthor: String) {
         let asset = AVAsset(url: url)
-        print("---- Entered Meta data----")
         
         // return values
         var bookTitle = ""
         var bookAuthor = ""
         
-        
         // Refactor https://developer.apple.com/documentation/avfoundation/media_assets_and_metadata/retrieving_media_metadata
         
         // check if meta is not empty getting meta for Title and artist
-        if asset.commonMetadata.count > 1  {
-            print("---- Meta Count: ----", asset.commonMetadata)
+        if asset.commonMetadata.count > 0  {
             
             for info in asset.commonMetadata {
-                print("---- Entered LOOP ----")
                 if info.commonKey?.rawValue == "title" {
                     let bookTitleraw = info.value as! String
                     bookTitle = converter(raw: bookTitleraw)
-                    print("---- Decoded ----", bookTitle)
-                    print("---- RAW ----", bookTitleraw)
                 }
                 if info.commonKey?.rawValue == "artist" {
                     let bookAuthorraw = info.value as! String
                     bookAuthor = converter(raw: bookAuthorraw)
-                    print("---- Decoded ----", bookAuthor)
-                    print("---- RAW ----", bookAuthorraw)
                 }
             }
-            print("---- Finished for loop ----")
-            
             // if meta is empty assign title as file name & author to Unknown
         } else {
             bookTitle = url.deletingPathExtension().lastPathComponent
@@ -190,8 +180,6 @@ struct Books: View {
         
         // converting cyrillic encoding 1251 if needed
         func converter(raw: String) -> String {
-            print("---- Entered Converter ----")
-            
             var cleanData = ""
             let cp1252Data = raw.data(using: .windowsCP1252)
             let decoded = String(data: cp1252Data ?? Data(), encoding: .windowsCP1251)!

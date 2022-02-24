@@ -30,19 +30,16 @@ struct AudioPlayer {
     @ObservedObject var PlayerStatus: AudioPlayerStatus
     
     // Receive URLdata to play -> initiate play
-    func PlayManager(bookmarkData: Data) {
+    func PlayManager(play: URL) {
         
-        // Restore security scoped bookmark
-        var bookmarkDataIsStale = false
-        let playNow = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
-        print("Please put \(playNow!.lastPathComponent) on")
+        
         do {
             // this codes for making this app ready to takeover the device audio
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
             
             // Start Playing
-            player = try AVAudioPlayer(contentsOf: playNow!)
+            player = try AVAudioPlayer(contentsOf: play)
             
             // set remote controller and meta data for it + updating observabl object
             setupNowPlaying()
@@ -73,14 +70,25 @@ struct AudioPlayer {
     func Playlist(at nextBookIndex: Int) {
         // Getting current item bookmarkData
         let bookmarkData = PlayerStatus.currentPlaylist![nextBookIndex].urldata!
+        let URL = restoreURL(bookmarkData: bookmarkData)
+        // Assigning newBookID and Name
         let nextBookID = PlayerStatus.currentPlaylist![nextBookIndex].id
         let nextBookName = PlayerStatus.currentPlaylist![nextBookIndex].name
         print("Playlist set next book to play at: \(nextBookIndex)")
+        
         // updating data for nextbook in observable object
         PlayerStatus.currentlyPlayingID = nextBookID
         PlayerStatus.currentlyPlayingIndex = nextBookIndex
         PlayerStatus.bookname = nextBookName
-        PlayManager(bookmarkData: bookmarkData)
+        PlayManager(play: URL)
+    }
+    
+    func restoreURL(bookmarkData: Data) -> URL {
+        // Restore security scoped bookmark
+        var bookmarkDataIsStale = false
+        let URL = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
+        print("Please put \(URL!.lastPathComponent) on")
+        return URL!
     }
     
     

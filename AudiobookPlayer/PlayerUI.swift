@@ -31,6 +31,9 @@ struct PlayerUI: View {
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
     
+    @State private var elapsed = 0.0
+    
+    let progressTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     
     var body: some View {
         
@@ -65,23 +68,10 @@ struct PlayerUI: View {
             }
             
             ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color(red: 0.1, green: 0.1, blue: 0.1)).frame(height: 8)
-                    .padding(8)
-                Capsule() // progress
-                    .fill(Color.red).frame(width: 40, height: 8)
-                    .padding(8)
-                    .gesture(DragGesture()
-                                .onChanged({ (value) in
-                        
-                        
-                    }).onEnded({ (value) in
-                        
-                        let x = value.location.x
-                        let screen = UIScreen.main.bounds.width - 24
-                        let percent = x / screen
-                        player?.currentTime = Double(percent) * player!.duration
-                    }))
+//
+                ProgressView(value: getProgress())
+                    .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                               .onReceive(progressTimer) { _ in handleProgressTimer() }
             }
             .padding([.top, .bottom], 40)
             .onAppear {
@@ -128,6 +118,10 @@ struct PlayerUI: View {
         .background(.black)
     }
     
+    func handleProgressTimer() {
+        elapsed = player?.currentTime ?? Double(0)
+       }
+    
     func timeUpdate() {
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
             if PlayerStatus.playing {
@@ -136,6 +130,7 @@ struct PlayerUI: View {
             }
         }
     }
+    func getProgress() -> Double { min(1, Double(player?.currentTime ?? Double(0)) / Double(player?.duration ?? Double(0))) }
     
     func getHoursMinutesSecondsFrom(seconds: Double) -> (hours: Int, minutes: Int, seconds: Int) {
         let secs = Int(seconds)

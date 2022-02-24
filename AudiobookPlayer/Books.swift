@@ -9,6 +9,11 @@ import Foundation
 import SwiftUI
 import AVFoundation
 
+enum PlayerStatuses {
+    case playing
+    case stopped
+}
+
 let inactive = Color(red: 0.40, green: 0.42, blue: 0.45)
 let active = Color(red: 0.99, green: 0.99, blue: 0.99)
 
@@ -52,11 +57,12 @@ struct Books: View {
                 ForEach(books) { book in
                     Button(action: {
                         let CurrentItemID = book.id
+                        let URL = audioplayer.restoreURL(bookmarkData: book.urldata!)
                         // Pass array of all audiobooks to our playlist
                         PlayerStatus.currentPlaylist = books
                         PlayerStatus.currentlyPlayingID = CurrentItemID
                         PlayerStatus.bookname = book.name
-                        audioplayer.PlayManager(bookmarkData: book.urldata!)
+                        audioplayer.PlayManager(play: URL)
                         let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
                         
                     }, label: {

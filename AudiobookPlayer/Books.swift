@@ -97,45 +97,27 @@ struct Books: View {
             label: { Label("Import book", systemImage: "square.and.arrow.down")}
             }
         } // Vstack
-        
-        //        .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], onCompletion: function)
-        //        func importImage(_ res: Result<URL, Error>) {
-        //                do{
-        //                    let fileUrl = try res.get()
-        //                    print(fileUrl)
-        //
-        //                    guard fileUrl.startAccessingSecurityScopedResource() else { return }
-        //                    if let imageData = try? Data(contentsOf: fileUrl),
-        //                       let image = UIImage(data: imageData) {
-        //                        self.images[index] = image
-        //                    }
-        //                    fileUrl.stopAccessingSecurityScopedResource()
-        //                } catch{
-        //                    print ("error reading")
-        //                    print (error.localizedDescription)
-        //                }
-        //            }
-        
-        .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3]) { result in
-            switch result {
-            case .success(let url):
-                
-                // Start accessing secured url
-                let StartAccess = url.startAccessingSecurityScopedResource()
-                defer {
-                    // Must stop accessing once stop using
-                    if StartAccess {
-                        url.stopAccessingSecurityScopedResource()
-                    }
+
+        .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], allowsMultipleSelection: true, onCompletion: importBooks)
+    }
+    
+    private func importBooks(_ res: Result<[URL], Error>) {
+        do {
+            let urls = try res.get()
+            for bookIndex in 0...urls.count-1 {
+                let bookURL = urls[bookIndex]
+                let StartAccess = bookURL.startAccessingSecurityScopedResource()
+                addBook(url: bookURL)
+                if StartAccess {
+                    bookURL.stopAccessingSecurityScopedResource()
                 }
-                addBook(url: url)
-            case .failure(let error):
-                print(error)
             }
+        } catch {
+            print(error)
         }
     }
     
-    
+
     private func addBook(url: URL) {
         let meta = metaData(url: url)
         withAnimation {
@@ -155,56 +137,6 @@ struct Books: View {
         }
     }
     
-    func metaData(url: URL) -> (bookTitle: String, bookAuthor: String) {
-        let asset = AVAsset(url: url)
-        
-        // return values
-        var bookTitle = ""
-        var bookAuthor = ""
-        
-        // Refactor https://developer.apple.com/documentation/avfoundation/media_assets_and_metadata/retrieving_media_metadata
-        
-        // check if meta is not empty getting meta for Title and artist
-        if asset.commonMetadata.count > 0  {
-            
-            for info in asset.commonMetadata {
-                if info.commonKey?.rawValue == "title" {
-                    let bookTitleraw = info.value as! String
-                    bookTitle = converter(raw: bookTitleraw)
-                }
-                if info.commonKey?.rawValue == "artist" {
-                    let bookAuthorraw = info.value as! String
-                    bookAuthor = converter(raw: bookAuthorraw)
-                }
-            }
-            // if meta is empty assign title as file name & author to Unknown
-        } else {
-            bookTitle = url.deletingPathExtension().lastPathComponent
-            print("Nothing found in data for Title & Author")
-            bookAuthor = "Unknown author 🤷"
-        }
-        
-        // converting cyrillic encoding 1251 if needed
-        func converter(raw: String) -> String {
-            var cleanData = ""
-            let cp1252Data = raw.data(using: .windowsCP1252)
-            let decoded = String(data: cp1252Data ?? Data(), encoding: .windowsCP1251)!
-            // checking if decoded string was success
-            if decoded.count > 0 {
-                // return decoded
-                cleanData = decoded
-            } else {
-                // return original
-                cleanData = raw
-                
-            }
-            return cleanData
-        }
-        
-        return (bookTitle, bookAuthor)
-    }
-    
-    
     
     private func deleteItems(offsets: IndexSet, books: Array<Book>) {
         withAnimation {
@@ -218,4 +150,55 @@ struct Books: View {
             }
         }
     }
+}
+
+
+
+func metaData(url: URL) -> (bookTitle: String, bookAuthor: String) {
+    let asset = AVAsset(url: url)
+    
+    // return values
+    var bookTitle = ""
+    var bookAuthor = ""
+    
+    // Refactor https://developer.apple.com/documentation/avfoundation/media_assets_and_metadata/retrieving_media_metadata
+    
+    // check if meta is not empty getting meta for Title and artist
+    if asset.commonMetadata.count > 0  {
+        
+        for info in asset.commonMetadata {
+            if info.commonKey?.rawValue == "title" {
+                let bookTitleraw = info.value as! String
+                bookTitle = converter(raw: bookTitleraw)
+            }
+            if info.commonKey?.rawValue == "artist" {
+                let bookAuthorraw = info.value as! String
+                bookAuthor = converter(raw: bookAuthorraw)
+            }
+        }
+        // if meta is empty assign title as file name & author to Unknown
+    } else {
+        bookTitle = url.deletingPathExtension().lastPathComponent
+        print("Nothing found in data for Title & Author")
+        bookAuthor = "Unknown author 🤷"
+    }
+    
+    // converting cyrillic encoding 1251 if needed
+    func converter(raw: String) -> String {
+        var cleanData = ""
+        let cp1252Data = raw.data(using: .windowsCP1252)
+        let decoded = String(data: cp1252Data ?? Data(), encoding: .windowsCP1251)!
+        // checking if decoded string was success
+        if decoded.count > 0 {
+            // return decoded
+            cleanData = decoded
+        } else {
+            // return original
+            cleanData = raw
+            
+        }
+        return cleanData
+    }
+    
+    return (bookTitle, bookAuthor)
 }

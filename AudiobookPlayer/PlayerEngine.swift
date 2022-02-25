@@ -32,7 +32,6 @@ struct AudioPlayer {
     // Receive URLdata to play -> initiate play
     func PlayManager(play: URL) {
         
-        
         do {
             // this codes for making this app ready to takeover the device audio
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
@@ -213,7 +212,6 @@ struct AudioPlayer {
             }
         }
         
-        
         // Define Now Playing Info
         var nowPlayingInfo = [String : Any]()
         nowPlayingInfo[MPMediaItemPropertyTitle] = PlayerStatus.bookname
@@ -232,4 +230,3 @@ struct AudioPlayer {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
 }
-

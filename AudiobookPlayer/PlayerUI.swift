@@ -31,8 +31,7 @@ struct PlayerUI: View {
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
     
-    @State private var elapsed = 0.0
-    
+    @State private var progress = 0.0
     let progressTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     
     var body: some View {
@@ -69,9 +68,10 @@ struct PlayerUI: View {
             
             ZStack(alignment: .leading) {
 //
-                ProgressView(value: getProgress())
+                ProgressView(value: progress)
+                    .padding([.leading, .trailing], 24)
                     .progressViewStyle(LinearProgressViewStyle(tint: .blue))
-                               .onReceive(progressTimer) { _ in handleProgressTimer() }
+                    .onReceive(progressTimer) { _ in handleProgressTimer()}
             }
             .padding([.top, .bottom], 40)
             .onAppear {
@@ -117,9 +117,15 @@ struct PlayerUI: View {
         .frame(height: 330)
         .background(.black)
     }
+//    func getProgress() -> Double { min(1, Double(elapsed) / Double(duration)) }
+
     
     func handleProgressTimer() {
-        elapsed = player?.currentTime ?? Double(0)
+        if PlayerStatus.playing {
+            let normalizedTime = Double(player!.currentTime) / Double(player!.duration)
+            progress = normalizedTime
+        print("progress --- ", progress)
+        }
        }
     
     func timeUpdate() {
@@ -130,7 +136,6 @@ struct PlayerUI: View {
             }
         }
     }
-    func getProgress() -> Double { min(1, Double(player?.currentTime ?? Double(0)) / Double(player?.duration ?? Double(0))) }
     
     func getHoursMinutesSecondsFrom(seconds: Double) -> (hours: Int, minutes: Int, seconds: Int) {
         let secs = Int(seconds)
@@ -153,5 +158,13 @@ struct PlayerUI: View {
         }
         let time = "\(hoursString):\(minutesString):\(secondsString)"
         return time
+    }
+}
+
+struct DarkBlueShadowProgressViewStyle: ProgressViewStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        ProgressView(configuration)
+            .shadow(color: Color(red: 0, green: 0, blue: 0.6),
+                    radius: 4.0, x: 1.0, y: 2.0)
     }
 }

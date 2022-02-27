@@ -31,7 +31,7 @@ struct PlayerUI: View {
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
     
-    @State private var progress = 0.0
+    @State private var progress : Double = Double()
     let progressTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     
     var body: some View {
@@ -40,38 +40,51 @@ struct PlayerUI: View {
         let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
         let bookname = PlayerStatus.bookname
         
-        VStack {
-            HStack {
-                VStack(alignment: .leading){
-                    Text(PlayerStatus.speaker)
-                        .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
-                        .MainFont(12)
-                    //Refactor animation
-                    withAnimation(Animation.linear(duration: 10).repeatForever(autoreverses: true)) {
+        VStack(alignment: .leading) {
+            
+            VStack(alignment: .leading){
+                Text(PlayerStatus.speaker)
+                    .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
+                    .MainFont(12)
+                //Refactor animation
+                withAnimation(Animation.linear(duration: 10).repeatForever(autoreverses: true)) {
                     Text("\(bookname ?? "Select something to play")")
                         .MainFont(24)
                         .frame(height: 40, alignment: .leading)
                         .foregroundColor(.white)
                         .padding([.top, .bottom], 1)
-                    }
-
-                    Text("\(time)")
-                        .MainFont(12)
-                        .foregroundColor(.white)
                 }
-                .padding(.leading, 24)
-                .onAppear {
-                    timeUpdate()
-                }
-                Spacer()
+                
+                Text("\(time)")
+                    .MainFont(12)
+                    .foregroundColor(.white)
+            }
+            .padding(.leading, 24)
+            .onAppear {
+                timeUpdate()
             }
             
-            ZStack(alignment: .leading) {
-//
-                ProgressView(value: progress)
-                    .padding([.leading, .trailing], 24)
-                    .progressViewStyle(LinearProgressViewStyle(tint: .blue))
-                    .onReceive(progressTimer) { _ in handleProgressTimer()}
+            
+            ZStack{
+                let center = UIScreen.main.bounds.width / 2
+                ScrollView(.horizontal) {
+                    Rectangle()
+                        .fill(Color.red)
+                        .frame(width: player?.duration ?? 0, height: 48)
+                        .padding([.leading, .trailing], center)
+                    
+                    //                ProgressView(value: progress)
+                    //                    .padding([.leading, .trailing], 24)
+                    //                    .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                    //                    .onReceive(progressTimer) { _ in handleProgressTimer()}
+                }
+                .onReceive(progressTimer) { _ in handleProgressTimer()}
+                .offset(x: -progress)
+                
+                Rectangle()
+                    .fill(Color.white)
+                    .frame(width: 1, height: 64)
+                
             }
             .padding([.top, .bottom], 40)
             .onAppear {
@@ -117,16 +130,15 @@ struct PlayerUI: View {
         .frame(height: 330)
         .background(.black)
     }
-//    func getProgress() -> Double { min(1, Double(elapsed) / Double(duration)) }
-
+    //    func getProgress() -> Double { min(1, Double(elapsed) / Double(duration)) }
+    
     
     func handleProgressTimer() {
         if PlayerStatus.playing {
-            let normalizedTime = Double(player!.currentTime) / Double(player!.duration)
-            progress = normalizedTime
-        print("progress --- ", progress)
+            progress = Double(player!.currentTime)
+            print("progress --- ", progress)
         }
-       }
+    }
     
     func timeUpdate() {
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in

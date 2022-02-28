@@ -30,6 +30,7 @@ struct PlayerUI: View {
     @State var time : String = "00:00:00" // current player progress
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
+    @Namespace var topID
     
     @State private var progress : Double = Double()
     let progressTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
@@ -67,24 +68,30 @@ struct PlayerUI: View {
             
             ZStack{
                 let center = UIScreen.main.bounds.width / 2
+                ScrollViewReader { proxy in
                 ScrollView(.horizontal) {
-                    Rectangle()
-                        .fill(Color.red)
-                        .frame(width: player?.duration ?? 0, height: 48)
-                        .padding([.leading, .trailing], center)
                     
-                    //                ProgressView(value: progress)
-                    //                    .padding([.leading, .trailing], 24)
-                    //                    .progressViewStyle(LinearProgressViewStyle(tint: .blue))
-                    //                    .onReceive(progressTimer) { _ in handleProgressTimer()}
+                    Rectangle()
+                        .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .frame(width: player?.duration ?? 0 , height: 48, alignment: .trailing)
+                        .padding([.leading, .trailing], center)
+                        .onReceive(progressTimer) { _ in handleProgressTimer()}
+                    //                            .offset(x: 0)
+                    //                            .position(x: 2000, y: 50)
+                    HStack(spacing: 0) {
+                                  ForEach(0..<100) { i in
+                                      Rectangle()
+                                          .frame(width: 1 ,height: 32)
+                                  }
+                              }
+                    
                 }
-                .onReceive(progressTimer) { _ in handleProgressTimer()}
-                .offset(x: -progress)
+                    
+                }
                 
                 Rectangle()
                     .fill(Color.white)
-                    .frame(width: 1, height: 64)
-                
+                    .frame(width: 1, height: 56)
             }
             .padding([.top, .bottom], 40)
             .onAppear {
@@ -170,6 +177,10 @@ struct PlayerUI: View {
         }
         let time = "\(hoursString):\(minutesString):\(secondsString)"
         return time
+    }
+    
+    public func scrollViewWillBeginDragging() {
+        print("right")
     }
 }
 

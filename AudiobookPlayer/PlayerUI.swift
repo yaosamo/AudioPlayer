@@ -22,6 +22,46 @@ func colorize (hex: Int, alpha: Double = 1.0) -> UIColor {
 }
 
 
+struct TrackableScrollView<Content>: View where Content: View {
+    let axes: Axis.Set
+    let showIndicators: Bool
+    @Binding var contentOffset: CGFloat
+    let content: Content
+    
+    init(_ axes: Axis.Set = .vertical, showIndicators: Bool = true, contentOffset: Binding<CGFloat>, @ViewBuilder content: () -> Content) {
+        self.axes = axes
+        self.showIndicators = showIndicators
+        self._contentOffset = contentOffset
+        self.content = content()
+    }
+    
+    var body: some View {
+        GeometryReader { outsideProxy in
+            ScrollView(self.axes, showsIndicators: self.showIndicators) {
+                ZStack(alignment: self.axes == .vertical ? .top : .leading) {
+                    GeometryReader { insideProxy in
+                        Color.clear
+                        // Get the content offset here
+//                         let contentOffset = calculateContentOffset(fromOutsideProxy: outsideProxy, insideProxy: insideProxy)
+                    }
+                    VStack {
+                        self.content
+                    }
+                }
+            }
+        }
+    }
+    
+    private func calculateContentOffset(fromOutsideProxy outsideProxy: GeometryProxy, insideProxy: GeometryProxy) -> CGFloat {
+        if axes == .vertical {
+            return outsideProxy.frame(in: .global).minY - insideProxy.frame(in: .global).minY
+        } else {
+            return outsideProxy.frame(in: .global).minX - insideProxy.frame(in: .global).minX
+        }
+    }
+}
+
+
 struct PlayerUI: View {
     
     let iconplay = "play.fill"
@@ -68,27 +108,24 @@ struct PlayerUI: View {
             
             ZStack{
                 let center = UIScreen.main.bounds.width / 2
-                ScrollViewReader { proxy in
-                ScrollView(.horizontal) {
-                    
-                    Rectangle()
-                        .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
-                        .frame(width: player?.duration ?? 0 , height: 48, alignment: .trailing)
-                        .padding([.leading, .trailing], center)
-                        .onReceive(progressTimer) { _ in handleProgressTimer()}
-                    //                            .offset(x: 0)
-                    //                            .position(x: 2000, y: 50)
-                    HStack(spacing: 0) {
-                                  ForEach(0..<100) { i in
-                                      Rectangle()
-                                          .frame(width: 1 ,height: 32)
-                                  }
-                              }
-                    
+                GeometryReader { geometryOut in
+                    ScrollView(.horizontal) {
+            
+                            Rectangle()
+                                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                                .frame(width: player?.duration ?? 0 , height: 48, alignment: .trailing)
+                                .padding([.leading, .trailing], center)
+                                .onReceive(progressTimer) { _ in handleProgressTimer()}
+                                .background( GeometryReader { geometryIn in
+                            
+                            Text("\(geometryOut.frame(in: .global).minX - geometryIn.frame(in: .global).minX)")
+                                .frame(width: 200)
+                                                .font(.title)
+                            
+                        })
+                    }
                 }
-                    
-                }
-                
+//                .offset(x: -progress)
                 Rectangle()
                     .fill(Color.white)
                     .frame(width: 1, height: 56)
@@ -137,8 +174,6 @@ struct PlayerUI: View {
         .frame(height: 330)
         .background(.black)
     }
-    //    func getProgress() -> Double { min(1, Double(elapsed) / Double(duration)) }
-    
     
     func handleProgressTimer() {
         if PlayerStatus.playing {

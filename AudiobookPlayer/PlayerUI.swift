@@ -10,6 +10,7 @@ import SwiftUI
 import CoreData
 import AVFoundation
 
+
 let whiteColor = Color(red: 0.91, green: 0.91, blue: 0.91)
 
 
@@ -22,8 +23,8 @@ func colorize (hex: Int, alpha: Double = 1.0) -> UIColor {
 }
 
 
-
 struct PlayerUI: View {
+   
     
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
@@ -31,7 +32,6 @@ struct PlayerUI: View {
     @State var time : String = "00:00:00" // current player progress
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
-    @State var seekingOffset : CGFloat = 0
   
     @State private var progress : Double = Double()
     let progressTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
@@ -65,47 +65,10 @@ struct PlayerUI: View {
             .onAppear {
                 timeUpdate()
             }
-            let _ = print("--- value", seekingOffset)
             
             ZStack{
-                let center = UIScreen.main.bounds.width / 2
-                SeekView(.horizontal, showIndicators: true, contentOffset: $seekingOffset) {
-                            // Book's Scroll
-                            Rectangle()
-                                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
-                                .frame(width: player?.duration ?? 0 , height: 48, alignment: .trailing)
-                                .padding([.leading, .trailing], center)
-                    }
-                .onChange(of: seekingOffset, perform: { newValue in
-                    SeekPlayerTo(seekingOffset)
-                })
-
-                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                    seekingOffset = value[0]
-                }
-
-                    
-                    
-                    //                GeometryReader { geometryOut in
-                    //
-                    //                    ScrollView(.horizontal) {
-                    //
-                    //                            Rectangle()
-                    //                                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
-                    //                                .frame(width: player?.duration ?? 0 , height: 48, alignment: .trailing)
-                    //                                .padding([.leading, .trailing], center)
-                    //                                .onReceive(progressTimer) { _ in handleProgressTimer()}
-                    //
-                    //                            GeometryReader { geometryIn in
-                    //                                        let A = geometryOut.frame(in: .global).minX - geometryIn.frame(in: .global).minX
-                    //
-                    //                                }
-                    // https://medium.com/@maxnatchanon/swiftui-how-to-get-content-offset-from-scrollview-5ce1f84603ec
-                    //                    }
-                    //                }
-                    //                .offset(x: -progress)
-                    
-                        
+                // Seeking view
+                SeekView()
                     Rectangle()
                         .fill(Color.white)
                         .frame(width: 1, height: 56)

@@ -23,56 +23,6 @@ func colorize (hex: Int, alpha: Double = 1.0) -> UIColor {
 
 
 
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-    typealias Value = [CGFloat]
-    
-    static var defaultValue: [CGFloat] = [0]
-    
-    static func reduce(value: inout [CGFloat], nextValue: () -> [CGFloat]) {
-        value.append(contentsOf: nextValue())
-    }
-}
-
-struct TrackableScrollView<Content>: View where Content: View {
-    let axes: Axis.Set
-    let showIndicators: Bool
-    @Binding var contentOffset: CGFloat
-    let content: Content
-    
-    init(_ axes: Axis.Set = .vertical, showIndicators: Bool = true, contentOffset: Binding<CGFloat>, @ViewBuilder content: () -> Content) {
-        self.axes = axes
-        self.showIndicators = showIndicators
-        self._contentOffset = contentOffset
-        self.content = content()
-    }
-    
-    var body: some View {
-        GeometryReader { outsideProxy in
-            ScrollView(self.axes, showsIndicators: self.showIndicators) {
-                ZStack(alignment: self.axes == .vertical ? .top : .leading) {
-                    GeometryReader { insideProxy in
-                        Color.clear
-                        // Get the content offset here
-//                         let contentOffset = calculateContentOffset(fromOutsideProxy: outsideProxy, insideProxy: insideProxy)
-                    }
-                    VStack {
-                        self.content
-                    }
-                }
-            }
-        }
-    }
-    
-    private func calculateContentOffset(fromOutsideProxy outsideProxy: GeometryProxy, insideProxy: GeometryProxy) -> CGFloat {
-        if axes == .vertical {
-            return outsideProxy.frame(in: .global).minY - insideProxy.frame(in: .global).minY
-        } else {
-            return outsideProxy.frame(in: .global).minX - insideProxy.frame(in: .global).minX
-        }
-    }
-}
-
-
 struct PlayerUI: View {
     
     let iconplay = "play.fill"
@@ -82,7 +32,7 @@ struct PlayerUI: View {
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
     @State var seekingOffset : CGFloat = 0
-    
+  
     @State private var progress : Double = Double()
     let progressTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     
@@ -115,122 +65,138 @@ struct PlayerUI: View {
             .onAppear {
                 timeUpdate()
             }
-            
+            let _ = print("--- value", seekingOffset)
             
             ZStack{
                 let center = UIScreen.main.bounds.width / 2
-                Text("\(seekingOffset)")
-                GeometryReader { geometryOut in
-                    
-                    ScrollView(.horizontal) {
-            
+                SeekView(.horizontal, showIndicators: true, contentOffset: $seekingOffset) {
+                            // Book's Scroll
                             Rectangle()
                                 .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
                                 .frame(width: player?.duration ?? 0 , height: 48, alignment: .trailing)
                                 .padding([.leading, .trailing], center)
-                                .onReceive(progressTimer) { _ in handleProgressTimer()}
-                                
-                                GeometryReader { geometryIn in
-                                    Color.clear.onAppear {
-                                        let A = geometryOut.frame(in: .global).minX - geometryIn.frame(in: .global).minX
-                                                        seekingOffset = A
-                                                    }
-                                   
-                                       
-                           
+                    }
+                .onChange(of: seekingOffset, perform: { newValue in
+                    SeekPlayerTo(seekingOffset)
+                })
 
-                                }
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                    seekingOffset = value[0]
+                }
+
+                    
+                    
+                    //                GeometryReader { geometryOut in
+                    //
+                    //                    ScrollView(.horizontal) {
+                    //
+                    //                            Rectangle()
+                    //                                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                    //                                .frame(width: player?.duration ?? 0 , height: 48, alignment: .trailing)
+                    //                                .padding([.leading, .trailing], center)
+                    //                                .onReceive(progressTimer) { _ in handleProgressTimer()}
+                    //
+                    //                            GeometryReader { geometryIn in
+                    //                                        let A = geometryOut.frame(in: .global).minX - geometryIn.frame(in: .global).minX
+                    //
+                    //                                }
+                    // https://medium.com/@maxnatchanon/swiftui-how-to-get-content-offset-from-scrollview-5ce1f84603ec
+                    //                    }
+                    //                }
+                    //                .offset(x: -progress)
+                    
+                        
+                    Rectangle()
+                        .fill(Color.white)
+                        .frame(width: 1, height: 56)
+                }
+                .padding([.top, .bottom], 40)
+                .onAppear {
+                    let audioSession = AVAudioSession.sharedInstance().currentRoute
+                    for output in audioSession.outputs {
+                        PlayerStatus.speaker = output.portName
                     }
                 }
-//                .offset(x: -progress)
-                Rectangle()
-                    .fill(Color.white)
-                    .frame(width: 1, height: 56)
-            }
-            .padding([.top, .bottom], 40)
-            .onAppear {
-                let audioSession = AVAudioSession.sharedInstance().currentRoute
-                for output in audioSession.outputs {
-                    PlayerStatus.speaker = output.portName
+                
+                HStack {
+                    Button {
+                        audioplayer.PreviousBook()
+                    }
+                label: {
+                    Image(systemName:  "backward.fill")
+                        .resizable()
+                        .frame(width: 38, height: 24, alignment: .center)
+                        .foregroundColor(.white)
                 }
-            }
-            
-            HStack {
-                Button {
-                    audioplayer.PreviousBook()
+                    Spacer()
+                    Button {
+                        audioplayer.TogglePlayPause()
+                    }
+                label: {
+                    Image(systemName: PlayerStatus.playing ? iconstop : iconplay)
+                        .font(.system(size: 42.0))
+                        .frame(width: 32, height: 44, alignment: .center)
+                        .foregroundColor(.white)
                 }
-            label: {
-                Image(systemName:  "backward.fill")
-                    .resizable()
-                    .frame(width: 38, height: 24, alignment: .center)
-                    .foregroundColor(.white)
-            }
-                Spacer()
-                Button {
-                    audioplayer.TogglePlayPause()
+                    Spacer()
+                    Button {
+                        audioplayer.NextBook()
+                    }
+                label: {
+                    Image(systemName: "forward.fill")
+                        .resizable()
+                        .frame(width: 38, height: 24, alignment: .center)
+                        .foregroundColor(.white)
                 }
-            label: {
-                Image(systemName: PlayerStatus.playing ? iconstop : iconplay)
-                    .font(.system(size: 42.0))
-                    .frame(width: 32, height: 44, alignment: .center)
-                    .foregroundColor(.white)
-            }
-                Spacer()
-                Button {
-                    audioplayer.NextBook()
-                }
-            label: {
-                Image(systemName: "forward.fill")
-                    .resizable()
-                    .frame(width: 38, height: 24, alignment: .center)
-                    .foregroundColor(.white)
-            }
-            } //hstack
-            .padding([.trailing, .leading], 72)
-        } //vstack
-        .frame(height: 330)
-        .background(.black)
-    }
-    
-  
-    
-    func handleProgressTimer() {
-        if PlayerStatus.playing {
-            progress = Double(player!.currentTime)
-            print("progress --- ", progress)
+                } //hstack
+                .padding([.trailing, .leading], 72)
+            } //vstack
+            .frame(height: 330)
+            .background(.black)
         }
-    }
     
-    func timeUpdate() {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
+    func SeekPlayerTo(_ offset: CGFloat) {
+        player?.currentTime = offset
+    }
+      
+        
+        func handleProgressTimer() {
             if PlayerStatus.playing {
-                let seconds = player?.currentTime
-                time = formatTimeFor(seconds: seconds ?? 0)
+                progress = Double(player!.currentTime)
+                print("progress --- ", progress)
             }
         }
-    }
-    
-    func getHoursMinutesSecondsFrom(seconds: Double) -> (hours: Int, minutes: Int, seconds: Int) {
-        let secs = Int(seconds)
-        let hours = secs / 3600
-        let minutes = (secs % 3600) / 60
-        let seconds = (secs % 3600) % 60
-        return (hours, minutes, seconds)
-    }
-    
-    func formatTimeFor(seconds: Double) -> String {
-        let result = getHoursMinutesSecondsFrom(seconds: seconds)
-        let hoursString = "0\(result.hours)"
-        var minutesString = "\(result.minutes)"
-        if minutesString.count == 1 {
-            minutesString = "0\(result.minutes)"
+        
+        func timeUpdate() {
+            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
+                if PlayerStatus.playing {
+                    let seconds = player?.currentTime
+                    time = formatTimeFor(seconds: seconds ?? 0)
+                }
+            }
         }
-        var secondsString = "\(result.seconds)"
-        if secondsString.count == 1 {
-            secondsString = "0\(result.seconds)"
+        
+        func getHoursMinutesSecondsFrom(seconds: Double) -> (hours: Int, minutes: Int, seconds: Int) {
+            let secs = Int(seconds)
+            let hours = secs / 3600
+            let minutes = (secs % 3600) / 60
+            let seconds = (secs % 3600) % 60
+            return (hours, minutes, seconds)
         }
-        let time = "\(hoursString):\(minutesString):\(secondsString)"
-        return time
+        
+        func formatTimeFor(seconds: Double) -> String {
+            let result = getHoursMinutesSecondsFrom(seconds: seconds)
+            let hoursString = "0\(result.hours)"
+            var minutesString = "\(result.minutes)"
+            if minutesString.count == 1 {
+                minutesString = "0\(result.minutes)"
+            }
+            var secondsString = "\(result.seconds)"
+            if secondsString.count == 1 {
+                secondsString = "0\(result.seconds)"
+            }
+            let time = "\(hoursString):\(minutesString):\(secondsString)"
+            return time
+        }
+        
     }
-
-}

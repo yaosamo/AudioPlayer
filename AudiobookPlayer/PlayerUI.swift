@@ -66,14 +66,10 @@ struct PlayerUI: View {
                 timeUpdate()
             }
             
-            ZStack{
-                // Seeking view
+           
                 SeekView()
-                    Rectangle()
-                        .fill(Color.white)
-                        .frame(width: 1, height: 56)
-                }
-                .padding([.top, .bottom], 40)
+                
+//                .padding([.top, .bottom], 40)
                 .onAppear {
                     let audioSession = AVAudioSession.sharedInstance().currentRoute
                     for output in audioSession.outputs {

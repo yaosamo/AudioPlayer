@@ -23,34 +23,52 @@ struct SeekView: View {
     let publisher: AnyPublisher<CGFloat, Never>
     
     init() {
-           let detector = CurrentValueSubject<CGFloat, Never>(0)
-           self.publisher = detector
-            .debounce(for: .seconds(0.1), scheduler: DispatchQueue.main)
-               .dropFirst()
-               .eraseToAnyPublisher()
-           self.detector = detector
-       }
-       
+        let detector = CurrentValueSubject<CGFloat, Never>(0)
+        self.publisher = detector
+            .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
+            .dropFirst()
+            .eraseToAnyPublisher()
+        self.detector = detector
+    }
+    let center = UIScreen.main.bounds.width / 2
+    
+    
+    var caret: some View {
+        
+        Rectangle()
+            .fill(Color.white)
+            .frame(width: 2, height: 56, alignment: .trailing)
+            //compensate 2 for
+            .padding([.leading], center-2)
+    }
+    
     
     var body: some View {
         ScrollView(.horizontal) {
-            let center = UIScreen.main.bounds.width / 2
+            LazyHStack(alignment: .center, spacing: 0, pinnedViews: [.sectionHeaders], content: {
+                Section(header: caret) {
+                    
+                    // Book's Scroll
+                    Rectangle()
+                        .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .frame(width: player?.duration ?? 0 , height: 48)
+                        // Caret - playback position
+                        .background(GeometryReader {
+                            Color.clear.preference(key: ViewOffsetKey.self,
+                                                   value: -$0.frame(in: .named("scroll")).origin.x)
+                        })
+                        // added center to compensate padding
+                        .onPreferenceChange(ViewOffsetKey.self) { detector.send($0+center-2) }
+                }
 
-                      // Book's Scroll
-                      Rectangle()
-                          .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
-                          .frame(width: player?.duration ?? 0 , height: 48, alignment: .trailing)
-                          .padding([.leading, .trailing], center)
-                  .background(GeometryReader {
-                      Color.clear.preference(key: ViewOffsetKey.self,
-                          value: -$0.frame(in: .named("scroll")).origin.x)
-                  })
-                  .onPreferenceChange(ViewOffsetKey.self) { detector.send($0) }
-            
-              }.coordinateSpace(name: "scroll")
-              .onReceive(publisher) {
-                  player?.currentTime = $0
-              }
-          }
+            })
+            // Trailing padding for whole lazy stack so caret and playback bounces off -2 for width of caret
+                .padding([.trailing], center-2)
+        }
+        .coordinateSpace(name: "scroll")
+        .onReceive(publisher) {
+            print("\($0)")
+        }
     }
- 
+}
+

@@ -19,8 +19,11 @@ struct ViewOffsetKey: PreferenceKey {
 
 struct SeekView: View {
     
+    let center = UIScreen.main.bounds.width / 2
     let detector: CurrentValueSubject<CGFloat, Never>
     let publisher: AnyPublisher<CGFloat, Never>
+    @State private var progress : Double = Double()
+    let progressTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     
     init() {
         let detector = CurrentValueSubject<CGFloat, Never>(0)
@@ -30,11 +33,9 @@ struct SeekView: View {
             .eraseToAnyPublisher()
         self.detector = detector
     }
-    let center = UIScreen.main.bounds.width / 2
     
     
     var caret: some View {
-        
         Rectangle()
             .fill(Color.white)
             .frame(width: 2, height: 56, alignment: .trailing)
@@ -52,6 +53,8 @@ struct SeekView: View {
                     Rectangle()
                         .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
                         .frame(width: player?.duration ?? 0 , height: 48)
+                        .onReceive(progressTimer) { _ in handleProgressTimer()}
+                        .offset(x: -progress)
                         // Caret - playback position
                         .background(GeometryReader {
                             Color.clear.preference(key: ViewOffsetKey.self,
@@ -60,7 +63,6 @@ struct SeekView: View {
                         // added center to compensate padding
                         .onPreferenceChange(ViewOffsetKey.self) { detector.send($0+center-2) }
                 }
-
             })
             // Trailing padding for whole lazy stack so caret and playback bounces off -2 for width of caret
                 .padding([.trailing], center-2)
@@ -68,6 +70,13 @@ struct SeekView: View {
         .coordinateSpace(name: "scroll")
         .onReceive(publisher) {
             print("\($0)")
+        }
+    }
+    
+    func handleProgressTimer() {
+        if ((player?.isPlaying) != nil) && true {
+            progress = Double(player!.currentTime)
+            print("progress --- ", progress)
         }
     }
 }

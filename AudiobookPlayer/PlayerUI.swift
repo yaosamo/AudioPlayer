@@ -66,10 +66,8 @@ struct PlayerUI: View {
                 timeUpdate()
             }
             
-           
-                SeekView()
-                
-//                .padding([.top, .bottom], 40)
+            SeekView()
+
                 .onAppear {
                     let audioSession = AVAudioSession.sharedInstance().currentRoute
                     for output in audioSession.outputs {
@@ -114,15 +112,14 @@ struct PlayerUI: View {
             .background(.black)
         }
     
-    func SeekPlayerTo(_ offset: CGFloat) {
-        player?.currentTime = offset
-    }
-      
+        func SeekPlayerTo(_ offset: CGFloat) {
+            player?.currentTime = offset
+        }
         
         func handleProgressTimer() {
             if PlayerStatus.playing {
                 progress = Double(player!.currentTime)
-                print("progress --- ", progress)
+                print("progress2 --- ", progress)
             }
         }
         

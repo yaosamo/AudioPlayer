@@ -39,7 +39,7 @@ struct AudioPlayer {
             
             // Start Playing
             player = try AVAudioPlayer(contentsOf: play)
-            
+        
             // set remote controller and meta data for it + updating observabl object
             setupNowPlaying()
             

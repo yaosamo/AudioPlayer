@@ -32,10 +32,7 @@ struct PlayerUI: View {
     @State var time : String = "00:00:00" // current player progress
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
-  
-    @State private var progress : Double = Double()
-    let progressTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-    
+      
     var body: some View {
         
         // The sample audio player.
@@ -111,17 +108,7 @@ struct PlayerUI: View {
             .frame(height: 330)
             .background(.black)
         }
-    
-        func SeekPlayerTo(_ offset: CGFloat) {
-            player?.currentTime = offset
-        }
-        
-        func handleProgressTimer() {
-            if PlayerStatus.playing {
-                progress = Double(player!.currentTime)
-                print("progress2 --- ", progress)
-            }
-        }
+
         
         func timeUpdate() {
             Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in

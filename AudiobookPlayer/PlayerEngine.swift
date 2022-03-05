@@ -39,7 +39,9 @@ struct AudioPlayer {
             
             // Start Playing
             player = try AVAudioPlayer(contentsOf: play)
-        
+            
+            // Book width
+            PlayerStatus.bookPlaybackWidth = player!.duration
             // set remote controller and meta data for it + updating observabl object
             setupNowPlaying()
             

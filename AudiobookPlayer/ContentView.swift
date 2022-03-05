@@ -14,6 +14,9 @@ class AudioPlayerStatus: ObservableObject {
     @Published var playing = false
     @Published var speaker = ""
     @Published var bookname : String?
+    @Published var playbackTime = "00:00:00"
+    @Published var bookPlaybackWidth = CGFloat(0)
+    @Published var playerIsSeeking = false
     @Published var currentBookLenght : Double?
     @Published var currentlyPlayingIndex : Int?
     @Published var currentlyPlayingID : ObjectIdentifier?

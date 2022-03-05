@@ -24,23 +24,24 @@ func colorize (hex: Int, alpha: Double = 1.0) -> UIColor {
 
 
 struct PlayerUI: View {
-   
+    
     
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
     @ObservedObject var PlayerStatus: AudioPlayerStatus
-    @State var time : String = "00:00:00" // current player progress
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
-      
+    
     var body: some View {
         
         // The sample audio player.
         let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
         let bookname = PlayerStatus.bookname
+        let playbackTime = PlayerStatus.playbackTime
         
         VStack(alignment: .leading) {
             
+            // Book Name
             VStack(alignment: .leading){
                 Text(PlayerStatus.speaker)
                     .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
@@ -53,8 +54,8 @@ struct PlayerUI: View {
                         .foregroundColor(.white)
                         .padding([.top, .bottom], 1)
                 }
-                
-                Text("\(time)")
+                // Book Duration
+                Text("\(playbackTime)")
                     .MainFont(12)
                     .foregroundColor(.white)
             }
@@ -62,84 +63,88 @@ struct PlayerUI: View {
             .onAppear {
                 timeUpdate()
             }
+            // Seeking
+            SeekView(PlayerStatus: PlayerStatus)
             
-            SeekView()
-
+            // Audio device name
                 .onAppear {
                     let audioSession = AVAudioSession.sharedInstance().currentRoute
                     for output in audioSession.outputs {
                         PlayerStatus.speaker = output.portName
                     }
                 }
-                
-                HStack {
-                    Button {
-                        audioplayer.PreviousBook()
-                    }
-                label: {
-                    Image(systemName:  "backward.fill")
-                        .resizable()
-                        .frame(width: 38, height: 24, alignment: .center)
-                        .foregroundColor(.white)
+            
+            HStack {
+                Button {
+                    audioplayer.PreviousBook()
                 }
-                    Spacer()
-                    Button {
-                        audioplayer.TogglePlayPause()
-                    }
-                label: {
-                    Image(systemName: PlayerStatus.playing ? iconstop : iconplay)
-                        .font(.system(size: 42.0))
-                        .frame(width: 32, height: 44, alignment: .center)
-                        .foregroundColor(.white)
-                }
-                    Spacer()
-                    Button {
-                        audioplayer.NextBook()
-                    }
-                label: {
-                    Image(systemName: "forward.fill")
-                        .resizable()
-                        .frame(width: 38, height: 24, alignment: .center)
-                        .foregroundColor(.white)
-                }
-                } //hstack
-                .padding([.trailing, .leading], 72)
-            } //vstack
-            .frame(height: 330)
-            .background(.black)
-        }
-
-        
-        func timeUpdate() {
-            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
-                if PlayerStatus.playing {
-                    let seconds = player?.currentTime
-                    time = formatTimeFor(seconds: seconds ?? 0)
-                }
+            label: {
+                Image(systemName:  "backward.fill")
+                    .resizable()
+                    .frame(width: 38, height: 24, alignment: .center)
+                    .foregroundColor(.white)
             }
-        }
-        
-        func getHoursMinutesSecondsFrom(seconds: Double) -> (hours: Int, minutes: Int, seconds: Int) {
-            let secs = Int(seconds)
-            let hours = secs / 3600
-            let minutes = (secs % 3600) / 60
-            let seconds = (secs % 3600) % 60
-            return (hours, minutes, seconds)
-        }
-        
-        func formatTimeFor(seconds: Double) -> String {
-            let result = getHoursMinutesSecondsFrom(seconds: seconds)
-            let hoursString = "0\(result.hours)"
-            var minutesString = "\(result.minutes)"
-            if minutesString.count == 1 {
-                minutesString = "0\(result.minutes)"
+                Spacer()
+                Button {
+                    audioplayer.TogglePlayPause()
+                }
+            label: {
+                Image(systemName: PlayerStatus.playing ? iconstop : iconplay)
+                    .font(.system(size: 42.0))
+                    .frame(width: 32, height: 44, alignment: .center)
+                    .foregroundColor(.white)
             }
-            var secondsString = "\(result.seconds)"
-            if secondsString.count == 1 {
-                secondsString = "0\(result.seconds)"
+                Spacer()
+                Button {
+                    audioplayer.NextBook()
+                }
+            label: {
+                Image(systemName: "forward.fill")
+                    .resizable()
+                    .frame(width: 38, height: 24, alignment: .center)
+                    .foregroundColor(.white)
             }
-            let time = "\(hoursString):\(minutesString):\(secondsString)"
-            return time
-        }
-        
+            } //hstack
+            .padding([.trailing, .leading], 72)
+        } //vstack
+        .frame(height: 330)
+        .background(.black)
     }
+
+    
+    func timeUpdate() {
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
+            if PlayerStatus.playing && !PlayerStatus.playerIsSeeking  {
+                let seconds = player?.currentTime
+                PlayerStatus.playbackTime = formatTimeFor(seconds: seconds ?? 0)
+            }
+        }
+    }
+    
+    
+}
+
+
+func getHoursMinutesSecondsFrom(seconds: Double) -> (hours: Int, minutes: Int, seconds: Int) {
+    let secs = Int(seconds)
+    let hours = secs / 3600
+    let minutes = (secs % 3600) / 60
+    let seconds = (secs % 3600) % 60
+    return (hours, minutes, seconds)
+}
+
+
+func formatTimeFor(seconds: Double) -> String {
+    let result = getHoursMinutesSecondsFrom(seconds: seconds)
+    let hoursString = "0\(result.hours)"
+    var minutesString = "\(result.minutes)"
+    if minutesString.count == 1 {
+        minutesString = "0\(result.minutes)"
+    }
+    var secondsString = "\(result.seconds)"
+    if secondsString.count == 1 {
+        secondsString = "0\(result.seconds)"
+    }
+    let time = "\(hoursString):\(minutesString):\(secondsString)"
+    return time
+}

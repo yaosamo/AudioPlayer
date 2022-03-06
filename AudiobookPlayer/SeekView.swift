@@ -17,12 +17,11 @@ struct ViewOffsetKey: PreferenceKey {
     }
 }
 
+
 struct SeekView: View {
-    @State private var seekingInProgress = false
-    @State private var seekingTimer : Timer?
     @ObservedObject var PlayerStatus: AudioPlayerStatus
+    @State private var seekingTimer : Timer?
     @State private var offset = CGFloat.zero
-    
     let center = UIScreen.main.bounds.width / 2
     
     var caret: some View {
@@ -51,6 +50,7 @@ struct SeekView: View {
                         })
                     // added center to compensate padding
                         .onPreferenceChange(ViewOffsetKey.self) {
+                            // Updating offset and applying center to get caret offset
                             offset = $0+center
                         }
                 }

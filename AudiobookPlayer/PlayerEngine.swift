@@ -12,17 +12,58 @@ import AVFoundation
 import MediaPlayer
 
 var player: AVAudioPlayer?
-let delegate = BookFinished()
+let delegate = Notifications()
 var bookhasfinished = false
 var noRemoteController = true
 
 
-class BookFinished : NSObject, AVAudioPlayerDelegate {
+class Notifications : NSObject, AVAudioPlayerDelegate {
+    // Get the default notification center instance.
+    let nc = NotificationCenter.default
+
+    
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         print("Delegate: Book Finished")
         bookhasfinished = true
-        NotificationCenter.default.post(name: NSNotification.Name("Finished"), object: nil)
+        nc.post(name: NSNotification.Name("Finished"), object: nil)
     }
+    
+    
+    func setupNotifications() {
+        nc.addObserver(self,
+                       selector: #selector(handleInterruption),
+                       name: AVAudioSession.interruptionNotification,
+                       object: AVAudioSession.sharedInstance())
+    }
+
+    @objc func handleInterruption(notification: Notification) {
+        guard let userInfo = notification.userInfo,
+            let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+            let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+                return
+        }
+
+        // Switch over the interruption type.
+        switch type {
+
+        case .began:
+            print("audio interrupted")
+
+        case .ended:
+            print("audio continue")
+
+            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            if options.contains(.shouldResume) {
+                // An interruption ended. Resume playback.
+            } else {
+                // An interruption ended. Don't resume playback.
+            }
+
+        default: ()
+        }
+    }
+    
 }
 
 
@@ -40,7 +81,7 @@ struct AudioPlayer {
             // Start Playing
             player = try AVAudioPlayer(contentsOf: play)
             
-            // Book width
+            // Setting Book width
             PlayerStatus.bookPlaybackWidth = player!.duration
             // set remote controller and meta data for it + updating observabl object
             setupNowPlaying()
@@ -51,6 +92,9 @@ struct AudioPlayer {
             
             // Delegate to listen when book finishes
             player?.delegate = delegate
+            // Setting up
+            delegate.setupNotifications()
+            
             NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
                 if bookhasfinished {
                     print("Notification: Requesting next book")

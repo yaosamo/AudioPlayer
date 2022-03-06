@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct AudiobookPlayerApp: App {
+    // environmental object pass to other views
+    
     let persistenceController = PersistenceController.shared
 
     var body: some Scene {

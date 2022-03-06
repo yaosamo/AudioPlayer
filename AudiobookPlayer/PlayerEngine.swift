@@ -16,6 +16,73 @@ let delegate = Notifications()
 var bookhasfinished = false
 var noRemoteController = true
 
+enum PlayingStatus {
+    case stopped
+    case playing
+    case empty
+}
+
+
+class AudioPlayerStatus: ObservableObject {
+    @Published var status = PlayingStatus.empty
+    
+    @Published var playing = false
+    @Published var speaker = ""
+    @Published var bookname : String?
+    @Published var playbackTime = "00:00:00"
+    @Published var bookPlaybackWidth = CGFloat(0)
+    @Published var playerIsSeeking = false
+    @Published var currentBookLenght : Double?
+    @Published var currentlyPlayingIndex : Int?
+    @Published var currentlyPlayingID : ObjectIdentifier?
+    @Published var currentPlaylist : Array<Book>?
+    
+    private var audioSession : AVAudioSession
+    private var player: AVAudioPlayer?
+
+    init() {
+        audioSession = AVAudioSession.sharedInstance()
+    }
+    
+    func setupAudioSession() {
+           do {
+               try audioSession.setCategory(.playback, mode: .default, options: [.allowAirPlay, .allowBluetooth])
+           } catch {
+               print("Failed to set audio session route sharing policy: \(error)")
+           }
+       }
+    
+    func Play() {
+        print("Play requested")
+        if status != .empty {
+        player?.prepareToPlay()
+        player?.play()
+            status = PlayingStatus.playing }
+        else {
+            print("hey, nothing to play")
+        }
+    }
+    
+    func Stop() {
+        print("Stop requested")
+        player?.stop()
+        status = PlayingStatus.stopped
+    }
+    
+    func TogglePlayPause() {
+        if status == .playing {
+            Stop()
+        }
+        else {
+            Play()
+        }
+    }
+
+}
+
+
+
+
 
 class Notifications : NSObject, AVAudioPlayerDelegate {
     // Get the default notification center instance.
@@ -30,7 +97,7 @@ class Notifications : NSObject, AVAudioPlayerDelegate {
     
     
     func setupNotifications() {
-        nc.addObserver(self,
+                nc.addObserver(self,
                        selector: #selector(handleInterruption),
                        name: AVAudioSession.interruptionNotification,
                        object: AVAudioSession.sharedInstance())
@@ -48,14 +115,17 @@ class Notifications : NSObject, AVAudioPlayerDelegate {
 
         case .began:
             print("audio interrupted")
-
+            player?.stop()
         case .ended:
             print("audio continue")
+            
 
             guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
             let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
             if options.contains(.shouldResume) {
                 // An interruption ended. Resume playback.
+                print("interruption ended")
+                player?.play()
             } else {
                 // An interruption ended. Don't resume playback.
             }
@@ -74,26 +144,25 @@ struct AudioPlayer {
     func PlayManager(play: URL) {
         
         do {
-            // this codes for making this app ready to takeover the device audio
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
             
             // Start Playing
             player = try AVAudioPlayer(contentsOf: play)
-            
+            try? AVAudioSession.sharedInstance().setActive(true)
+
             // Setting Book width
             PlayerStatus.bookPlaybackWidth = player!.duration
-            // set remote controller and meta data for it + updating observabl object
+            // set remote controller and meta data for it + updating observable object
             setupNowPlaying()
             
             if noRemoteController {
                 setupRemoteTransportControls()
+                // Setting up interruption notifications
+                delegate.setupNotifications()
             }
             
             // Delegate to listen when book finishes
             player?.delegate = delegate
-            // Setting up
-            delegate.setupNotifications()
+            
             
             NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
                 if bookhasfinished {
@@ -170,7 +239,7 @@ struct AudioPlayer {
         skipToCurrentItem(offsetBy: +1)
     }
     
-    
+    // moved
     func TogglePlayPause() {
         if IsPlaying() {
             Stop()
@@ -179,9 +248,8 @@ struct AudioPlayer {
             Play()
         }
     }
-    
+    // moved
     func Play() {
-        player?.stop()
         print("Play requested")
         player?.prepareToPlay()
         player?.play()
@@ -192,13 +260,13 @@ struct AudioPlayer {
             print("Hey, nothing to play")
         }
     }
-    
+    //moved
     func Stop() {
         print("Stop requested")
         player?.stop()
         PlayerStatus.playing = false
     }
-    
+    // moved
     func IsPlaying() -> Bool {
         let PlayerPlaying = player?.isPlaying
         return PlayerPlaying ?? false

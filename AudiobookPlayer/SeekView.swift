@@ -35,7 +35,7 @@ struct SeekView: View {
     
     
     var body: some View {
-        
+        ScrollViewReader { proxy in
         ScrollView(.horizontal) {
             LazyHStack(alignment: .center, spacing: 0, pinnedViews: [.sectionHeaders], content: {
                 Section(header: caret) {
@@ -71,6 +71,9 @@ struct SeekView: View {
             seekingTimer = nil
             SeekPlayerTo(newValue)
         })
+        .onChange(of: playerEngine.playbackTime) { newValue in
+        }
+        }
     }
     
     func SeekPlayerTo(_ offset: TimeInterval) {
@@ -82,7 +85,6 @@ struct SeekView: View {
             player?.currentTime = newTime
             seekingTimer?.invalidate()
             playerEngine.playerIsSeeking = false
-
         }
         
     }

@@ -24,7 +24,7 @@ enum PlayingStatus {
 
 
 class AudioPlayerStatus: ObservableObject {
-    @Published var status = PlayingStatus.empty    
+    @Published var status = PlayingStatus.empty
     @Published var speaker = ""
     @Published var bookname : String?
     @Published var playbackTime = "00:00:00"
@@ -36,20 +36,22 @@ class AudioPlayerStatus: ObservableObject {
     @Published var currentPlaylist : Array<Book>?
     
     private var audioSession : AVAudioSession
-//    private var player: AVAudioPlayer?
-
+    
+    
     init() {
         audioSession = AVAudioSession.sharedInstance()
         timeUpdate()
+        setupAudioSession()
+        setupRemoteTransportControls()
     }
     
     func setupAudioSession() {
-           do {
-               try audioSession.setCategory(.playback, mode: .default, options: [.allowAirPlay, .allowBluetooth])
-           } catch {
-               print("Failed to set audio session route sharing policy: \(error)")
-           }
-       }
+        do {
+            try audioSession.setCategory(.playback, mode: .default)
+        } catch {
+            print("Failed to set audio session route sharing policy: \(error)")
+        }
+    }
     
     
     // Receive URLdata to play -> initiate play
@@ -59,19 +61,10 @@ class AudioPlayerStatus: ObservableObject {
             
             // Start Playing
             player = try AVAudioPlayer(contentsOf: play)
-            try? AVAudioSession.sharedInstance().setActive(true)
-
-
+            
+            setupMeta()
             // Setting Book width
             bookPlaybackWidth = player!.duration
-            // set remote controller and meta data for it + updating observable object
-//            setupNowPlaying()
-            
-//            if noRemoteController {
-//                setupRemoteTransportControls()
-//                // Setting up interruption notifications
-//                delegate.setupNotifications()
-//            }
             
             // Delegate to listen when book finishes
             player?.delegate = delegate
@@ -145,7 +138,7 @@ class AudioPlayerStatus: ObservableObject {
         print("Please play previous book")
         skipToCurrentItem(offsetBy: -1)
     }
-  
+    
     func NextBook() {
         print("Please play next book")
         skipToCurrentItem(offsetBy: +1)
@@ -155,12 +148,15 @@ class AudioPlayerStatus: ObservableObject {
         print("Play requested")
         player?.prepareToPlay()
         player?.play()
+        try? audioSession.setActive(true)
         status = PlayingStatus.playing
+        setupInterruption()
     }
     
     func Stop() {
         print("Stop requested")
         player?.stop()
+        try? audioSession.setActive(false)
         status = PlayingStatus.stopped
     }
     
@@ -222,7 +218,7 @@ class AudioPlayerStatus: ObservableObject {
     }
     
     // meta for remote controller
-    func setupNowPlaying() {
+    func setupMeta() {
         
         var artwork = Optional(UIImage())
         
@@ -256,7 +252,48 @@ class AudioPlayerStatus: ObservableObject {
         // Set the metadata
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
-
+    
+    
+    func setupInterruption() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleInterruption),
+                                               name: AVAudioSession.interruptionNotification,
+                                               object: audioSession)
+    }
+    
+    @objc func handleInterruption(notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+                  return
+              }
+        
+        // Switch over the interruption type.
+        switch type {
+            
+        case .began:
+            print("audio interrupted")
+            Stop()
+        case .ended:
+            print("audio continued")
+            Play()
+            
+            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            if options.contains(.shouldResume) {
+                // An interruption ended. Resume playback.
+                print("interruption ended")
+                
+                
+            } else {
+                // An interruption ended. Don't resume playback.
+                
+            }
+            
+        default: ()
+        }
+    }
+    
 }
 
 
@@ -265,52 +302,11 @@ class AudioPlayerStatus: ObservableObject {
 
 class Notifications : NSObject, AVAudioPlayerDelegate {
     // Get the default notification center instance.
-    let nc = NotificationCenter.default
-
+    
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         print("Delegate: Book Finished")
         bookhasfinished = true
-        nc.post(name: NSNotification.Name("Finished"), object: nil)
+        NotificationCenter.default.post(name: NSNotification.Name("Finished"), object: nil)
     }
-    
-    
-    func setupNotifications() {
-                nc.addObserver(self,
-                       selector: #selector(handleInterruption),
-                       name: AVAudioSession.interruptionNotification,
-                       object: AVAudioSession.sharedInstance())
-    }
-
-    @objc func handleInterruption(notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-            let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
-                return
-        }
-
-        // Switch over the interruption type.
-        switch type {
-
-        case .began:
-            print("audio interrupted")
-            player?.stop()
-        case .ended:
-            print("audio continue")
-            
-
-            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
-            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
-            if options.contains(.shouldResume) {
-                // An interruption ended. Resume playback.
-                print("interruption ended")
-                player?.play()
-            } else {
-                // An interruption ended. Don't resume playback.
-            }
-
-        default: ()
-        }
-    }
-    
 }

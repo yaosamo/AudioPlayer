@@ -34,6 +34,7 @@ struct Playlists: View {
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
         animation: .default)
+    
     private var allplaylists: FetchedResults<Playlist>
     @State private var showingPopover = false
     @State private var playlistName = "Playlist"

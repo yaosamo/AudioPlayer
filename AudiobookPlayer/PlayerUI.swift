@@ -24,26 +24,25 @@ func colorize (hex: Int, alpha: Double = 1.0) -> UIColor {
 
 
 struct PlayerUI: View {
-    
+    @EnvironmentObject private var playerEngine: AudioPlayerStatus
+
     
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
-    @ObservedObject var PlayerStatus: AudioPlayerStatus
     @State var bookname : String = "" // book playing
     @State var speaker : String = "" // Speaker connected
     
     var body: some View {
         
         // The sample audio player.
-        let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
-        let bookname = PlayerStatus.bookname
-        let playbackTime = PlayerStatus.playbackTime
+        let bookname = playerEngine.bookname
+        let playbackTime = playerEngine.playbackTime
         
         VStack(alignment: .leading) {
             
             // Book Name
             VStack(alignment: .leading){
-                Text(PlayerStatus.speaker)
+                Text(playerEngine.speaker)
                     .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
                     .MainFont(12)
                 //Refactor animation
@@ -60,23 +59,23 @@ struct PlayerUI: View {
                     .foregroundColor(.white)
             }
             .padding(.leading, 24)
-            .onAppear {
-                timeUpdate()
-            }
+//            .onAppear {
+//                timeUpdate()
+//            }
             // Seeking
-            SeekView(PlayerStatus: PlayerStatus)
+            SeekView().environmentObject(playerEngine)
             
             // Audio device name
                 .onAppear {
                     let audioSession = AVAudioSession.sharedInstance().currentRoute
                     for output in audioSession.outputs {
-                        PlayerStatus.speaker = output.portName
+                        playerEngine.speaker = output.portName
                     }
                 }
             
             HStack {
                 Button {
-                    audioplayer.PreviousBook()
+                    playerEngine.PreviousBook()
                 }
             label: {
                 Image(systemName:  "backward.fill")
@@ -86,17 +85,17 @@ struct PlayerUI: View {
             }
                 Spacer()
                 Button {
-                    audioplayer.TogglePlayPause()
+                    playerEngine.TogglePlayPause()
                 }
             label: {
-                Image(systemName: PlayerStatus.playing ? iconstop : iconplay)
+                Image(systemName: playerEngine.status == .playing ? iconstop : iconplay)
                     .font(.system(size: 42.0))
                     .frame(width: 32, height: 44, alignment: .center)
                     .foregroundColor(.white)
             }
                 Spacer()
                 Button {
-                    audioplayer.NextBook()
+                    playerEngine.NextBook()
                 }
             label: {
                 Image(systemName: "forward.fill")
@@ -109,16 +108,6 @@ struct PlayerUI: View {
         } //vstack
         .frame(height: 330)
         .background(.black)
-    }
-
-    
-    func timeUpdate() {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
-            if PlayerStatus.playing && !PlayerStatus.playerIsSeeking  {
-                let seconds = player?.currentTime
-                PlayerStatus.playbackTime = formatTimeFor(seconds: seconds ?? 0)
-            }
-        }
     }
     
     

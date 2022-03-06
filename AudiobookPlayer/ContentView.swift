@@ -11,15 +11,19 @@ import AVKit
 
 
 struct ContentView: View {
-    @StateObject var PlayerStatus = AudioPlayerStatus()
-    
+    @EnvironmentObject private var playerEngine: AudioPlayerStatus
+
     init() {
         UITableView.appearance().backgroundColor = .clear
     }
     var body: some View {
         VStack {
-            Playlists(PlayerStatus: PlayerStatus)
-            PlayerUI(PlayerStatus: PlayerStatus)
+            Playlists()
+                .environmentObject(playerEngine)
+
+            PlayerUI()
+                .environmentObject(playerEngine)
+
         }
         .background(.black)
     }

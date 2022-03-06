@@ -29,7 +29,8 @@ struct Playlists: View {
     var colorslist : [Color] = [Color(red: 0.88, green: 0.83, blue: 0.68), Color(red: 0.62, green: 0.78, blue: 0.78), Color(red: 0.40, green: 0.45, blue: 0.94), Color(red: 0.69, green: 0.33, blue: 0.22)]
     
     @Environment(\.managedObjectContext) private var viewContext
-    @ObservedObject var PlayerStatus: AudioPlayerStatus
+    @EnvironmentObject private var playerEngine: AudioPlayerStatus
+
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
         animation: .default)
@@ -93,7 +94,7 @@ struct Playlists: View {
                     .listRowBackground(Color.black)
                 
                 ForEach(allplaylists) { playlist in
-                    NavigationLink(destination: Books(PlayerStatus: PlayerStatus, playlist: playlist))  {
+                    NavigationLink(destination: Books(playlist: playlist).environmentObject(playerEngine))  {
                         Text(playlist.name ?? "Noname")
                             .MainFont(40)
                             .frame(height: 48)

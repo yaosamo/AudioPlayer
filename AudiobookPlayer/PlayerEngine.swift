@@ -24,9 +24,7 @@ enum PlayingStatus {
 
 
 class AudioPlayerStatus: ObservableObject {
-    @Published var status = PlayingStatus.empty
-    
-    @Published var playing = false
+    @Published var status = PlayingStatus.empty    
     @Published var speaker = ""
     @Published var bookname : String?
     @Published var playbackTime = "00:00:00"
@@ -38,10 +36,11 @@ class AudioPlayerStatus: ObservableObject {
     @Published var currentPlaylist : Array<Book>?
     
     private var audioSession : AVAudioSession
-    private var player: AVAudioPlayer?
+//    private var player: AVAudioPlayer?
 
     init() {
         audioSession = AVAudioSession.sharedInstance()
+        timeUpdate()
     }
     
     func setupAudioSession() {
@@ -52,15 +51,111 @@ class AudioPlayerStatus: ObservableObject {
            }
        }
     
+    
+    // Receive URLdata to play -> initiate play
+    func PlayManager(play: URL) {
+        
+        do {
+            
+            // Start Playing
+            player = try AVAudioPlayer(contentsOf: play)
+            try? AVAudioSession.sharedInstance().setActive(true)
+
+
+            // Setting Book width
+            bookPlaybackWidth = player!.duration
+            // set remote controller and meta data for it + updating observable object
+//            setupNowPlaying()
+            
+//            if noRemoteController {
+//                setupRemoteTransportControls()
+//                // Setting up interruption notifications
+//                delegate.setupNotifications()
+//            }
+            
+            // Delegate to listen when book finishes
+            player?.delegate = delegate
+            
+            
+            NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
+                if bookhasfinished {
+                    print("Notification: Requesting next book")
+                    self.NextBook()
+                    bookhasfinished = false
+                }
+            }
+            Play()
+            
+        } catch let error {
+            print("Player Error", error.localizedDescription)
+        }
+        
+    }
+    
+    
+    // Get current book URL Data for Play Manager
+    func Playlist(at nextBookIndex: Int) {
+        // Getting current item bookmarkData
+        let bookmarkData = currentPlaylist![nextBookIndex].urldata!
+        let URL = restoreURL(bookmarkData: bookmarkData)
+        // Assigning newBookID and Name
+        let nextBookID = currentPlaylist![nextBookIndex].id
+        let nextBookName = currentPlaylist![nextBookIndex].name
+        print("Playlist set next book to play at: \(nextBookIndex)")
+        
+        // updating data for nextbook in observable object
+        currentlyPlayingID = nextBookID
+        currentlyPlayingIndex = nextBookIndex
+        bookname = nextBookName
+        PlayManager(play: URL)
+    }
+    
+    func restoreURL(bookmarkData: Data) -> URL {
+        // Restore security scoped bookmark
+        var bookmarkDataIsStale = false
+        let URL = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
+        print("Please put \(URL!.lastPathComponent) on")
+        return URL!
+    }
+    
+    // Defining index of currently playing book
+    func CurrentPlayingIndex() -> Int {
+        // Assign new variables
+        let CurrentItemID = currentlyPlayingID
+        let CurrentPlaylist = currentPlaylist!
+        // Finding item that is currently playing
+        let newPlayingIndex = CurrentPlaylist.firstIndex(where: { $0.id == CurrentItemID} )!
+        currentlyPlayingIndex = newPlayingIndex
+        return newPlayingIndex
+    }
+    
+    // Checking if new book exists
+    func skipToCurrentItem(offsetBy offset: Int) {
+        print("\(currentPlaylist!.count) books in current playlist")
+        let NextBookIndex = CurrentPlayingIndex() + offset
+        if  (NextBookIndex <= currentPlaylist!.count-1) && (NextBookIndex >= 0) {
+            print("Requested book exists at:", NextBookIndex)
+            Playlist(at: NextBookIndex)
+        }
+        else { print("Requested book doesn't exist at", NextBookIndex) }
+    }
+    
+    
+    func PreviousBook() {
+        print("Please play previous book")
+        skipToCurrentItem(offsetBy: -1)
+    }
+  
+    func NextBook() {
+        print("Please play next book")
+        skipToCurrentItem(offsetBy: +1)
+    }
+    
     func Play() {
         print("Play requested")
-        if status != .empty {
         player?.prepareToPlay()
         player?.play()
-            status = PlayingStatus.playing }
-        else {
-            print("hey, nothing to play")
-        }
+        status = PlayingStatus.playing
     }
     
     func Stop() {
@@ -76,6 +171,90 @@ class AudioPlayerStatus: ObservableObject {
         else {
             Play()
         }
+    }
+    
+    
+    func timeUpdate() {
+        print("time update func")
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
+            if self.status == .playing && !self.playerIsSeeking  {
+                let seconds = player?.currentTime
+                self.playbackTime = formatTimeFor(seconds: seconds ?? 0)
+            }
+        }
+    }
+    
+    
+    func setupRemoteTransportControls() {
+        // Get the shared MPRemoteCommandCenter
+        let commandCenter = MPRemoteCommandCenter.shared()
+        
+        // Add a handler for the play command.
+        commandCenter.playCommand.addTarget { _ in // check out player
+            if self.status != .playing {
+                self.Play()
+                return .success
+            }
+            return .commandFailed
+        }
+        
+        // Add handler for Pause Command
+        commandCenter.pauseCommand.addTarget { _ in
+            if self.status == .playing {
+                self.Stop()
+                return .success
+            }
+            return .commandFailed
+        }
+        
+        // Add handler for next Command
+        commandCenter.nextTrackCommand.addTarget { _ in
+            self.NextBook()
+            return .success
+        }
+        
+        // Add handler for previous Command
+        commandCenter.previousTrackCommand.addTarget { _ in
+            self.PreviousBook()
+            return .success
+        }
+        noRemoteController = false
+    }
+    
+    // meta for remote controller
+    func setupNowPlaying() {
+        
+        var artwork = Optional(UIImage())
+        
+        let asset = AVAsset(url: player!.url!)
+        // getting artwork
+        let artworkItems = AVMetadataItem.metadataItems(from: asset.metadata,
+                                                        filteredByIdentifier: .commonIdentifierArtwork)
+        if let artworkItem = artworkItems.first {
+            // Coerce the value to a Data value using its dataValue property
+            if let imageData = artworkItem.dataValue {
+                artwork = UIImage(data: imageData)
+            } else {
+                // No image data was found.
+            }
+        }
+        
+        // Define Now Playing Info
+        var nowPlayingInfo = [String : Any]()
+        nowPlayingInfo[MPMediaItemPropertyTitle] = bookname
+        
+        if let image = artwork {
+            nowPlayingInfo[MPMediaItemPropertyArtwork] =
+            MPMediaItemArtwork(boundsSize: image.size) { size in
+                return image
+            }
+        }
+        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player?.currentTime
+        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = player?.duration
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player?.rate
+        
+        // Set the metadata
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
 
 }
@@ -134,213 +313,4 @@ class Notifications : NSObject, AVAudioPlayerDelegate {
         }
     }
     
-}
-
-
-struct AudioPlayer {
-    @ObservedObject var PlayerStatus: AudioPlayerStatus
-    
-    // Receive URLdata to play -> initiate play
-    func PlayManager(play: URL) {
-        
-        do {
-            
-            // Start Playing
-            player = try AVAudioPlayer(contentsOf: play)
-            try? AVAudioSession.sharedInstance().setActive(true)
-
-            // Setting Book width
-            PlayerStatus.bookPlaybackWidth = player!.duration
-            // set remote controller and meta data for it + updating observable object
-            setupNowPlaying()
-            
-            if noRemoteController {
-                setupRemoteTransportControls()
-                // Setting up interruption notifications
-                delegate.setupNotifications()
-            }
-            
-            // Delegate to listen when book finishes
-            player?.delegate = delegate
-            
-            
-            NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
-                if bookhasfinished {
-                    print("Notification: Requesting next book")
-                    NextBook()
-                    bookhasfinished = false
-                }
-            }
-            Play()
-            
-        } catch let error {
-            print("Player Error", error.localizedDescription)
-        }
-        
-    }
-    
-    
-    // Get current book URL Data for Play Manager
-    func Playlist(at nextBookIndex: Int) {
-        // Getting current item bookmarkData
-        let bookmarkData = PlayerStatus.currentPlaylist![nextBookIndex].urldata!
-        let URL = restoreURL(bookmarkData: bookmarkData)
-        // Assigning newBookID and Name
-        let nextBookID = PlayerStatus.currentPlaylist![nextBookIndex].id
-        let nextBookName = PlayerStatus.currentPlaylist![nextBookIndex].name
-        print("Playlist set next book to play at: \(nextBookIndex)")
-        
-        // updating data for nextbook in observable object
-        PlayerStatus.currentlyPlayingID = nextBookID
-        PlayerStatus.currentlyPlayingIndex = nextBookIndex
-        PlayerStatus.bookname = nextBookName
-        PlayManager(play: URL)
-    }
-    
-    func restoreURL(bookmarkData: Data) -> URL {
-        // Restore security scoped bookmark
-        var bookmarkDataIsStale = false
-        let URL = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
-        print("Please put \(URL!.lastPathComponent) on")
-        return URL!
-    }
-    
-    
-    // Defining index of currently playing book
-    func CurrentPlayingIndex() -> Int {
-        // Assign new variables
-        let CurrentItemID = PlayerStatus.currentlyPlayingID
-        let CurrentPlaylist = PlayerStatus.currentPlaylist!
-        // Finding item that is currently playing
-        let CurrentPlayingIndex = CurrentPlaylist.firstIndex(where: { $0.id == CurrentItemID} )!
-        PlayerStatus.currentlyPlayingIndex = CurrentPlayingIndex
-        return CurrentPlayingIndex
-    }
-    
-    // Checking if new book exists
-    func skipToCurrentItem(offsetBy offset: Int) {
-        print("\(PlayerStatus.currentPlaylist!.count) books in current playlist")
-        let NextBookIndex = CurrentPlayingIndex() + offset
-        if  (NextBookIndex <= PlayerStatus.currentPlaylist!.count-1) && (NextBookIndex >= 0) {
-            print("Requested book exists at:", NextBookIndex)
-            Playlist(at: NextBookIndex)
-        }
-        else { print("Requested book doesn't exist at", NextBookIndex) }
-    }
-    
-    
-    func PreviousBook() {
-        print("Please play previous book")
-        skipToCurrentItem(offsetBy: -1)
-    }
-    
-    func NextBook() {
-        print("Please play next book")
-        skipToCurrentItem(offsetBy: +1)
-    }
-    
-    // moved
-    func TogglePlayPause() {
-        if IsPlaying() {
-            Stop()
-        }
-        else {
-            Play()
-        }
-    }
-    // moved
-    func Play() {
-        print("Play requested")
-        player?.prepareToPlay()
-        player?.play()
-        if IsPlaying() {
-            PlayerStatus.playing = true
-        }
-        else {
-            print("Hey, nothing to play")
-        }
-    }
-    //moved
-    func Stop() {
-        print("Stop requested")
-        player?.stop()
-        PlayerStatus.playing = false
-    }
-    // moved
-    func IsPlaying() -> Bool {
-        let PlayerPlaying = player?.isPlaying
-        return PlayerPlaying ?? false
-    }
-    
-    func setupRemoteTransportControls() {
-        // Get the shared MPRemoteCommandCenter
-        let commandCenter = MPRemoteCommandCenter.shared()
-        
-        // Add a handler for the play command.
-        commandCenter.playCommand.addTarget { _ in // check out player
-            if !PlayerStatus.playing {
-                Play()
-                return .success
-            }
-            return .commandFailed
-        }
-        
-        // Add handler for Pause Command
-        commandCenter.pauseCommand.addTarget { _ in
-            if PlayerStatus.playing {
-                Stop()
-                return .success
-            }
-            return .commandFailed
-        }
-        
-        // Add handler for next Command
-        commandCenter.nextTrackCommand.addTarget { _ in
-            NextBook()
-            return .success
-        }
-        
-        // Add handler for previous Command
-        commandCenter.previousTrackCommand.addTarget { _ in
-            PreviousBook()
-            return .success
-        }
-        noRemoteController = false
-    }
-    
-    // meta for remote controller
-    func setupNowPlaying() {
-        
-        var artwork = Optional(UIImage())
-        
-        let asset = AVAsset(url: player!.url!)
-        // getting artwork
-        let artworkItems = AVMetadataItem.metadataItems(from: asset.metadata,
-                                                        filteredByIdentifier: .commonIdentifierArtwork)
-        if let artworkItem = artworkItems.first {
-            // Coerce the value to a Data value using its dataValue property
-            if let imageData = artworkItem.dataValue {
-                artwork = UIImage(data: imageData)
-            } else {
-                // No image data was found.
-            }
-        }
-        
-        // Define Now Playing Info
-        var nowPlayingInfo = [String : Any]()
-        nowPlayingInfo[MPMediaItemPropertyTitle] = PlayerStatus.bookname
-        
-        if let image = artwork {
-            nowPlayingInfo[MPMediaItemPropertyArtwork] =
-            MPMediaItemArtwork(boundsSize: image.size) { size in
-                return image
-            }
-        }
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player?.currentTime
-        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = player?.duration
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player?.rate
-        
-        // Set the metadata
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-    }
 }

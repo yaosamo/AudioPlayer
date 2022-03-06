@@ -9,7 +9,8 @@ import SwiftUI
 
 @main
 struct AudiobookPlayerApp: App {
-    // environmental object pass to other views
+    @StateObject private var playerEngine = AudioPlayerStatus()
+
     
     let persistenceController = PersistenceController.shared
 
@@ -18,6 +19,7 @@ struct AudiobookPlayerApp: App {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .preferredColorScheme(.dark)
+                .environmentObject(playerEngine)
         }
     }
 }

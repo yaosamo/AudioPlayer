@@ -19,7 +19,8 @@ struct ViewOffsetKey: PreferenceKey {
 
 
 struct SeekView: View {
-    @ObservedObject var PlayerStatus: AudioPlayerStatus
+    @EnvironmentObject private var playerEngine: AudioPlayerStatus
+    
     @State private var seekingTimer : Timer?
     @State private var offset = CGFloat.zero
     let center = UIScreen.main.bounds.width / 2
@@ -34,7 +35,7 @@ struct SeekView: View {
     
     
     var body: some View {
-        
+        ScrollViewReader { proxy in
         ScrollView(.horizontal) {
             LazyHStack(alignment: .center, spacing: 0, pinnedViews: [.sectionHeaders], content: {
                 Section(header: caret) {
@@ -42,7 +43,7 @@ struct SeekView: View {
                     // Book's Scroll
                     Rectangle()
                         .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
-                        .frame(width: PlayerStatus.bookPlaybackWidth, height: 48)
+                        .frame(width: playerEngine.bookPlaybackWidth, height: 48)
                     // Caret - playback position
                         .background(GeometryReader {
                             Color.clear.preference(key: ViewOffsetKey.self,
@@ -60,8 +61,8 @@ struct SeekView: View {
         }
         .coordinateSpace(name: "scroll")
         .onChange(of: offset, perform: { newValue in
-            PlayerStatus.playerIsSeeking = true
-            PlayerStatus.playbackTime = formatTimeFor(seconds: offset)
+            playerEngine.playerIsSeeking = true
+            playerEngine.playbackTime = formatTimeFor(seconds: offset)
             
             // if player exist delete it
             if seekingTimer != nil {seekingTimer!.invalidate()
@@ -70,6 +71,9 @@ struct SeekView: View {
             seekingTimer = nil
             SeekPlayerTo(newValue)
         })
+        .onChange(of: playerEngine.playbackTime) { newValue in
+        }
+        }
     }
     
     func SeekPlayerTo(_ offset: TimeInterval) {
@@ -80,8 +84,7 @@ struct SeekView: View {
             if newTime > player?.duration ?? 0 { newTime = player!.duration}
             player?.currentTime = newTime
             seekingTimer?.invalidate()
-            PlayerStatus.playerIsSeeking = false
-
+            playerEngine.playerIsSeeking = false
         }
         
     }

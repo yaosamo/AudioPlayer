@@ -9,6 +9,9 @@ import SwiftUI
 
 @main
 struct AudiobookPlayerApp: App {
+    @StateObject private var playerEngine = AudioPlayerStatus()
+
+    
     let persistenceController = PersistenceController.shared
 
     var body: some Scene {
@@ -16,6 +19,7 @@ struct AudiobookPlayerApp: App {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .preferredColorScheme(.dark)
+                .environmentObject(playerEngine)
         }
     }
 }

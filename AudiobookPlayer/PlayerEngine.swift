@@ -16,89 +16,64 @@ let delegate = Notifications()
 var bookhasfinished = false
 var noRemoteController = true
 
-
-class Notifications : NSObject, AVAudioPlayerDelegate {
-    // Get the default notification center instance.
-    let nc = NotificationCenter.default
-
-    
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        print("Delegate: Book Finished")
-        bookhasfinished = true
-        nc.post(name: NSNotification.Name("Finished"), object: nil)
-    }
-    
-    
-    func setupNotifications() {
-        nc.addObserver(self,
-                       selector: #selector(handleInterruption),
-                       name: AVAudioSession.interruptionNotification,
-                       object: AVAudioSession.sharedInstance())
-    }
-
-    @objc func handleInterruption(notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-            let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
-                return
-        }
-
-        // Switch over the interruption type.
-        switch type {
-
-        case .began:
-            print("audio interrupted")
-
-        case .ended:
-            print("audio continue")
-
-            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
-            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
-            if options.contains(.shouldResume) {
-                // An interruption ended. Resume playback.
-            } else {
-                // An interruption ended. Don't resume playback.
-            }
-
-        default: ()
-        }
-    }
-    
+enum PlayingStatus {
+    case stopped
+    case playing
+    case empty
 }
 
 
-struct AudioPlayer {
-    @ObservedObject var PlayerStatus: AudioPlayerStatus
+class AudioPlayerStatus: ObservableObject {
+    @Published var status = PlayingStatus.empty
+    @Published var speaker = ""
+    @Published var bookname : String?
+    @Published var playbackTime = "00:00:00"
+    @Published var bookPlaybackWidth = CGFloat(0)
+    @Published var playerIsSeeking = false
+    @Published var currentBookLenght : Double?
+    @Published var currentlyPlayingIndex : Int?
+    @Published var currentlyPlayingID : ObjectIdentifier?
+    @Published var currentPlaylist : Array<Book>?
+    
+    private var audioSession : AVAudioSession
+    
+    
+    init() {
+        audioSession = AVAudioSession.sharedInstance()
+        timeUpdate()
+        setupAudioSession()
+        setupRemoteTransportControls()
+    }
+    
+    func setupAudioSession() {
+        do {
+            try audioSession.setCategory(.playback, mode: .default)
+        } catch {
+            print("Failed to set audio session route sharing policy: \(error)")
+        }
+    }
+    
     
     // Receive URLdata to play -> initiate play
     func PlayManager(play: URL) {
         
         do {
-            // this codes for making this app ready to takeover the device audio
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
             
             // Start Playing
             player = try AVAudioPlayer(contentsOf: play)
             
+            setupMeta()
             // Setting Book width
-            PlayerStatus.bookPlaybackWidth = player!.duration
-            // set remote controller and meta data for it + updating observabl object
-            setupNowPlaying()
-            
-            if noRemoteController {
-                setupRemoteTransportControls()
-            }
+            bookPlaybackWidth = player!.duration
             
             // Delegate to listen when book finishes
             player?.delegate = delegate
-            // Setting up
-            delegate.setupNotifications()
+            
             
             NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
                 if bookhasfinished {
                     print("Notification: Requesting next book")
-                    NextBook()
+                    self.NextBook()
                     bookhasfinished = false
                 }
             }
@@ -114,17 +89,17 @@ struct AudioPlayer {
     // Get current book URL Data for Play Manager
     func Playlist(at nextBookIndex: Int) {
         // Getting current item bookmarkData
-        let bookmarkData = PlayerStatus.currentPlaylist![nextBookIndex].urldata!
+        let bookmarkData = currentPlaylist![nextBookIndex].urldata!
         let URL = restoreURL(bookmarkData: bookmarkData)
         // Assigning newBookID and Name
-        let nextBookID = PlayerStatus.currentPlaylist![nextBookIndex].id
-        let nextBookName = PlayerStatus.currentPlaylist![nextBookIndex].name
+        let nextBookID = currentPlaylist![nextBookIndex].id
+        let nextBookName = currentPlaylist![nextBookIndex].name
         print("Playlist set next book to play at: \(nextBookIndex)")
         
         // updating data for nextbook in observable object
-        PlayerStatus.currentlyPlayingID = nextBookID
-        PlayerStatus.currentlyPlayingIndex = nextBookIndex
-        PlayerStatus.bookname = nextBookName
+        currentlyPlayingID = nextBookID
+        currentlyPlayingIndex = nextBookIndex
+        bookname = nextBookName
         PlayManager(play: URL)
     }
     
@@ -136,23 +111,22 @@ struct AudioPlayer {
         return URL!
     }
     
-    
     // Defining index of currently playing book
     func CurrentPlayingIndex() -> Int {
         // Assign new variables
-        let CurrentItemID = PlayerStatus.currentlyPlayingID
-        let CurrentPlaylist = PlayerStatus.currentPlaylist!
+        let CurrentItemID = currentlyPlayingID
+        let CurrentPlaylist = currentPlaylist!
         // Finding item that is currently playing
-        let CurrentPlayingIndex = CurrentPlaylist.firstIndex(where: { $0.id == CurrentItemID} )!
-        PlayerStatus.currentlyPlayingIndex = CurrentPlayingIndex
-        return CurrentPlayingIndex
+        let newPlayingIndex = CurrentPlaylist.firstIndex(where: { $0.id == CurrentItemID} )!
+        currentlyPlayingIndex = newPlayingIndex
+        return newPlayingIndex
     }
     
     // Checking if new book exists
     func skipToCurrentItem(offsetBy offset: Int) {
-        print("\(PlayerStatus.currentPlaylist!.count) books in current playlist")
+        print("\(currentPlaylist!.count) books in current playlist")
         let NextBookIndex = CurrentPlayingIndex() + offset
-        if  (NextBookIndex <= PlayerStatus.currentPlaylist!.count-1) && (NextBookIndex >= 0) {
+        if  (NextBookIndex <= currentPlaylist!.count-1) && (NextBookIndex >= 0) {
             print("Requested book exists at:", NextBookIndex)
             Playlist(at: NextBookIndex)
         }
@@ -170,9 +144,24 @@ struct AudioPlayer {
         skipToCurrentItem(offsetBy: +1)
     }
     
+    func Play() {
+        print("Play requested")
+        player?.prepareToPlay()
+        player?.play()
+        try? audioSession.setActive(true)
+        status = PlayingStatus.playing
+        setupInterruption()
+    }
+    
+    func Stop() {
+        print("Stop requested")
+        player?.stop()
+        try? audioSession.setActive(false)
+        status = PlayingStatus.stopped
+    }
     
     func TogglePlayPause() {
-        if IsPlaying() {
+        if status == .playing {
             Stop()
         }
         else {
@@ -180,29 +169,17 @@ struct AudioPlayer {
         }
     }
     
-    func Play() {
-        player?.stop()
-        print("Play requested")
-        player?.prepareToPlay()
-        player?.play()
-        if IsPlaying() {
-            PlayerStatus.playing = true
-        }
-        else {
-            print("Hey, nothing to play")
+    
+    func timeUpdate() {
+        print("time update func")
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
+            if self.status == .playing && !self.playerIsSeeking  {
+                let seconds = player?.currentTime
+                self.playbackTime = formatTimeFor(seconds: seconds ?? 0)
+            }
         }
     }
     
-    func Stop() {
-        print("Stop requested")
-        player?.stop()
-        PlayerStatus.playing = false
-    }
-    
-    func IsPlaying() -> Bool {
-        let PlayerPlaying = player?.isPlaying
-        return PlayerPlaying ?? false
-    }
     
     func setupRemoteTransportControls() {
         // Get the shared MPRemoteCommandCenter
@@ -210,8 +187,8 @@ struct AudioPlayer {
         
         // Add a handler for the play command.
         commandCenter.playCommand.addTarget { _ in // check out player
-            if !PlayerStatus.playing {
-                Play()
+            if self.status != .playing {
+                self.Play()
                 return .success
             }
             return .commandFailed
@@ -219,8 +196,8 @@ struct AudioPlayer {
         
         // Add handler for Pause Command
         commandCenter.pauseCommand.addTarget { _ in
-            if PlayerStatus.playing {
-                Stop()
+            if self.status == .playing {
+                self.Stop()
                 return .success
             }
             return .commandFailed
@@ -228,20 +205,20 @@ struct AudioPlayer {
         
         // Add handler for next Command
         commandCenter.nextTrackCommand.addTarget { _ in
-            NextBook()
+            self.NextBook()
             return .success
         }
         
         // Add handler for previous Command
         commandCenter.previousTrackCommand.addTarget { _ in
-            PreviousBook()
+            self.PreviousBook()
             return .success
         }
         noRemoteController = false
     }
     
     // meta for remote controller
-    func setupNowPlaying() {
+    func setupMeta() {
         
         var artwork = Optional(UIImage())
         
@@ -260,7 +237,7 @@ struct AudioPlayer {
         
         // Define Now Playing Info
         var nowPlayingInfo = [String : Any]()
-        nowPlayingInfo[MPMediaItemPropertyTitle] = PlayerStatus.bookname
+        nowPlayingInfo[MPMediaItemPropertyTitle] = bookname
         
         if let image = artwork {
             nowPlayingInfo[MPMediaItemPropertyArtwork] =
@@ -274,5 +251,62 @@ struct AudioPlayer {
         
         // Set the metadata
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
+    
+    
+    func setupInterruption() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleInterruption),
+                                               name: AVAudioSession.interruptionNotification,
+                                               object: audioSession)
+    }
+    
+    @objc func handleInterruption(notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+                  return
+              }
+        
+        // Switch over the interruption type.
+        switch type {
+            
+        case .began:
+            print("audio interrupted")
+            Stop()
+        case .ended:
+            print("audio continued")
+            Play()
+            
+            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            if options.contains(.shouldResume) {
+                // An interruption ended. Resume playback.
+                print("interruption ended")
+                
+                
+            } else {
+                // An interruption ended. Don't resume playback.
+                
+            }
+            
+        default: ()
+        }
+    }
+    
+}
+
+
+
+
+
+class Notifications : NSObject, AVAudioPlayerDelegate {
+    // Get the default notification center instance.
+    
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        print("Delegate: Book Finished")
+        bookhasfinished = true
+        NotificationCenter.default.post(name: NSNotification.Name("Finished"), object: nil)
     }
 }

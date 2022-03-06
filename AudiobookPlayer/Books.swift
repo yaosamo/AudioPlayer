@@ -30,7 +30,9 @@ public extension Button {
 
 struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @ObservedObject var PlayerStatus: AudioPlayerStatus
+    
+    @EnvironmentObject private var playerEngine: AudioPlayerStatus
+
     @State var playlist: Playlist
     @State var books: Array<Book>?
     @State private var presentImporter: Bool = false
@@ -39,8 +41,6 @@ struct Books: View {
     @State var CurrentBookIsOn = false
     
     var body: some View {
-        // The sample audio player.
-        let audioplayer = AudioPlayer(PlayerStatus: PlayerStatus)
         // Converting NSSet of playlists book to Array and aplying sorting by name
         let books = playlist.book!.sortedArray(using: [booksorting]) as! [Book]
         
@@ -57,13 +57,13 @@ struct Books: View {
                 ForEach(books) { book in
                     Button(action: {
                         let CurrentItemID = book.id
-                        let URL = audioplayer.restoreURL(bookmarkData: book.urldata!)
+                        let URL = playerEngine.restoreURL(bookmarkData: book.urldata!)
                         // Pass array of all audiobooks to our playlist
-                        PlayerStatus.currentPlaylist = books
-                        PlayerStatus.currentlyPlayingID = CurrentItemID
-                        PlayerStatus.bookname = book.name
-                        audioplayer.PlayManager(play: URL)
-                        let _ = print("Now playing book at:", audioplayer.CurrentPlayingIndex())
+                        playerEngine.currentPlaylist = books
+                        playerEngine.currentlyPlayingID = CurrentItemID
+                        playerEngine.bookname = book.name
+                        playerEngine.PlayManager(play: URL)
+                        let _ = print("Now playing book at:", playerEngine.CurrentPlayingIndex())
                         
                     }, label: {
                         
@@ -71,7 +71,7 @@ struct Books: View {
                             Text(book.name ?? "Unknown name")
                                 .frame(height: 24, alignment: .leading)
                                 .font(.system(size: 24, design: .rounded))
-                                .foregroundColor(book.id == PlayerStatus.currentlyPlayingID ? active : inactive)
+                                .foregroundColor(book.id == playerEngine.currentlyPlayingID ? active : inactive)
                             
                             Text(book.author ?? "Unknown author")
                                 .font(.system(size: 16, design: .rounded))
@@ -80,7 +80,7 @@ struct Books: View {
                     })
                         .padding(.bottom, 8)
                         .onAppear {
-                            if book.id == PlayerStatus.currentlyPlayingID {
+                            if book.id == playerEngine.currentlyPlayingID {
                                 CurrentBookIsOn = true
                             }
                         }

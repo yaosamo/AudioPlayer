@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5D07DA3627C748FA00C37007 /* song4.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 5D07DA3527C748FA00C37007 /* song4.mp3 */; };
 		5D27663427B4D79200CA322F /* PlayerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D27663327B4D79200CA322F /* PlayerEngine.swift */; };
 		5D29DFEE27A66383009FCA65 /* Books.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D29DFED27A66383009FCA65 /* Books.swift */; };
 		5D418A732799200D008DC6C6 /* PlayerUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D418A722799200D008DC6C6 /* PlayerUI.swift */; };
@@ -43,7 +42,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		5D07DA3527C748FA00C37007 /* song4.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = song4.mp3; sourceTree = "<group>"; };
 		5D27663327B4D79200CA322F /* PlayerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerEngine.swift; sourceTree = "<group>"; };
 		5D29DFED27A66383009FCA65 /* Books.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Books.swift; sourceTree = "<group>"; };
 		5D418A722799200D008DC6C6 /* PlayerUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerUI.swift; sourceTree = "<group>"; };
@@ -95,7 +93,6 @@
 		5D9FD8E92791472000DF2F28 = {
 			isa = PBXGroup;
 			children = (
-				5D07DA3527C748FA00C37007 /* song4.mp3 */,
 				5DBA036227AA45AA0094F424 /* CoreData */,
 				5D9FD8F42791472000DF2F28 /* AudiobookPlayer */,
 				5D9FD90A2791472100DF2F28 /* AudiobookPlayerTests */,
@@ -279,7 +276,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D07DA3627C748FA00C37007 /* song4.mp3 in Resources */,
 				5D9FD8FD2791472100DF2F28 /* Preview Assets.xcassets in Resources */,
 				5D9FD8FA2791472100DF2F28 /* Assets.xcassets in Resources */,
 			);

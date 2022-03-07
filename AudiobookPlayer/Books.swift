@@ -32,7 +32,7 @@ struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
     
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
-
+    
     @State var playlist: Playlist
     @State var books: Array<Book>?
     @State private var presentImporter: Bool = false
@@ -97,7 +97,7 @@ struct Books: View {
             label: { Label("Import book", systemImage: "square.and.arrow.down")}
             }
         } // Vstack
-
+        
         .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], allowsMultipleSelection: true, onCompletion: importBooks)
     }
     
@@ -117,7 +117,7 @@ struct Books: View {
         }
     }
     
-
+    
     private func addBook(url: URL) {
         let meta = metaData(url: url)
         withAnimation {

@@ -25,7 +25,7 @@ func colorize (hex: Int, alpha: Double = 1.0) -> UIColor {
 
 struct PlayerUI: View {
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
-
+    
     
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
@@ -59,19 +59,8 @@ struct PlayerUI: View {
                     .foregroundColor(.white)
             }
             .padding(.leading, 24)
-//            .onAppear {
-//                timeUpdate()
-//            }
-            // Seeking
-            SeekView().environmentObject(playerEngine)
             
-            // Audio device name
-                .onAppear {
-                    let audioSession = AVAudioSession.sharedInstance().currentRoute
-                    for output in audioSession.outputs {
-                        playerEngine.speaker = output.portName
-                    }
-                }
+            SeekView().environmentObject(playerEngine)
             
             HStack {
                 Button {

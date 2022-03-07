@@ -61,7 +61,7 @@ class AudioPlayerStatus: ObservableObject {
             
             // Start Playing
             player = try AVAudioPlayer(contentsOf: play)
-            
+            status = PlayingStatus.playing
             setupMeta()
             // Setting Book width
             bookPlaybackWidth = player!.duration
@@ -149,7 +149,9 @@ class AudioPlayerStatus: ObservableObject {
         player?.prepareToPlay()
         player?.play()
         try? audioSession.setActive(true)
-        status = PlayingStatus.playing
+        if status != .empty {
+            status = PlayingStatus.playing
+        }
         setupInterruption()
     }
     
@@ -259,6 +261,11 @@ class AudioPlayerStatus: ObservableObject {
                                                selector: #selector(handleInterruption),
                                                name: AVAudioSession.interruptionNotification,
                                                object: audioSession)
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleRouteChange),
+                                               name: AVAudioSession.routeChangeNotification,
+                                               object: audioSession)
     }
     
     @objc func handleInterruption(notification: Notification) {
@@ -275,35 +282,42 @@ class AudioPlayerStatus: ObservableObject {
             print("audio interrupted")
             Stop()
         case .ended:
-            print("audio continued")
-            Play()
-            
             guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
             let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
             if options.contains(.shouldResume) {
                 // An interruption ended. Resume playback.
                 print("interruption ended")
-                
-                
-            } else {
-                // An interruption ended. Don't resume playback.
-                
+                Play()
             }
-            
         default: ()
         }
     }
     
+    @objc func handleRouteChange(notification: Notification) {
+        guard let userInfo = notification.userInfo,
+            let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+            let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else {
+                return
+        }
+        
+        // Switch over the route change reason.
+        switch reason {
+
+        case .newDeviceAvailable: // New device found.
+            speaker = audioSession.currentRoute.outputs[0].portName
+// https://developer.apple.com/documentation/avfaudio/avaudiosession/responding_to_audio_session_route_changes
+            
+        case .oldDeviceUnavailable: // Old device removed.
+                speaker = "iPhone"
+        default: ()
+        }
+    }
+
 }
-
-
-
 
 
 class Notifications : NSObject, AVAudioPlayerDelegate {
     // Get the default notification center instance.
-    
-    
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         print("Delegate: Book Finished")
         bookhasfinished = true

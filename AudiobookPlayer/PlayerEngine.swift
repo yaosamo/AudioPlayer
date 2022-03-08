@@ -25,7 +25,7 @@ enum PlayingStatus {
 
 class AudioPlayerStatus: ObservableObject {
     @Published var status = PlayingStatus.empty
-    @Published var speaker = ""
+    @Published var speaker = "iPhone"
     @Published var bookname : String?
     @Published var playbackTime = "00:00:00"
     @Published var bookPlaybackWidth = CGFloat(0)
@@ -43,6 +43,8 @@ class AudioPlayerStatus: ObservableObject {
         timeUpdate()
         setupAudioSession()
         setupRemoteTransportControls()
+        setupNotifications()
+        setOutput()
     }
     
     func setupAudioSession() {
@@ -135,13 +137,17 @@ class AudioPlayerStatus: ObservableObject {
     
     
     func PreviousBook() {
+        if status != .empty {
         print("Please play previous book")
         skipToCurrentItem(offsetBy: -1)
+        }
     }
     
     func NextBook() {
+        if status != .empty {
         print("Please play next book")
         skipToCurrentItem(offsetBy: +1)
+        }
     }
     
     func Play() {
@@ -152,7 +158,6 @@ class AudioPlayerStatus: ObservableObject {
         if status != .empty {
             status = PlayingStatus.playing
         }
-        setupInterruption()
     }
     
     func Stop() {
@@ -256,7 +261,7 @@ class AudioPlayerStatus: ObservableObject {
     }
     
     
-    func setupInterruption() {
+    func setupNotifications() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleInterruption),
                                                name: AVAudioSession.interruptionNotification,
@@ -304,13 +309,20 @@ class AudioPlayerStatus: ObservableObject {
         switch reason {
 
         case .newDeviceAvailable: // New device found.
-            speaker = audioSession.currentRoute.outputs[0].portName
-// https://developer.apple.com/documentation/avfaudio/avaudiosession/responding_to_audio_session_route_changes
+            setOutput()
             
-        case .oldDeviceUnavailable: // Old device removed.
-                speaker = "iPhone"
-        default: ()
+        default: setOutput()
+
         }
+    }
+    
+    func setOutput() {
+        if audioSession.currentRoute.outputs[0].portName == "Speaker" {
+            speaker = "iPhone"
+        } else {
+            speaker = audioSession.currentRoute.outputs[0].portName
+        }
+
     }
 
 }

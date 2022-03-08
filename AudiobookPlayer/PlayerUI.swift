@@ -45,6 +45,7 @@ struct PlayerUI: View {
                 Text(playerEngine.speaker)
                     .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
                     .MainFont(12)
+                  
                 //Refactor animation
                 withAnimation(Animation.linear(duration: 10).repeatForever(autoreverses: true)) {
                     Text("\(bookname ?? "Select something to play")")

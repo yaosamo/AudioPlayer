@@ -123,7 +123,6 @@ struct Books: View {
         withAnimation {
             // Creating new book
             let newBook = Book(context: viewContext)
-            let _ = print("---- Access Granted?", url.startAccessingSecurityScopedResource())
             // Getting bookmarkData of the URL
             let bookmarkData = try? url.bookmarkData()
             newBook.name = meta.bookTitle

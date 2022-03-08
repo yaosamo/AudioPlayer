@@ -23,6 +23,7 @@ struct SeekView: View {
     
     @State private var seekingTimer : Timer?
     @State private var offset = CGFloat.zero
+    @State private var dragInitiated = false
     let center = UIScreen.main.bounds.width / 2
     
     var caret: some View {
@@ -36,43 +37,49 @@ struct SeekView: View {
     
     var body: some View {
         ScrollViewReader { proxy in
-        ScrollView(.horizontal) {
-            LazyHStack(alignment: .center, spacing: 0, pinnedViews: [.sectionHeaders], content: {
-                Section(header: caret) {
-                    
-                    // Book's Scroll
-                    Rectangle()
-                        .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
-                        .frame(width: playerEngine.bookPlaybackWidth, height: 48)
-                    // Caret - playback position
-                        .background(GeometryReader {
-                            Color.clear.preference(key: ViewOffsetKey.self,
-                                                   value: -$0.frame(in: .named("scroll")).origin.x)
-                        })
-                    // added center to compensate padding
-                        .onPreferenceChange(ViewOffsetKey.self) {
-                            // Updating offset and applying center to get caret offset
-                            offset = $0+center
-                        }
-                }
-            })
-            // Trailing padding for whole lazy stack so caret and playback bounces off
-                .padding([.trailing], center)
-        }
-        .coordinateSpace(name: "scroll")
-        .onChange(of: offset, perform: { newValue in
-            playerEngine.playerIsSeeking = true
-            playerEngine.playbackTime = formatTimeFor(seconds: offset)
-            
-            // if player exist delete it
-            if seekingTimer != nil {seekingTimer!.invalidate()
+            ScrollView(.horizontal) {
+                LazyHStack(alignment: .center, spacing: 0, pinnedViews: [.sectionHeaders], content: {
+                    Section(header: caret) {
+                        
+                        // Book's Scroll
+                        Rectangle()
+                            .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                            .frame(width: playerEngine.bookPlaybackWidth, height: 48)
+                        // Caret - playback position
+                            .background(GeometryReader {
+                                Color.clear.preference(key: ViewOffsetKey.self,
+                                                       value: -$0.frame(in: .named("scroll")).origin.x)
+                            })
+                        
+                            .onPreferenceChange(ViewOffsetKey.self) {
+                                // Updating offset and applying center to get caret offset
+                                offset = $0+center
+                            }
+                    }
+                })
+                // Trailing padding for whole lazy stack so caret and playback bounces off
+                    .padding([.trailing], center)
             }
-            // set player to nil and start seeking func
-            seekingTimer = nil
-            SeekPlayerTo(newValue)
-        })
-        .onChange(of: playerEngine.playbackTime) { newValue in
-        }
+            .coordinateSpace(name: "scroll")
+            .gesture(DragGesture()
+                        .onChanged({ _ in
+                dragInitiated = true
+            }))
+            .onChange(of: offset, perform: { newValue in
+                if dragInitiated {
+                    playerEngine.playerIsSeeking = true
+                    playerEngine.playbackTime = formatTimeFor(seconds: offset)
+                    
+                    // if player exist delete it
+                    if seekingTimer != nil {seekingTimer!.invalidate()
+                    }
+                    // set player to nil and start seeking func
+                    seekingTimer = nil
+                    SeekPlayerTo(newValue)
+                } else { print("probably new book is playing")}
+            })
+            .onChange(of: playerEngine.playbackTime) { newValue in
+            }
         }
     }
     
@@ -80,11 +87,12 @@ struct SeekView: View {
         // newTime as var so i can change it
         var newTime = offset
         seekingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            print("Set playeback \(offset)")
-            if newTime > player?.duration ?? 0 { newTime = player!.duration}
+            if newTime > player?.duration ?? 0 { newTime = player!.duration }
             player?.currentTime = newTime
+            //            print("Set playback \(newTime)")
             seekingTimer?.invalidate()
             playerEngine.playerIsSeeking = false
+            dragInitiated = false
         }
         
     }

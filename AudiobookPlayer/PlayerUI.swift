@@ -26,11 +26,11 @@ func colorize (hex: Int, alpha: Double = 1.0) -> UIColor {
 struct PlayerUI: View {
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
     
-    
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
-    @State var bookname : String = "" // book playing
-    @State var speaker : String = "" // Speaker connected
+
+    @State var opacity = 1.0
+    
     
     var body: some View {
         
@@ -41,11 +41,13 @@ struct PlayerUI: View {
         VStack(alignment: .leading) {
             
             // Book Name
-            VStack(alignment: .leading){
+            VStack(alignment: .leading) {
+                
                 Text(playerEngine.speaker)
                     .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
                     .MainFont(12)
-                  
+                    .animation(.default, value: 8)
+               
                 //Refactor animation
                 withAnimation(Animation.linear(duration: 10).repeatForever(autoreverses: true)) {
                     Text("\(bookname ?? "Select something to play")")

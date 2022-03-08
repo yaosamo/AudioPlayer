@@ -16,10 +16,6 @@ public extension Text {
     }
 }
 
-var addPlaylistUI: some View {
-    Text("placeholder")
-}
-
 
 struct Playlists: View {
     var biege = UIColor(red: 0.88, green: 0.83, blue: 0.68, alpha: 1.00)
@@ -89,7 +85,6 @@ struct Playlists: View {
                                 .clipShape(Circle())
                                
                         })
-                            
                             .padding(.bottom, 32)
                     }
                     .listRowBackground(Color.black)

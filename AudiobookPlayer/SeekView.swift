@@ -61,11 +61,13 @@ struct SeekView: View {
                     .padding([.trailing], center)
             }
             .coordinateSpace(name: "scroll")
+            // check if drag happened
             .gesture(DragGesture()
                         .onChanged({ _ in
                 dragInitiated = true
             }))
             .onChange(of: offset, perform: { newValue in
+                // allow offset to process if drag happened
                 if dragInitiated {
                     playerEngine.playerIsSeeking = true
                     playerEngine.playbackTime = formatTimeFor(seconds: offset)
@@ -76,7 +78,7 @@ struct SeekView: View {
                     // set player to nil and start seeking func
                     seekingTimer = nil
                     SeekPlayerTo(newValue)
-                } else { print("probably new book is playing")}
+                }
             })
             .onChange(of: playerEngine.playbackTime) { newValue in
             }
@@ -89,12 +91,11 @@ struct SeekView: View {
         seekingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
             if newTime > player?.duration ?? 0 { newTime = player!.duration }
             player?.currentTime = newTime
-            //            print("Set playback \(newTime)")
+            print("Set playback \(newTime)")
             seekingTimer?.invalidate()
             playerEngine.playerIsSeeking = false
             dragInitiated = false
         }
-        
     }
     
     
@@ -106,5 +107,3 @@ struct SeekView: View {
         }
     }
 }
-
-

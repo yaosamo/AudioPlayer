@@ -25,8 +25,9 @@ struct ContentView: View {
                 .environmentObject(playerEngine)
 
         }
-        .background(.black)
+
     }
+    
 }
 
 

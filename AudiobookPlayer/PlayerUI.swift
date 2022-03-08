@@ -12,6 +12,7 @@ import AVFoundation
 
 
 let whiteColor = Color(red: 0.91, green: 0.91, blue: 0.91)
+let darkColor = Color(red: 0.07, green: 0.07, blue: 0.08)
 
 
 func colorize (hex: Int, alpha: Double = 1.0) -> UIColor {
@@ -45,25 +46,29 @@ struct PlayerUI: View {
                 
                 Text(playerEngine.speaker)
                     .foregroundColor(Color(red: 0.93, green: 0.59, blue: 0.28))
-                    .MainFont(12)
+                    .MainFont(Size: 12, Weight: .medium)
                     .animation(.default, value: 8)
+                    .padding(.bottom, -4)
                
                 //Refactor animation
                 withAnimation(Animation.linear(duration: 10).repeatForever(autoreverses: true)) {
                     Text("\(bookname ?? "Select something to play")")
-                        .MainFont(24)
+                        .MainFont(Size: 24, Weight: .medium)
                         .frame(height: 40, alignment: .leading)
                         .foregroundColor(.white)
-                        .padding([.top, .bottom], 1)
+                        .padding([.top, .bottom], -4)
                 }
                 // Book Duration
                 Text("\(playbackTime)")
-                    .MainFont(12)
+                    .MainFont(Size: 12, Weight: .medium)
                     .foregroundColor(.white)
-            }
+            } // vStack meta block
             .padding(.leading, 24)
+            .padding(.top, 32)
             
-            SeekView().environmentObject(playerEngine)
+            SeekView()
+                .environmentObject(playerEngine)
+                .padding(.top, -8)
             
             HStack {
                 Button {
@@ -95,11 +100,12 @@ struct PlayerUI: View {
                     .frame(width: 38, height: 24, alignment: .center)
                     .foregroundColor(.white)
             }
-            } //hstack
+            } //buttons
             .padding([.trailing, .leading], 72)
+            .padding(.bottom, 32)
         } //vstack
         .frame(height: 330)
-        .background(.black)
+        .background(darkColor)
     }
     
     

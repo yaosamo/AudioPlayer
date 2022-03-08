@@ -9,10 +9,18 @@ import SwiftUI
 import CoreData
 
 
+struct BackgroundColorStyle: ViewModifier {
+
+    func body(content: Content) -> some View {
+        return content
+            .background(Color.orange)
+    }
+}
+
 
 public extension Text {
-    func MainFont(_ Size : CGFloat) -> some View {
-        self.font(.system(size: Size, weight: .regular, design: .rounded))
+    func MainFont(Size : CGFloat, Weight : Font.Weight) -> some View {
+        self.font(.system(size: Size, weight: Weight, design: .rounded))
     }
 }
 
@@ -37,9 +45,10 @@ struct Playlists: View {
     
     
     var body: some View {
-        
+       
         NavigationView {
             List {
+                
                 // Add Playlist Button + pop-up
                 Button(action: {
                     showingPopover.toggle()
@@ -87,12 +96,11 @@ struct Playlists: View {
                         })
                             .padding(.bottom, 32)
                     }
-                    .listRowBackground(Color.black)
                 
                 ForEach(allplaylists) { playlist in
                     NavigationLink(destination: Books(playlist: playlist).environmentObject(playerEngine))  {
                         Text(playlist.name ?? "Noname")
-                            .MainFont(40)
+                            .MainFont(Size: 40, Weight: .regular)
                             .frame(height: 48)
                             .foregroundColor(colorslist[0])
                             .navigationBarHidden(true)
@@ -101,12 +109,11 @@ struct Playlists: View {
                 } // allplaylists ForEach
                 .onDelete(perform: deleteItems)
                 .listRowSeparator(.hidden)
-                .listRowBackground(Color.black)
             }
             .listStyle(.inset)
-            .background(.black)
         }
     }
+    
     
     
     private func addPlaylist(name: String) {

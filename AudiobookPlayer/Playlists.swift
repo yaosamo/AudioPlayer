@@ -47,6 +47,9 @@ struct Playlists: View {
     var body: some View {
        
         NavigationView {
+            ZStack {
+                darkColor
+                .edgesIgnoringSafeArea(.all)
             List {
                 
                 // Add Playlist Button + pop-up
@@ -58,6 +61,8 @@ struct Playlists: View {
                         .font(.system(size: 32.0, weight: .regular, design: .rounded))
                         .padding([.top, .bottom], 16)
                 })
+                    .listRowBackground(darkColor)
+
                     .popover(isPresented: $showingPopover) {
                       
                         ZStack {
@@ -109,8 +114,10 @@ struct Playlists: View {
                 } // allplaylists ForEach
                 .onDelete(perform: deleteItems)
                 .listRowSeparator(.hidden)
+                .listRowBackground(darkColor)
             }
             .listStyle(.inset)
+            }
         }
     }
     

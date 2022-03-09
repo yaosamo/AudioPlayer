@@ -29,7 +29,7 @@ struct SeekView: View {
     var caret: some View {
         Rectangle()
             .fill(Color.white)
-            .frame(width: 2, height: 56, alignment: .trailing)
+            .frame(width: 2, height: 48, alignment: .trailing)
         //compensate 2 for caret
             .padding([.leading], center-2)
     }
@@ -44,7 +44,7 @@ struct SeekView: View {
                         // Book's Scroll
                         Rectangle()
                             .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
-                            .frame(width: playerEngine.bookPlaybackWidth, height: 48)
+                            .frame(width: playerEngine.bookPlaybackWidth, height: 40)
                         // Caret - playback position
                             .background(GeometryReader {
                                 Color.clear.preference(key: ViewOffsetKey.self,
@@ -60,6 +60,7 @@ struct SeekView: View {
                 // Trailing padding for whole lazy stack so caret and playback bounces off
                     .padding([.trailing], center)
             }
+            .frame(height: 96)
             .coordinateSpace(name: "scroll")
             // check if drag happened
             .gesture(DragGesture()

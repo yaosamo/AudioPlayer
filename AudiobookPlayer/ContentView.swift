@@ -17,14 +17,22 @@ struct ContentView: View {
         UITableView.appearance().backgroundColor = .clear
     }
     var body: some View {
+        ZStack {
+            borderColor
+                .edgesIgnoringSafeArea(.all)
         VStack {
+           
             Playlists()
                 .environmentObject(playerEngine)
 
             PlayerUI()
+                .padding(.top, -7)
                 .environmentObject(playerEngine)
+            }
 
         }
+       
+
 
     }
     

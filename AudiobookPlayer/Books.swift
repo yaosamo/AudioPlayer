@@ -45,6 +45,7 @@ struct Books: View {
         let books = playlist.book!.sortedArray(using: [booksorting]) as! [Book]
         
         ZStack(alignment: .trailing) {
+            darkColor.edgesIgnoringSafeArea(.all)
             Text(playlist.name!)
                 .frame(width: 600, height: 60, alignment: .trailing)
                 .rotationEffect(.degrees(-90))

@@ -13,6 +13,8 @@ import AVFoundation
 
 let whiteColor = Color(red: 0.91, green: 0.91, blue: 0.91)
 let darkColor = Color(red: 0.07, green: 0.07, blue: 0.08)
+let borderColor = Color(red: 0.08, green: 0.09, blue: 0.10)
+
 
 
 func colorize (hex: Int, alpha: Double = 1.0) -> UIColor {
@@ -29,9 +31,6 @@ struct PlayerUI: View {
     
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
-
-    @State var opacity = 1.0
-    
     
     var body: some View {
         
@@ -102,13 +101,11 @@ struct PlayerUI: View {
             }
             } //buttons
             .padding([.trailing, .leading], 72)
-            .padding(.bottom, 32)
+            .padding(.bottom, 24)
         } //vstack
-        .frame(height: 330)
+//        .frame(height: 300)
         .background(darkColor)
     }
-    
-    
 }
 
 

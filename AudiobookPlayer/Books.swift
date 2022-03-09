@@ -46,6 +46,7 @@ struct Books: View {
         
         ZStack(alignment: .trailing) {
             darkColor.edgesIgnoringSafeArea(.all)
+            
             Text(playlist.name!)
                 .frame(width: 600, height: 60, alignment: .trailing)
                 .rotationEffect(.degrees(-90))
@@ -54,6 +55,8 @@ struct Books: View {
                 .padding(.top, 200)
                 .foregroundColor(Color(red: 0.88, green: 0.83, blue: 0.68))
             
+            ZStack() {
+              
             List {
                 ForEach(books) { book in
                     Button(action: {
@@ -70,8 +73,8 @@ struct Books: View {
                         
                         VStack(alignment: .leading) {
                             Text(book.name ?? "Unknown name")
+                                .MainFont(Size: 24, Weight: .regular)
                                 .frame(height: 24, alignment: .leading)
-                                .font(.system(size: 24, design: .rounded))
                                 .foregroundColor(book.id == playerEngine.currentlyPlayingID ? active : inactive)
                             
                             Text(book.author ?? "Unknown author")
@@ -92,13 +95,19 @@ struct Books: View {
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color(red: 0, green: 0, blue: 0, opacity: 0.0))
             } // List
+            
+//                LinearGradient(gradient: Gradient(colors: [darkColor, darkColor.opacity(0.5)]), startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all)
+//                    .frame(maxWidth: 600, maxHeight: 64)
+            }
+//            .navigationBarHidden(true)
             .listStyle(.inset)
             .toolbar {
                 Button {presentImporter.toggle()}
             label: { Label("Import book", systemImage: "square.and.arrow.down")}
             }
-        } // Vstack
-        
+            
+        } // Zstack
+           
         .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], allowsMultipleSelection: true, onCompletion: importBooks)
     }
     

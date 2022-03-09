@@ -28,7 +28,7 @@ struct SeekView: View {
     
     var caret: some View {
         Rectangle()
-            .fill(Color.white)
+            .fill(whiteColor)
             .frame(width: 2, height: 48, alignment: .trailing)
         //compensate 2 for caret
             .padding([.leading], center-2)

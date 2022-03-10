@@ -9,10 +9,7 @@ import Foundation
 import SwiftUI
 import AVFoundation
 
-enum PlayerStatuses {
-    case playing
-    case stopped
-}
+
 
 let inactive = Color(red: 0.40, green: 0.42, blue: 0.45)
 let active = Color(red: 0.99, green: 0.99, blue: 0.99)
@@ -30,15 +27,20 @@ public extension Button {
 
 struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
-    
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
-    
-    @State var playlist: Playlist
-    @State var books: Array<Book>?
+    var playlist: Playlist
+    @State var playlistName: String
     @State private var presentImporter: Bool = false
+    @State private var showingPopover = false
+    @State var CurrentBookIsOn = false
+
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
+        animation: .default)
+    private var allplaylists: FetchedResults<Playlist>
+    
     // sorting books by name
     let booksorting =  NSSortDescriptor(key: "name", ascending: true)
-    @State var CurrentBookIsOn = false
     
     var body: some View {
         // Converting NSSet of playlists book to Array and aplying sorting by name
@@ -46,7 +48,7 @@ struct Books: View {
         
         ZStack(alignment: .trailing) {
             darkColor.edgesIgnoringSafeArea(.all)
-            
+        
             Text(playlist.name!)
                 .frame(width: 600, height: 60, alignment: .trailing)
                 .rotationEffect(.degrees(-90))
@@ -56,60 +58,113 @@ struct Books: View {
                 .foregroundColor(Color(red: 0.88, green: 0.83, blue: 0.68))
             
             ZStack() {
-              
-            List {
-                ForEach(books) { book in
-                    Button(action: {
-                        let CurrentItemID = book.id
-                        let URL = playerEngine.restoreURL(bookmarkData: book.urldata!)
-                        // Pass array of all audiobooks to our playlist
-                        playerEngine.currentPlaylist = books
-                        playerEngine.currentlyPlayingID = CurrentItemID
-                        playerEngine.bookname = book.name
-                        playerEngine.PlayManager(play: URL)
-                        let _ = print("Now playing book at:", playerEngine.CurrentPlayingIndex())
-                        
-                    }, label: {
-                        
-                        VStack(alignment: .leading) {
-                            Text(book.name ?? "Unknown name")
-                                .MainFont(Size: 24, Weight: .regular)
-                                .frame(height: 24, alignment: .leading)
-                                .foregroundColor(book.id == playerEngine.currentlyPlayingID ? active : inactive)
+                
+                List {
+                    ForEach(books) { book in
+                        Button(action: {
+                            let CurrentItemID = book.id
+                            let URL = playerEngine.restoreURL(bookmarkData: book.urldata!)
+                            // Pass array of all audiobooks to our playlist
+                            playerEngine.currentPlaylist = books
+                            playerEngine.currentlyPlayingID = CurrentItemID
+                            playerEngine.bookname = book.name
+                            playerEngine.PlayManager(play: URL)
+                            let _ = print("Now playing book at:", playerEngine.CurrentPlayingIndex())
                             
-                            Text(book.author ?? "Unknown author")
-                                .font(.system(size: 16, design: .rounded))
-                                .foregroundColor(inactive)
-                        }
-                    })
-                        .padding(.bottom, 8)
-                        .onAppear {
-                            if book.id == playerEngine.currentlyPlayingID {
-                                CurrentBookIsOn = true
+                        }, label: {
+                            
+                            VStack(alignment: .leading) {
+                                Text(book.name ?? "Unknown name")
+                                    .MainFont(Size: 24, Weight: .regular)
+                                    .frame(height: 24, alignment: .leading)
+                                    .foregroundColor(book.id == playerEngine.currentlyPlayingID ? active : inactive)
+                                
+                                Text(book.author ?? "Unknown author")
+                                    .font(.system(size: 16, design: .rounded))
+                                    .foregroundColor(inactive)
                             }
-                        }
-                }
-                .onDelete(perform: { IndexSet in
-                    deleteItems(offsets: IndexSet, books: books)
-                })
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color(red: 0, green: 0, blue: 0, opacity: 0.0))
-            } // List
-            
-//                LinearGradient(gradient: Gradient(colors: [darkColor, darkColor.opacity(0.5)]), startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all)
-//                    .frame(maxWidth: 600, maxHeight: 64)
+                        })
+                            .padding(.bottom, 8)
+                            .onAppear {
+                                if book.id == playerEngine.currentlyPlayingID {
+                                    CurrentBookIsOn = true
+                                }
+                            }
+                    }
+                    .onDelete(perform: { IndexSet in
+                        deleteBookItems(offsets: IndexSet, books: books)
+                    })
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color(red: 0, green: 0, blue: 0, opacity: 0.0))
+                } // List
+                // Custom header
+                // LinearGradient(gradient: Gradient(colors: [darkColor, darkColor.opacity(0.5)]), startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all)
+                // .frame(maxWidth: 600, maxHeight: 64)
             }
-//            .navigationBarHidden(true)
+            // .navigationBarHidden(true)
             .listStyle(.inset)
             .toolbar {
-                Button {presentImporter.toggle()}
-            label: { Label("Import book", systemImage: "square.and.arrow.down")}
+                Menu {
+                    Button("Import from iCloud", action: {presentImporter.toggle()})
+                    Button("Rename playlist", action: {showingPopover.toggle()})
+                    Button("Delete playlist", action: {print("delete")})
+                }
+            label: { Label("Menu", systemImage: "ellipsis")}
+                
+            .popover(isPresented: $showingPopover) {
+                ZStack {
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            showingPopover = false
+                        }, label: {
+                            Image(systemName: "xmark")
+                                .foregroundColor(whiteColor)
+                                .font(.system(size: 24.0))
+                                .padding([.top, .trailing], 24)
+                        })
+                    }
+                    
+                    Text("Name")
+                        .foregroundColor(whiteColor)
+                        .padding(.top, 32)
+                    
+                }
+                Spacer()
+                TextField("Name", text: $playlistName)
+                    .font(.system(size: 64, weight: .medium, design: .rounded))
+                    .multilineTextAlignment(.center)
+                Spacer()
+                Button(action: {
+                    renamePlaylist(playlist: playlist)
+                    showingPopover = false
+                }, label: {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 24, weight: .medium, design: .rounded))
+                        .foregroundColor(whiteColor)
+                        .frame(width: 64, height: 64, alignment: .center)
+                        .background(Color(red: 0.22, green: 0.23, blue: 0.24))
+                        .clipShape(Circle())
+                    
+                })
+                    .padding(.bottom, 32)
+            }
             }
             
         } // Zstack
-           
+        
         .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], allowsMultipleSelection: true, onCompletion: importBooks)
     }
+    
+    // Updating item funcion
+    private  func renamePlaylist(playlist: Playlist) {
+        let newName = playlistName
+        viewContext.performAndWait {
+            playlist.name = newName
+            try? viewContext.save()
+        }
+    }
+    
     
     private func importBooks(_ res: Result<[URL], Error>) {
         do {
@@ -146,9 +201,24 @@ struct Books: View {
         }
     }
     
+//    private func deletePlaylist(currentPlaylist: Array<Playlist>) {
+//        withAnimation {
+//
+//            allplaylists[$0].forEach(viewContext.delete)
+//
+//            do {
+//                try viewContext.save()
+//            } catch {
+//                let nsError = error as NSError
+//                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+//            }
+//        }
+//    }
     
-    private func deleteItems(offsets: IndexSet, books: Array<Book>) {
+    
+    private func deleteBookItems(offsets: IndexSet, books: Array<Book>) {
         withAnimation {
+            
             offsets.map { books[$0] }.forEach(viewContext.delete)
             
             do {

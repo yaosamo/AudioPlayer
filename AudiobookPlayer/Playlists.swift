@@ -10,7 +10,7 @@ import CoreData
 
 
 struct BackgroundColorStyle: ViewModifier {
-
+    
     func body(content: Content) -> some View {
         return content
             .background(Color.orange)
@@ -25,6 +25,9 @@ public extension Text {
 }
 
 
+
+
+
 struct Playlists: View {
     var biege = UIColor(red: 0.88, green: 0.83, blue: 0.68, alpha: 1.00)
     let lightblue = UIColor(red: 0.62, green: 0.78, blue: 0.78, alpha: 1.00)
@@ -34,7 +37,7 @@ struct Playlists: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
-
+    
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
         animation: .default)
@@ -45,78 +48,79 @@ struct Playlists: View {
     
     
     var body: some View {
-       
+        
         NavigationView {
             ZStack {
                 darkColor
-                .edgesIgnoringSafeArea(.all)
-            List {
-                
-                // Add Playlist Button + pop-up
-                Button(action: {
-                    showingPopover.toggle()
-                }, label: {
-                    Image(systemName: "plus")
-                        .foregroundColor(.white)
-                        .font(.system(size: 32.0, weight: .regular, design: .rounded))
-                        .padding([.top, .bottom], 16)
-                })
-                    .listRowBackground(darkColor)
-
-                    .popover(isPresented: $showingPopover) {
-                      
-                        ZStack {
-                            HStack {
-                                Spacer()
+                    .edgesIgnoringSafeArea(.all)
+                List {
+                    
+                    // Add Playlist Button + pop-up
+                    Button(action: {
+                        showingPopover.toggle()
+                    }, label: {
+                        Image(systemName: "plus")
+                            .foregroundColor(.white)
+                            .font(.system(size: 32.0, weight: .regular, design: .rounded))
+                            .padding([.top, .bottom], 16)
+                    })
+                        .listRowBackground(darkColor)
+                    
+                        .popover(isPresented: $showingPopover) {
+                            
+                            ZStack {
+                                HStack {
+                                    Spacer()
+                                    Button(action: {
+                                        showingPopover = false
+                                    }, label: {
+                                        Image(systemName: "xmark")
+                                            .foregroundColor(whiteColor)
+                                            .font(.system(size: 24.0))
+                                            .padding([.top, .trailing], 24)
+                                    })
+                                }
+                                
+                                Text("Name")
+                                    .foregroundColor(whiteColor)
+                                    .padding(.top, 32)
+                                
+                            }
+                            Spacer()
+                            TextField("Name", text: $playlistName)
+                                .font(.system(size: 64, weight: .medium, design: .rounded))
+                                .multilineTextAlignment(.center)
+                            Spacer()
                             Button(action: {
+                                addPlaylist(name: playlistName)
                                 showingPopover = false
                             }, label: {
-                                Image(systemName: "xmark")
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 24, weight: .medium, design: .rounded))
                                     .foregroundColor(whiteColor)
-                                    .font(.system(size: 24.0))
-                                    .padding([.top, .trailing], 24)
+                                    .frame(width: 64, height: 64, alignment: .center)
+                                    .background(Color(red: 0.22, green: 0.23, blue: 0.24))
+                                    .clipShape(Circle())
+                                
                             })
-                            }
-                            
-                            Text("Name")
-                                .foregroundColor(whiteColor)
-                                .padding(.top, 32)
-                            
+                                .padding(.bottom, 32)
                         }
-                        Spacer()
-                        TextField("Name", text: $playlistName)
-                            .font(.system(size: 64, weight: .medium, design: .rounded))
-                            .multilineTextAlignment(.center)
-                        Spacer()
-                        Button(action: {
-                            addPlaylist(name: playlistName)
-                        }, label: {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 24, weight: .medium, design: .rounded))
-                                .foregroundColor(whiteColor)
-                                .frame(width: 64, height: 64, alignment: .center)
-                                .background(Color(red: 0.22, green: 0.23, blue: 0.24))
-                                .clipShape(Circle())
-                               
-                        })
-                            .padding(.bottom, 32)
-                    }
-                
-                ForEach(allplaylists) { playlist in
-                    NavigationLink(destination: Books(playlist: playlist).environmentObject(playerEngine))  {
-                        Text(playlist.name ?? "Noname")
-                            .MainFont(Size: 40, Weight: .regular)
-                            .frame(height: 48)
-                            .foregroundColor(colorslist[0])
-                            .navigationBarHidden(true)
-                            .padding(.bottom, 8)
-                    }
-                } // allplaylists ForEach
-                .onDelete(perform: deleteItems)
-                .listRowSeparator(.hidden)
-                .listRowBackground(darkColor)
-            }
-            .listStyle(.inset)
+                    
+                    ForEach(allplaylists) { playlist in
+                        NavigationLink(destination: Books(playlist: playlist, playlistName: playlist.name!).environmentObject(playerEngine))  {
+                            Text(playlist.name ?? "Noname")
+                                .MainFont(Size: 40, Weight: .regular)
+                                .frame(height: 48)
+                                .foregroundColor(colorslist[0])
+                                .navigationBarHidden(true)
+                                .padding(.bottom, 8)
+                        }
+                    } // allplaylists ForEach
+                    .onDelete(perform: deleteItems)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(darkColor)
+                }
+                .listStyle(.inset)
             }
         }
     }
@@ -129,11 +133,11 @@ struct Playlists: View {
             newPlaylist.name = name
             try? viewContext.save()
             let _ = print("new playlist created")
-            showingPopover = false
         }
     }
     
     private func deleteItems(offsets: IndexSet) {
+        // if currently playing book is in deleted playlist > refresh player UI
         withAnimation {
             offsets.map { allplaylists[$0] }.forEach(viewContext.delete)
             

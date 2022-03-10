@@ -178,7 +178,6 @@ class AudioPlayerStatus: ObservableObject {
     
     
     func timeUpdate() {
-        print("time update func")
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
             if self.status == .playing && !self.playerIsSeeking  {
                 let seconds = player?.currentTime

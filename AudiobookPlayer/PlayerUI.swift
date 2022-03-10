@@ -62,7 +62,7 @@ struct PlayerUI: View {
                     .MainFont(Size: 12, Weight: .medium)
                     .foregroundColor(.white)
             } // vStack meta block
-            .padding(.leading, 24)
+            .padding([.leading, .trailing], 24)
             .padding(.top, 32)
             
             SeekView()
@@ -103,7 +103,6 @@ struct PlayerUI: View {
             .padding([.trailing, .leading], 72)
             .padding(.bottom, 24)
         } //vstack
-//        .frame(height: 300)
         .background(darkColor)
     }
 }

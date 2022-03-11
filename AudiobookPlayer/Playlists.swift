@@ -8,16 +8,6 @@
 import SwiftUI
 import CoreData
 
-
-struct BackgroundColorStyle: ViewModifier {
-    
-    func body(content: Content) -> some View {
-        return content
-            .background(Color.orange)
-    }
-}
-
-
 public extension Text {
     func MainFont(Size : CGFloat, Weight : Font.Weight) -> some View {
         self.font(.system(size: Size, weight: Weight, design: .rounded))
@@ -25,15 +15,7 @@ public extension Text {
 }
 
 
-
-
-
 struct Playlists: View {
-    var biege = UIColor(red: 0.88, green: 0.83, blue: 0.68, alpha: 1.00)
-    let lightblue = UIColor(red: 0.62, green: 0.78, blue: 0.78, alpha: 1.00)
-    let purple = UIColor(red: 0.40, green: 0.45, blue: 0.94, alpha: 1.00)
-    let brown = UIColor(red: 0.69, green: 0.33, blue: 0.22, alpha: 1.00)
-    var colorslist : [Color] = [Color(red: 0.88, green: 0.83, blue: 0.68), Color(red: 0.62, green: 0.78, blue: 0.78), Color(red: 0.40, green: 0.45, blue: 0.94), Color(red: 0.69, green: 0.33, blue: 0.22)]
     
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
@@ -53,6 +35,7 @@ struct Playlists: View {
             ZStack {
                 darkColor
                     .edgesIgnoringSafeArea(.all)
+                    
                 List {
                     
                     // Add Playlist Button + pop-up
@@ -138,6 +121,8 @@ struct Playlists: View {
     
     private func deleteItems(offsets: IndexSet) {
         // if currently playing book is in deleted playlist > refresh player UI
+        playerEngine.Stop()
+        playerEngine.abortPlay()
         withAnimation {
             offsets.map { allplaylists[$0] }.forEach(viewContext.delete)
             

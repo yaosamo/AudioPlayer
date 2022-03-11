@@ -13,17 +13,17 @@ import AVFoundation
 
 let whiteColor = Color(red: 0.91, green: 0.91, blue: 0.91)
 let darkColor = Color(red: 0.07, green: 0.07, blue: 0.08)
+let inactiveColor = Color(red: 0.24, green: 0.25, blue: 0.28)
 let borderColor = Color(red: 0.08, green: 0.09, blue: 0.10)
+let signalRed = Color(red: 0.96, green: 0.42, blue: 0.42)
 
+// playlist colors
+var biege = UIColor(red: 0.88, green: 0.83, blue: 0.68, alpha: 1.00)
+let lightblue = UIColor(red: 0.62, green: 0.78, blue: 0.78, alpha: 1.00)
+let purple = UIColor(red: 0.40, green: 0.45, blue: 0.94, alpha: 1.00)
+let brown = UIColor(red: 0.69, green: 0.33, blue: 0.22, alpha: 1.00)
+var colorslist : [Color] = [Color(red: 0.88, green: 0.83, blue: 0.68), Color(red: 0.62, green: 0.78, blue: 0.78), Color(red: 0.40, green: 0.45, blue: 0.94), Color(red: 0.69, green: 0.33, blue: 0.22)]
 
-
-func colorize (hex: Int, alpha: Double = 1.0) -> UIColor {
-    let red = Double((hex & 0xFF0000) >> 16) / 255.0
-    let green = Double((hex & 0xFF00) >> 8) / 255.0
-    let blue = Double((hex & 0xFF)) / 255.0
-    let color: UIColor = UIColor( red: CGFloat(red), green: CGFloat(green), blue: CGFloat(blue), alpha:CGFloat(alpha) )
-    return color
-}
 
 
 struct PlayerUI: View {
@@ -37,7 +37,7 @@ struct PlayerUI: View {
         // The sample audio player.
         let bookname = playerEngine.bookname
         let playbackTime = playerEngine.playbackTime
-        
+
         VStack(alignment: .leading) {
             
             // Book Name
@@ -54,13 +54,13 @@ struct PlayerUI: View {
                     Text("\(bookname ?? "Select something to play")")
                         .MainFont(Size: 24, Weight: .medium)
                         .frame(height: 40, alignment: .leading)
-                        .foregroundColor(.white)
+                        .foregroundColor(playerEngine.status == .empty ? inactiveColor : whiteColor)
                         .padding([.top, .bottom], -4)
                 }
                 // Book Duration
                 Text("\(playbackTime)")
                     .MainFont(Size: 12, Weight: .medium)
-                    .foregroundColor(.white)
+                    .foregroundColor(playerEngine.status == .empty ? inactiveColor : whiteColor)
             } // vStack meta block
             .padding([.leading, .trailing], 24)
             .padding(.top, 32)
@@ -77,7 +77,7 @@ struct PlayerUI: View {
                 Image(systemName:  "backward.fill")
                     .resizable()
                     .frame(width: 38, height: 24, alignment: .center)
-                    .foregroundColor(.white)
+                    .foregroundColor(playerEngine.status == .empty ? inactiveColor : whiteColor)
             }
                 Spacer()
                 Button {
@@ -87,7 +87,7 @@ struct PlayerUI: View {
                 Image(systemName: playerEngine.status == .playing ? iconstop : iconplay)
                     .font(.system(size: 42.0))
                     .frame(width: 32, height: 44, alignment: .center)
-                    .foregroundColor(.white)
+                    .foregroundColor(playerEngine.status == .empty ? inactiveColor : whiteColor)
             }
                 Spacer()
                 Button {
@@ -97,13 +97,18 @@ struct PlayerUI: View {
                 Image(systemName: "forward.fill")
                     .resizable()
                     .frame(width: 38, height: 24, alignment: .center)
-                    .foregroundColor(.white)
+                    .foregroundColor(playerEngine.status == .empty ? inactiveColor : whiteColor)
             }
             } //buttons
             .padding([.trailing, .leading], 72)
             .padding(.bottom, 24)
         } //vstack
         .background(darkColor)
+        .onAppear(perform: {
+            if playerEngine.lastplayedBook != nil {
+                playerEngine.setplayingBook()
+            }
+        } )
     }
 }
 

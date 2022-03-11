@@ -30,13 +30,13 @@ class AudioPlayerStatus: ObservableObject {
     @Published var playbackTime = "00:00:00"
     @Published var bookPlaybackWidth = CGFloat(0)
     @Published var playerIsSeeking = false
-    @Published var currentBookLenght : Double?
     @Published var currentlyPlayingIndex : Int?
     @Published var currentlyPlayingID : ObjectIdentifier?
     @Published var currentPlaylist : Array<Book>?
     
     private var audioSession : AVAudioSession
-    
+    @AppStorage("URL") var lastplayedBook: URL?
+
     
     init() {
         audioSession = AVAudioSession.sharedInstance()
@@ -45,6 +45,17 @@ class AudioPlayerStatus: ObservableObject {
         setupRemoteTransportControls()
         setupNotifications()
         setOutput()
+    }
+    
+    func abortPlay() {
+        player = nil
+        status = PlayingStatus.empty
+        bookname = "Select something to play"
+        playbackTime = "00:00:00"
+        bookPlaybackWidth = CGFloat(0)
+        currentlyPlayingIndex = nil
+        currentlyPlayingID = nil
+        currentPlaylist = nil
     }
     
     func setupAudioSession() {
@@ -71,7 +82,9 @@ class AudioPlayerStatus: ObservableObject {
             // Delegate to listen when book finishes
             player?.delegate = delegate
             
-            
+            // remember last book
+            lastplayedBook = play
+
             NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
                 if bookhasfinished {
                     print("Notification: Requesting next book")
@@ -174,6 +187,14 @@ class AudioPlayerStatus: ObservableObject {
         else {
             Play()
         }
+    }
+    
+    func setplayingBook() {
+        PlayManager(play: lastplayedBook!)
+//        currentPlaylist = books
+//        currentlyPlayingID = book.id
+//        bookname = book.name
+        Stop()
     }
     
     
@@ -323,7 +344,7 @@ class AudioPlayerStatus: ObservableObject {
         }
 
     }
-
+    
 }
 
 

@@ -28,7 +28,7 @@ struct SeekView: View {
     
     var caret: some View {
         Rectangle()
-            .fill(whiteColor)
+            .fill(playerEngine.status == .empty ? inactiveColor : whiteColor)
             .frame(width: 2, height: 48, alignment: .trailing)
         //compensate 2 for caret
             .padding([.leading], center-2)
@@ -71,7 +71,10 @@ struct SeekView: View {
                 // allow offset to process if drag happened
                 if dragInitiated {
                     playerEngine.playerIsSeeking = true
-                    playerEngine.playbackTime = formatTimeFor(seconds: offset)
+                    // check offset and if it's less than 0 set playback to 0.
+                    if offset > 0 && playerEngine.status != .empty {
+                        playerEngine.playbackTime = formatTimeFor(seconds: offset)}
+                    else { playerEngine.playbackTime = "00:00:00"}
                     
                     // if player exist delete it
                     if seekingTimer != nil {seekingTimer!.invalidate()
@@ -90,7 +93,7 @@ struct SeekView: View {
         // newTime as var so i can change it
         var newTime = offset
         seekingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if newTime > player?.duration ?? 0 { newTime = player!.duration }
+            if newTime > player?.duration ?? 0 { newTime = player?.duration ?? 0 }
             player?.currentTime = newTime
             print("Set playback \(newTime)")
             seekingTimer?.invalidate()

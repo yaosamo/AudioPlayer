@@ -32,8 +32,8 @@ struct Books: View {
     @State var playlistName: String
     @State private var presentImporter: Bool = false
     @State private var showingPopover = false
-    @State var CurrentBookIsOn = false
-
+    @State private var showConfirmation = false
+    
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
         animation: .default)
@@ -44,29 +44,27 @@ struct Books: View {
     
     var body: some View {
         // Converting NSSet of playlists book to Array and aplying sorting by name
-        let books = playlist.book!.sortedArray(using: [booksorting]) as! [Book]
+        let books = playlist.book?.sortedArray(using: [booksorting]) as! [Book]?
         
         ZStack(alignment: .trailing) {
             darkColor.edgesIgnoringSafeArea(.all)
-        
-            Text(playlist.name!)
+            
+            Text(playlist.name ?? "")
                 .frame(width: 600, height: 60, alignment: .trailing)
                 .rotationEffect(.degrees(-90))
                 .font(.system(size: 100, weight: .medium, design: .rounded))
-                .padding(.trailing, -284)
+                .padding(.trailing, -296)
                 .padding(.top, 200)
                 .foregroundColor(Color(red: 0.88, green: 0.83, blue: 0.68))
             
-            ZStack() {
-                
-                List {
-                    ForEach(books) { book in
+            List {
+                if books != nil {
+                    ForEach(books!) { book in
                         Button(action: {
-                            let CurrentItemID = book.id
                             let URL = playerEngine.restoreURL(bookmarkData: book.urldata!)
                             // Pass array of all audiobooks to our playlist
                             playerEngine.currentPlaylist = books
-                            playerEngine.currentlyPlayingID = CurrentItemID
+                            playerEngine.currentlyPlayingID = book.id
                             playerEngine.bookname = book.name
                             playerEngine.PlayManager(play: URL)
                             let _ = print("Now playing book at:", playerEngine.CurrentPlayingIndex())
@@ -78,36 +76,28 @@ struct Books: View {
                                     .MainFont(Size: 24, Weight: .regular)
                                     .frame(height: 24, alignment: .leading)
                                     .foregroundColor(book.id == playerEngine.currentlyPlayingID ? active : inactive)
-                                
+                                    
                                 Text(book.author ?? "Unknown author")
                                     .font(.system(size: 16, design: .rounded))
                                     .foregroundColor(inactive)
                             }
                         })
                             .padding(.bottom, 8)
-                            .onAppear {
-                                if book.id == playerEngine.currentlyPlayingID {
-                                    CurrentBookIsOn = true
-                                }
-                            }
                     }
                     .onDelete(perform: { IndexSet in
-                        deleteBookItems(offsets: IndexSet, books: books)
+                        deleteBookItems(offsets: IndexSet, books: books!)
                     })
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color(red: 0, green: 0, blue: 0, opacity: 0.0))
-                } // List
-                // Custom header
-                // LinearGradient(gradient: Gradient(colors: [darkColor, darkColor.opacity(0.5)]), startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all)
-                // .frame(maxWidth: 600, maxHeight: 64)
-            }
-            // .navigationBarHidden(true)
+                }
+            } // List
             .listStyle(.inset)
+            
             .toolbar {
                 Menu {
                     Button("Import from iCloud", action: {presentImporter.toggle()})
                     Button("Rename playlist", action: {showingPopover.toggle()})
-                    Button("Delete playlist", action: {print("delete")})
+                    Button("Delete playlist", role: .destructive, action: { showConfirmation.toggle()})
                 }
             label: { Label("Menu", systemImage: "ellipsis")}
                 
@@ -149,15 +139,28 @@ struct Books: View {
                 })
                     .padding(.bottom, 32)
             }
+                
+            .confirmationDialog("Would you like to delete this playlist? \n It will be deleted on all devices", isPresented: $showConfirmation, titleVisibility: .visible) {
+                Button("Delete", role: .destructive) {
+                    deletePlaylist()
+                    showConfirmation = false
+                    
+                }
+                
+                
+                Button("Cancel") {
+                    showConfirmation = false
+                }
+                
             }
-            
+            }
         } // Zstack
         
         .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], allowsMultipleSelection: true, onCompletion: importBooks)
     }
     
     // Updating item funcion
-    private  func renamePlaylist(playlist: Playlist) {
+    private func renamePlaylist(playlist: Playlist) {
         let newName = playlistName
         viewContext.performAndWait {
             playlist.name = newName
@@ -201,19 +204,24 @@ struct Books: View {
         }
     }
     
-//    private func deletePlaylist(currentPlaylist: Array<Playlist>) {
-//        withAnimation {
-//
-//            allplaylists[$0].forEach(viewContext.delete)
-//
-//            do {
-//                try viewContext.save()
-//            } catch {
-//                let nsError = error as NSError
-//                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-//            }
-//        }
-//    }
+    private func deletePlaylist() {
+        playerEngine.Stop()
+        playerEngine.abortPlay()
+        
+        let playlistIndex = allplaylists.firstIndex(where: { $0.id == playlist.id} )!
+        let indexSet = IndexSet(integer: playlistIndex)
+        
+        withAnimation {
+            indexSet.map { allplaylists[$0] } .forEach(viewContext.delete)
+            
+            do {
+                try viewContext.save()
+            } catch {
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            }
+        }
+    }
     
     
     private func deleteBookItems(offsets: IndexSet, books: Array<Book>) {

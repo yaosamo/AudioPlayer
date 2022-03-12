@@ -13,7 +13,8 @@ import AVFoundation
 
 let inactive = Color(red: 0.40, green: 0.42, blue: 0.45)
 let active = Color(red: 0.99, green: 0.99, blue: 0.99)
-
+// sorting books by name
+let booksorting =  NSSortDescriptor(key: "name", ascending: true)
 
 public extension Button {
     func BookStyle() -> some View {
@@ -39,8 +40,7 @@ struct Books: View {
         animation: .default)
     private var allplaylists: FetchedResults<Playlist>
     
-    // sorting books by name
-    let booksorting =  NSSortDescriptor(key: "name", ascending: true)
+    
     
     var body: some View {
         // Converting NSSet of playlists book to Array and aplying sorting by name
@@ -65,6 +65,7 @@ struct Books: View {
                             // Pass array of all audiobooks to our playlist
                             playerEngine.currentPlaylist = books
                             playerEngine.currentlyPlayingID = book.id
+                            playerEngine.currentlyPlaylistIndex = allplaylists.firstIndex(where: { $0.id == playlist.id} )!
                             playerEngine.bookname = book.name
                             playerEngine.PlayManager(play: URL)
                             let _ = print("Now playing book at:", playerEngine.CurrentPlayingIndex())
@@ -76,7 +77,7 @@ struct Books: View {
                                     .MainFont(Size: 24, Weight: .regular)
                                     .frame(height: 24, alignment: .leading)
                                     .foregroundColor(book.id == playerEngine.currentlyPlayingID ? active : inactive)
-                                    
+                                
                                 Text(book.author ?? "Unknown author")
                                     .font(.system(size: 16, design: .rounded))
                                     .foregroundColor(inactive)
@@ -146,7 +147,6 @@ struct Books: View {
                     showConfirmation = false
                     
                 }
-                
                 
                 Button("Cancel") {
                     showConfirmation = false

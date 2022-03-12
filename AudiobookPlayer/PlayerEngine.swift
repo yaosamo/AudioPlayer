@@ -31,12 +31,21 @@ class AudioPlayerStatus: ObservableObject {
     @Published var bookPlaybackWidth = CGFloat(0)
     @Published var playerIsSeeking = false
     @Published var currentlyPlayingIndex : Int?
+    @Published var currentlyPlaylistIndex : Int?
     @Published var currentlyPlayingID : ObjectIdentifier?
     @Published var currentPlaylist : Array<Book>?
     
     private var audioSession : AVAudioSession
-    @AppStorage("URL") var lastplayedBook: URL?
-
+    // Remember playlist selected, highlight book that was / is playing.
+    @AppStorage("Playlist") var lastplayedPlaylistIndex: Int?
+    @AppStorage("Book") var lastplayedBook: URL?
+    @AppStorage("Playback") var lastplayBack: String?
+    
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(key: "name", ascending: true)],
+        animation: .default)
+    
+    private var allplaylists: FetchedResults<Playlist>
     
     init() {
         audioSession = AVAudioSession.sharedInstance()
@@ -71,7 +80,6 @@ class AudioPlayerStatus: ObservableObject {
     func PlayManager(play: URL) {
         
         do {
-            
             // Start Playing
             player = try AVAudioPlayer(contentsOf: play)
             status = PlayingStatus.playing
@@ -82,8 +90,9 @@ class AudioPlayerStatus: ObservableObject {
             // Delegate to listen when book finishes
             player?.delegate = delegate
             
-            // remember last book
+            // remember last book and playlist
             lastplayedBook = play
+            lastplayedPlaylistIndex = currentlyPlaylistIndex
 
             NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
                 if bookhasfinished {
@@ -188,21 +197,22 @@ class AudioPlayerStatus: ObservableObject {
             Play()
         }
     }
-    
-    func setplayingBook() {
-        PlayManager(play: lastplayedBook!)
-//        currentPlaylist = books
-//        currentlyPlayingID = book.id
-//        bookname = book.name
-        Stop()
-    }
+//    
+//    func setplayingBook() {
+//        PlayManager(play: lastplayedBook!)
+//        playbackTime = lastplayBack!
+//        let lastPlayedPlaylistObject = allplaylists[lastplayedPlaylistIndex ?? 0]
+//        currentPlaylist = lastPlayedPlaylistObject.book!.sortedArray(using: [booksorting]) as! [Book]?
+//        Stop()
+//    }
     
     
     func timeUpdate() {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
-            if self.status == .playing && !self.playerIsSeeking  {
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [self] (_) in
+            if status == .playing && !playerIsSeeking  {
                 let seconds = player?.currentTime
-                self.playbackTime = formatTimeFor(seconds: seconds ?? 0)
+                playbackTime = formatTimeFor(seconds: seconds ?? 0)
+                lastplayBack = playbackTime
             }
         }
     }

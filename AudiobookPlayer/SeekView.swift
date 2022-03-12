@@ -89,11 +89,10 @@ struct SeekView: View {
         }
     }
     
-    func SeekPlayerTo(_ offset: TimeInterval) {
+    func SeekPlayerTo(_ newTime: TimeInterval) {
         // newTime as var so i can change it
-        var newTime = offset
         seekingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if newTime > player?.duration ?? 0 { newTime = player?.duration ?? 0 }
+            if newTime >= player?.duration ?? 0 { playerEngine.NextBook() }
             player?.currentTime = newTime
             print("Set playback \(newTime)")
             seekingTimer?.invalidate()

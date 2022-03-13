@@ -105,11 +105,11 @@ struct PlayerUI: View {
             .padding(.bottom, 24)
         } //vstack
         .background(darkColor)
-//        .onAppear(perform: {
-//            if playerEngine.lastplayedBook != nil {
-//                playerEngine.setplayingBook()
-//            }
-//        } )
+        .onAppear {
+            if playerEngine.restorePlaylistIndex != nil {
+                playerEngine.restorePlay()
+            }
+        }
     }
 }
 

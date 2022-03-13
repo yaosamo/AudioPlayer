@@ -19,14 +19,12 @@ struct Playlists: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
-    @SceneStorage("Playlists.selected") private var selectedPlaylist: String?
-
     
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
         animation: .default)
-    
-    private var allplaylists: FetchedResults<Playlist>
+
+    var allplaylists: FetchedResults<Playlist>
     @State private var showingPopover = false
     @State private var playlistName = "Playlist"
     
@@ -92,9 +90,7 @@ struct Playlists: View {
                         }
                     
                     ForEach(allplaylists) { playlist in
-                        NavigationLink(destination: Books(playlist: playlist, playlistName: playlist.name!).environmentObject(playerEngine),
-                                       tag: "",
-                                        selection: $selectedPlaylist)  {
+                        NavigationLink(destination: Books(playlist: playlist, playlistName: playlist.name!).environmentObject(playerEngine))  {
                             Text(playlist.name ?? "Noname")
                                 .MainFont(Size: 40, Weight: .regular)
                                 .frame(height: 48)

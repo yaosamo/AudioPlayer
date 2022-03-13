@@ -106,9 +106,9 @@ struct PlayerUI: View {
         } //vstack
         .background(darkColor)
         .onAppear {
-            if playerEngine.restorePlaylistIndex != nil {
-                playerEngine.restorePlay()
-            }
+           
+                print("restored:", playerEngine.restorebookID, playerEngine.restoreplaylistID)
+            
         }
     }
 }

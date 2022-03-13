@@ -64,11 +64,15 @@ struct Books: View {
                             let URL = playerEngine.restoreURL(bookmarkData: book.urldata!)
                             // Pass array of all audiobooks to our playlist
                             playerEngine.currentPlaylist = books
-                            playerEngine.currentlyPlayingID = book.id
+                            playerEngine.allPlaylists = allplaylists
+                            playerEngine.currentPlaylistID = playlist.id
+                            playerEngine.currentBookID = book.id
                             playerEngine.bookname = book.name
-                            playerEngine.currentPlaylistIndex = allplaylists.firstIndex(where: { $0.id == playlist.id} )
+//                            playerEngine.currentPlaylistIndex = allplaylists.firstIndex(where: { $0.id == playlist.id} )
+//                            playerEngine.currentBookIndex = books!.firstIndex(where: { $0.id == book.id} )
+
                             playerEngine.PlayManager(play: URL)
-                            let _ = print("Now playing book at:", playerEngine.CurrentPlayingIndex())
+                            let _ = print("Now playing book at:", playerEngine.CurrentBookIndex())
                             
                         }, label: {
                             
@@ -76,7 +80,7 @@ struct Books: View {
                                 Text(book.name ?? "Unknown name")
                                     .MainFont(Size: 24, Weight: .regular)
                                     .frame(height: 24, alignment: .leading)
-                                    .foregroundColor(book.id == playerEngine.currentlyPlayingID ? active : inactive)
+                                    .foregroundColor(book.id == playerEngine.currentBookID ? active : inactive)
                                 
                                 Text(book.author ?? "Unknown author")
                                     .font(.system(size: 16, design: .rounded))

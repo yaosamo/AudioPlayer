@@ -16,7 +16,6 @@ public extension Text {
 
 
 struct Playlists: View {
-    
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
     

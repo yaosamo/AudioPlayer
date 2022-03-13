@@ -30,19 +30,18 @@ class AudioPlayerStatus: ObservableObject {
     @Published var playbackTime = "00:00:00"
     @Published var bookPlaybackWidth = CGFloat(0)
     @Published var playerIsSeeking = false
-    @Published var currentlyPlayingIndex : Int?
-    @Published var currentlyPlayingID : ObjectIdentifier?
+    
+    @Published var currentBookIndex : Int?
     @Published var currentPlaylistIndex : Int?
+    
+    @Published var currentBookID : ObjectIdentifier?
+    @Published var currentPlaylistID : ObjectIdentifier?
+
     @Published var currentPlaylist : Array<Book>?
-    @Published var allPlaylists : Array<Playlist>?
-    
-    private var audioSession : AVAudioSession
-    
-    @AppStorage("Playlist") var restorePlaylistIndex: Int?
-    @AppStorage("Book") var restoreBookIndex: Int?
-    @AppStorage("Playback") var restorePlayback: String?
+    @Published var allPlaylists : FetchedResults<Playlist>?
 
     
+    private var audioSession : AVAudioSession
     
     init() {
         audioSession = AVAudioSession.sharedInstance()
@@ -59,9 +58,19 @@ class AudioPlayerStatus: ObservableObject {
         bookname = "Select something to play"
         playbackTime = "00:00:00"
         bookPlaybackWidth = CGFloat(0)
-        currentlyPlayingIndex = nil
-        currentlyPlayingID = nil
+        currentBookIndex = nil
+        currentBookID = nil
         currentPlaylist = nil
+    }
+    
+    @AppStorage("playlistID") var restoreplaylistID: Int?
+    @AppStorage("bookID") var restorebookID: Int?
+    
+    
+    func save() {
+        restoreplaylistID = CurrentPlaylistIndex()
+        restorebookID = CurrentBookIndex()
+        print("saved:", restorebookID, restoreplaylistID)
     }
     
     func setupAudioSession() {
@@ -71,14 +80,7 @@ class AudioPlayerStatus: ObservableObject {
             print("Failed to set audio session route sharing policy: \(error)")
         }
     }
-    
-    func restorePlay() {
-        playbackTime = restorePlayback ?? "00:00:00"
-        status = PlayingStatus.stopped
-        currentPlaylistIndex = restorePlaylistIndex
-        currentlyPlayingIndex = restoreBookIndex
-    }
-    
+ 
     // Receive URLdata to play -> initiate play
     func PlayManager(play: URL) {
         
@@ -92,9 +94,7 @@ class AudioPlayerStatus: ObservableObject {
             
             // Delegate to listen when book finishes
             player?.delegate = delegate
-            restoreBookIndex = CurrentPlayingIndex()
-            restorePlaylistIndex = currentPlaylistIndex
-            
+           
             
             NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
                 if bookhasfinished {
@@ -104,7 +104,7 @@ class AudioPlayerStatus: ObservableObject {
                 }
             }
             Play()
-            
+            save()
         } catch let error {
             print("Player Error", error.localizedDescription)
         }
@@ -123,8 +123,8 @@ class AudioPlayerStatus: ObservableObject {
         print("Playlist set next book to play at: \(nextBookIndex)")
         
         // updating data for nextbook in observable object
-        currentlyPlayingID = nextBookID
-        currentlyPlayingIndex = nextBookIndex
+        currentBookID = nextBookID
+        currentBookIndex = nextBookIndex
         bookname = nextBookName
         PlayManager(play: URL)
     }
@@ -138,18 +138,24 @@ class AudioPlayerStatus: ObservableObject {
     }
     
     // Defining index of currently playing book
-    func CurrentPlayingIndex() -> Int {
+    func CurrentBookIndex() -> Int {
         // Finding item that is currently playing
-        let newPlayingIndex = currentPlaylist!.firstIndex(where: { $0.id == currentlyPlayingID} )!
-        currentlyPlayingIndex = newPlayingIndex
-        return newPlayingIndex
+        let newBookIndex = currentPlaylist!.firstIndex(where: { $0.id == currentBookID} )!
+        currentBookIndex = newBookIndex
+        return newBookIndex
+    }
+    
+    func CurrentPlaylistIndex() -> Int {
+        let newPlaylistIndex = allPlaylists!.firstIndex(where: { $0.id == currentPlaylistID} )!
+        currentPlaylistIndex = newPlaylistIndex
+        return newPlaylistIndex
     }
     
     
     // Checking if new book exists
     func skipToCurrentItem(offsetBy offset: Int) {
         print("\(currentPlaylist!.count) books in current playlist")
-        let NextBookIndex = CurrentPlayingIndex() + offset
+        let NextBookIndex = CurrentBookIndex() + offset
         if  (NextBookIndex <= currentPlaylist!.count-1) && (NextBookIndex >= 0) {
             print("Requested book exists at:", NextBookIndex)
             Playlist(at: NextBookIndex)
@@ -205,7 +211,6 @@ class AudioPlayerStatus: ObservableObject {
             if status == .playing && !playerIsSeeking  {
                 let seconds = player?.currentTime
                 playbackTime = formatTimeFor(seconds: seconds ?? 0)
-                restorePlayback = playbackTime
             }
         }
     }

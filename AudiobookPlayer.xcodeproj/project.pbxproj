@@ -22,6 +22,7 @@
 		5D9FD9162791472100DF2F28 /* AudiobookPlayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD9152791472100DF2F28 /* AudiobookPlayerUITests.swift */; };
 		5D9FD9182791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9FD9172791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift */; };
 		5DB7847527B185F600EDAA59 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DDB807027B0E4310057B9E1 /* CloudKit.framework */; };
+		5DCF58FF27DEA61900B6E47C /* RestoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCF58FE27DEA61900B6E47C /* RestoreData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 		5D9FD9112791472100DF2F28 /* AudiobookPlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AudiobookPlayerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D9FD9152791472100DF2F28 /* AudiobookPlayerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudiobookPlayerUITests.swift; sourceTree = "<group>"; };
 		5D9FD9172791472100DF2F28 /* AudiobookPlayerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudiobookPlayerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		5DCF58FE27DEA61900B6E47C /* RestoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreData.swift; sourceTree = "<group>"; };
 		5DDB807027B0E4310057B9E1 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		5DDB807227B0E45A0057B9E1 /* AudiobookPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AudiobookPlayer.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -123,6 +125,7 @@
 				5D418A722799200D008DC6C6 /* PlayerUI.swift */,
 				5D4DB5D327CF2364002E0487 /* SeekView.swift */,
 				5D27663327B4D79200CA322F /* PlayerEngine.swift */,
+				5DCF58FE27DEA61900B6E47C /* RestoreData.swift */,
 				5D29DFED27A66383009FCA65 /* Books.swift */,
 				5D9FD8F92791472100DF2F28 /* Assets.xcassets */,
 				5D9FD8FE2791472100DF2F28 /* Persistence.swift */,
@@ -302,6 +305,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DCF58FF27DEA61900B6E47C /* RestoreData.swift in Sources */,
 				5D27663427B4D79200CA322F /* PlayerEngine.swift in Sources */,
 				5D4DB5D427CF2364002E0487 /* SeekView.swift in Sources */,
 				5D9FD8FF2791472100DF2F28 /* Persistence.swift in Sources */,

@@ -31,12 +31,11 @@ class AudioPlayerStatus: ObservableObject {
     @Published var bookPlaybackWidth = CGFloat(0)
     @Published var playerIsSeeking = false
     @Published var currentlyPlayingIndex : Int?
-    @Published var currentlyPlaylistIndex : Int?
     @Published var currentlyPlayingID : ObjectIdentifier?
     @Published var currentPlaylist : Array<Book>?
     
     private var audioSession : AVAudioSession
-    // Remember playlist selected, highlight book that was / is playing.
+    // Remember playlist index > get playlist Array. Current book index [name, url, data]
     @AppStorage("Playlist") var lastplayedPlaylistIndex: Int?
     @AppStorage("Book") var lastplayedBook: URL?
     @AppStorage("Playback") var lastplayBack: String?
@@ -92,7 +91,6 @@ class AudioPlayerStatus: ObservableObject {
             
             // remember last book and playlist
             lastplayedBook = play
-            lastplayedPlaylistIndex = currentlyPlaylistIndex
 
             NotificationCenter.default.addObserver(forName: NSNotification.Name("Finished"), object: nil, queue: .main)  {_ in
                 if bookhasfinished {
@@ -197,15 +195,6 @@ class AudioPlayerStatus: ObservableObject {
             Play()
         }
     }
-//    
-//    func setplayingBook() {
-//        PlayManager(play: lastplayedBook!)
-//        playbackTime = lastplayBack!
-//        let lastPlayedPlaylistObject = allplaylists[lastplayedPlaylistIndex ?? 0]
-//        currentPlaylist = lastPlayedPlaylistObject.book!.sortedArray(using: [booksorting]) as! [Book]?
-//        Stop()
-//    }
-    
     
     func timeUpdate() {
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [self] (_) in
@@ -349,6 +338,7 @@ class AudioPlayerStatus: ObservableObject {
     func setOutput() {
         if audioSession.currentRoute.outputs[0].portName == "Speaker" {
             speaker = "iPhone"
+            Stop()
         } else {
             speaker = audioSession.currentRoute.outputs[0].portName
         }

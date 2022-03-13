@@ -19,6 +19,8 @@ struct Playlists: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
+    @SceneStorage("Playlists.selected") private var selectedPlaylist: String?
+
     
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
@@ -90,7 +92,9 @@ struct Playlists: View {
                         }
                     
                     ForEach(allplaylists) { playlist in
-                        NavigationLink(destination: Books(playlist: playlist, playlistName: playlist.name!).environmentObject(playerEngine))  {
+                        NavigationLink(destination: Books(playlist: playlist, playlistName: playlist.name!).environmentObject(playerEngine),
+                                       tag: "",
+                                        selection: $selectedPlaylist)  {
                             Text(playlist.name ?? "Noname")
                                 .MainFont(Size: 40, Weight: .regular)
                                 .frame(height: 48)

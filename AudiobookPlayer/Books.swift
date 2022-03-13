@@ -65,7 +65,6 @@ struct Books: View {
                             // Pass array of all audiobooks to our playlist
                             playerEngine.currentPlaylist = books
                             playerEngine.currentlyPlayingID = book.id
-                            playerEngine.currentlyPlaylistIndex = allplaylists.firstIndex(where: { $0.id == playlist.id} )!
                             playerEngine.bookname = book.name
                             playerEngine.PlayManager(play: URL)
                             let _ = print("Now playing book at:", playerEngine.CurrentPlayingIndex())

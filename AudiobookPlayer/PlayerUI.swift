@@ -29,6 +29,7 @@ var colorslist : [Color] = [Color(red: 0.88, green: 0.83, blue: 0.68), Color(red
 struct PlayerUI: View {
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
     
+    
     let iconplay = "play.fill"
     let iconstop = "pause.fill"
     

@@ -84,8 +84,6 @@ struct SeekView: View {
                     SeekPlayerTo(newValue)
                 }
             })
-            .onChange(of: playerEngine.playbackTime) { newValue in
-            }
         }
     }
     
@@ -98,15 +96,6 @@ struct SeekView: View {
             seekingTimer?.invalidate()
             playerEngine.playerIsSeeking = false
             dragInitiated = false
-        }
-    }
-    
-    
-    func handleProgressTimer() {
-        let playingStatus = player?.isPlaying
-        if playingStatus ?? false {
-            let progress = Double(player!.currentTime)
-            print("progress --- ", progress)
         }
     }
 }

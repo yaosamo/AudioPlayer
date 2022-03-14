@@ -39,7 +39,7 @@ class AudioPlayerStatus: ObservableObject {
 
     @Published var currentPlaylist : Array<Book>?
     @Published var allPlaylists : FetchedResults<Playlist>?
-    
+        
     private var audioSession : AVAudioSession
     
     @AppStorage("playlistID") var restoreplaylistIndex: Int?
@@ -74,12 +74,12 @@ class AudioPlayerStatus: ObservableObject {
     func SavePlay() {
         restoreplaylistIndex = CurrentPlaylistIndex()
         restorebookIndex = CurrentBookIndex()
-        print("saving", restoreplaylistIndex, restorebookIndex)
     }
     
     func restorePlay() {
         print("restoring play")
         currentPlaylist = restorePlaylist()
+        currentPlaylistID = allPlaylists![restoreplaylistIndex!].id
         let book = currentPlaylist![restorebookIndex!]
         let url = restoreURL(bookmarkData: book.urldata!)
         currentBookID = book.id
@@ -125,6 +125,7 @@ class AudioPlayerStatus: ObservableObject {
                 }
             }
             Play()
+            
         } catch let error {
             print("Player Error", error.localizedDescription)
         }
@@ -189,6 +190,7 @@ class AudioPlayerStatus: ObservableObject {
             print("Please play previous book")
             skipToCurrentItem(offsetBy: -1)
         }
+        SavePlay()
     }
     
     func NextBook() {
@@ -196,6 +198,7 @@ class AudioPlayerStatus: ObservableObject {
             print("Please play next book")
             skipToCurrentItem(offsetBy: +1)
         }
+        SavePlay()
     }
     
     func Play() {

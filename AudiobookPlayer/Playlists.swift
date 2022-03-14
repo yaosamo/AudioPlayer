@@ -28,6 +28,8 @@ struct Playlists: View {
     @State private var playlistName = "Playlist"
     @State private var readytoRestore = true
     
+    @State private var newPlaylistIndex = 0
+    
     var body: some View {
         
         NavigationView {
@@ -49,7 +51,7 @@ struct Playlists: View {
                         .listRowBackground(darkColor)
                     
                         .popover(isPresented: $showingPopover) {
-                            
+
                             ZStack {
                                 HStack {
                                     Spacer()
@@ -62,11 +64,11 @@ struct Playlists: View {
                                             .padding([.top, .trailing], 24)
                                     })
                                 }
-                                
+
                                 Text("Name")
                                     .foregroundColor(whiteColor)
                                     .padding(.top, 32)
-                                
+
                             }
                             Spacer()
                             TextField("Name", text: $playlistName)
@@ -83,7 +85,7 @@ struct Playlists: View {
                                     .frame(width: 64, height: 64, alignment: .center)
                                     .background(Color(red: 0.22, green: 0.23, blue: 0.24))
                                     .clipShape(Circle())
-                                
+
                             })
                                 .padding(.bottom, 32)
                         }
@@ -98,15 +100,14 @@ struct Playlists: View {
                                 .padding(.bottom, 8)
                         }
                     } // allplaylists ForEach
-                    .onDelete(perform: deleteItems)
                     .listRowSeparator(.hidden)
                     .listRowBackground(darkColor)
                 }
                 .listStyle(.inset)
                 .onAppear {
                     playerEngine.allPlaylists = allplaylists
+                    print("all playlists added")
                     if (playerEngine.restorebookIndex != nil) && (playerEngine.restoreplaylistIndex != nil) && readytoRestore {
-                        print("restored")
                         playerEngine.restorePlay()
                         readytoRestore = false
                     }
@@ -123,29 +124,19 @@ struct Playlists: View {
             let newPlaylist = Playlist(context: viewContext)
             newPlaylist.name = name
             try? viewContext.save()
+            
+            // check if created playlist's index is less than the one that saved, update saved index +1.
+            let newIndex = allplaylists.firstIndex(where: { $0.id == newPlaylist.id} )!
+            print("creating playlist at:", newIndex)
+
+            if newIndex <= playerEngine.restoreplaylistIndex ?? 0 {
+                let savedIndex = playerEngine.restoreplaylistIndex!
+                playerEngine.restoreplaylistIndex = savedIndex + 1
+                print("saved new playlist index at:", playerEngine.restoreplaylistIndex)
+            }
+            
+            
             let _ = print("new playlist created")
         }
     }
-    
-    private func deleteItems(offsets: IndexSet) {
-        
-//        if offsets  {
-//        playerEngine.Stop()
-//        playerEngine.abortPlay()
-//        }
-        withAnimation {
-            offsets.map { allplaylists[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-    
 }

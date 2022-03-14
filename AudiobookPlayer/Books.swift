@@ -39,7 +39,6 @@ struct Books: View {
     @State private var showingPopover = false
     @State private var showConfirmation = false
     
-    
     var body: some View {
         // Converting NSSet of playlists book to Array and aplying sorting by name
         let books = playlist.book?.sortedArray(using: [booksorting]) as! [Book]?
@@ -138,7 +137,6 @@ struct Books: View {
                         .frame(width: 64, height: 64, alignment: .center)
                         .background(Color(red: 0.22, green: 0.23, blue: 0.24))
                         .clipShape(Circle())
-                    
                 })
                     .padding(.bottom, 32)
             }
@@ -153,7 +151,6 @@ struct Books: View {
                 Button("Cancel") {
                     showConfirmation = false
                 }
-                
             }
             }
         } // Zstack
@@ -190,6 +187,12 @@ struct Books: View {
     
     private func addBook(url: URL) {
         let meta = metaData(url: url)
+        
+        if playlist.id == playerEngine.currentPlaylistID {
+            playerEngine.Stop()
+            playerEngine.abortPlay()
+        }
+        
         withAnimation {
             // Creating new book
             let newBook = Book(context: viewContext)
@@ -210,11 +213,18 @@ struct Books: View {
         if playlist.id == playerEngine.currentPlaylistID {
             playerEngine.Stop()
             playerEngine.abortPlay()
-            playerEngine.SavePlay()
         }
         
-        let playlistIndex = allPlaylists.firstIndex(where: { $0.id == playlist.id} )!
-        let indexSet = IndexSet(integer: playlistIndex)
+        let deletingplaylistIndex = allPlaylists.firstIndex(where: { $0.id == playlist.id} )!
+        let indexSet = IndexSet(integer: deletingplaylistIndex)
+        
+        // check if deleted index is less than the one that saved, update saved index -1.
+        print("deleting playlist at:", deletingplaylistIndex)
+        if deletingplaylistIndex < playerEngine.restoreplaylistIndex ?? 0 {
+            let savedIndex = playerEngine.restoreplaylistIndex!
+            playerEngine.restoreplaylistIndex = savedIndex - 1
+            print("saved new playlist index at:", playerEngine.restoreplaylistIndex)
+        }
         
         withAnimation {
             indexSet.map { allPlaylists[$0] } .forEach(viewContext.delete)

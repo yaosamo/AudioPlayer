@@ -16,6 +16,7 @@ let active = Color(red: 0.99, green: 0.99, blue: 0.99)
 // sorting books by name
 let booksorting =  NSSortDescriptor(key: "name", ascending: true)
 
+
 public extension Button {
     func BookStyle() -> some View {
         self
@@ -61,7 +62,7 @@ struct Books: View {
                             let URL = playerEngine.restoreURL(bookmarkData: book.urldata!)
                             // Pass array of all audiobooks to our playlist
                             playerEngine.currentPlaylist = books
-//                            playerEngine.allPlaylists = allPlaylists
+                            playerEngine.allPlaylists = allPlaylists
                             playerEngine.currentPlaylistID = playlist.id
                             playerEngine.currentBookID = book.id
                             playerEngine.bookname = book.name
@@ -206,8 +207,11 @@ struct Books: View {
     }
     
     private func deletePlaylist() {
-        playerEngine.Stop()
-        playerEngine.abortPlay()
+        if playlist.id == playerEngine.currentPlaylistID {
+            playerEngine.Stop()
+            playerEngine.abortPlay()
+            playerEngine.SavePlay()
+        }
         
         let playlistIndex = allPlaylists.firstIndex(where: { $0.id == playlist.id} )!
         let indexSet = IndexSet(integer: playlistIndex)

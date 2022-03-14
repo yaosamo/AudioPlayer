@@ -22,12 +22,11 @@ struct Playlists: View {
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
         animation: .default)
-
+    
     var allplaylists: FetchedResults<Playlist>
     @State private var showingPopover = false
     @State private var playlistName = "Playlist"
-
-    
+    @State private var readytoRestore = true
     
     var body: some View {
         
@@ -35,7 +34,7 @@ struct Playlists: View {
             ZStack {
                 darkColor
                     .edgesIgnoringSafeArea(.all)
-                    
+                
                 List {
                     
                     // Add Playlist Button + pop-up
@@ -106,18 +105,16 @@ struct Playlists: View {
                 .listStyle(.inset)
                 .onAppear {
                     playerEngine.allPlaylists = allplaylists
-                    print("allplaylists recorded")
-                    
-                    if playerEngine.restoreReady ?? false {
+                    if (playerEngine.restorebookIndex != nil) && (playerEngine.restoreplaylistIndex != nil) && readytoRestore {
+                        print("restored")
                         playerEngine.restorePlay()
-                        print("restored:", playerEngine.restorebookIndex, playerEngine.restoreplaylistIndex)
-                                    }
-                    
+                        readytoRestore = false
+                    }
                 }
             }
         }
     }
-
+    
     
     
     
@@ -131,14 +128,17 @@ struct Playlists: View {
     }
     
     private func deleteItems(offsets: IndexSet) {
-        // if currently playing book is in deleted playlist > refresh player UI
-        playerEngine.Stop()
-        playerEngine.abortPlay()
+        
+//        if offsets  {
+//        playerEngine.Stop()
+//        playerEngine.abortPlay()
+//        }
         withAnimation {
             offsets.map { allplaylists[$0] }.forEach(viewContext.delete)
-            
+
             do {
                 try viewContext.save()
+
             } catch {
                 // Replace this implementation with code to handle the error appropriately.
                 // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.

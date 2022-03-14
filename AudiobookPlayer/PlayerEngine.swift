@@ -45,7 +45,6 @@ class AudioPlayerStatus: ObservableObject {
     @AppStorage("playlistID") var restoreplaylistIndex: Int?
     @AppStorage("bookID") var restorebookIndex: Int?
     @AppStorage("playbackTime") var restorePlayback: String?
-    @AppStorage("restoreReady") var restoreReady: Bool?
 
     
     init() {
@@ -55,7 +54,6 @@ class AudioPlayerStatus: ObservableObject {
         setupRemoteTransportControls()
         setupNotifications()
         setOutput()
-        if restoreplaylistIndex == nil { restoreReady = false } else { restoreReady = true }
     }
     
     func abortPlay() {
@@ -71,14 +69,12 @@ class AudioPlayerStatus: ObservableObject {
         restoreplaylistIndex = nil
         restorebookIndex = nil
         restorePlayback = nil
-        restoreReady = nil
     }
     
     func SavePlay() {
         restoreplaylistIndex = CurrentPlaylistIndex()
         restorebookIndex = CurrentBookIndex()
-        restoreReady = true
-        print("saved:", restorebookIndex, restoreplaylistIndex)
+        print("saving", restoreplaylistIndex, restorebookIndex)
     }
     
     func restorePlay() {
@@ -88,7 +84,7 @@ class AudioPlayerStatus: ObservableObject {
         let url = restoreURL(bookmarkData: book.urldata!)
         currentBookID = book.id
         bookname = book.name
-        playbackTime = restorePlayback!
+        playbackTime = restorePlayback ?? "00:00:00"
         PlayManager(play: url)
         Stop()
     }
@@ -164,7 +160,6 @@ class AudioPlayerStatus: ObservableObject {
     // Defining index of currently playing book
     func CurrentBookIndex() -> Int {
         // Finding item that is currently playing
-            print("it's not nil")
             let newBookIndex = currentPlaylist!.firstIndex(where: { $0.id == currentBookID} )!
         currentBookIndex = newBookIndex
             return newBookIndex

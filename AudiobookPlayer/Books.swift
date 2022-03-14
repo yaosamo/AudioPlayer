@@ -29,17 +29,14 @@ public extension Button {
 struct Books: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var playerEngine: AudioPlayerStatus
+    
     var playlist: Playlist
+    var allPlaylists: FetchedResults<Playlist>
+    
     @State var playlistName: String
     @State private var presentImporter: Bool = false
     @State private var showingPopover = false
     @State private var showConfirmation = false
-    
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Playlist.name, ascending: true)],
-        animation: .default)
-    private var allplaylists: FetchedResults<Playlist>
-    
     
     
     var body: some View {
@@ -64,14 +61,12 @@ struct Books: View {
                             let URL = playerEngine.restoreURL(bookmarkData: book.urldata!)
                             // Pass array of all audiobooks to our playlist
                             playerEngine.currentPlaylist = books
-                            playerEngine.allPlaylists = allplaylists
+//                            playerEngine.allPlaylists = allPlaylists
                             playerEngine.currentPlaylistID = playlist.id
                             playerEngine.currentBookID = book.id
                             playerEngine.bookname = book.name
-//                            playerEngine.currentPlaylistIndex = allplaylists.firstIndex(where: { $0.id == playlist.id} )
-//                            playerEngine.currentBookIndex = books!.firstIndex(where: { $0.id == book.id} )
-
                             playerEngine.PlayManager(play: URL)
+                            playerEngine.SavePlay()
                             let _ = print("Now playing book at:", playerEngine.CurrentBookIndex())
                             
                         }, label: {
@@ -104,7 +99,9 @@ struct Books: View {
                     Button("Rename playlist", action: {showingPopover.toggle()})
                     Button("Delete playlist", role: .destructive, action: { showConfirmation.toggle()})
                 }
-            label: { Label("Menu", systemImage: "ellipsis")}
+            label: { Label("Menu", systemImage: "ellipsis")
+                    .frame(width: 48, height: 48)
+            }
                 
             .popover(isPresented: $showingPopover) {
                 ZStack {
@@ -212,11 +209,11 @@ struct Books: View {
         playerEngine.Stop()
         playerEngine.abortPlay()
         
-        let playlistIndex = allplaylists.firstIndex(where: { $0.id == playlist.id} )!
+        let playlistIndex = allPlaylists.firstIndex(where: { $0.id == playlist.id} )!
         let indexSet = IndexSet(integer: playlistIndex)
         
         withAnimation {
-            indexSet.map { allplaylists[$0] } .forEach(viewContext.delete)
+            indexSet.map { allPlaylists[$0] } .forEach(viewContext.delete)
             
             do {
                 try viewContext.save()

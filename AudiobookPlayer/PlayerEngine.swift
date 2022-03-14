@@ -39,9 +39,14 @@ class AudioPlayerStatus: ObservableObject {
 
     @Published var currentPlaylist : Array<Book>?
     @Published var allPlaylists : FetchedResults<Playlist>?
-
     
     private var audioSession : AVAudioSession
+    
+    @AppStorage("playlistID") var restoreplaylistIndex: Int?
+    @AppStorage("bookID") var restorebookIndex: Int?
+    @AppStorage("playbackTime") var restorePlayback: String?
+    @AppStorage("restoreReady") var restoreReady: Bool?
+
     
     init() {
         audioSession = AVAudioSession.sharedInstance()
@@ -50,6 +55,7 @@ class AudioPlayerStatus: ObservableObject {
         setupRemoteTransportControls()
         setupNotifications()
         setOutput()
+        if restoreplaylistIndex == nil { restoreReady = false } else { restoreReady = true }
     }
     
     func abortPlay() {
@@ -61,16 +67,35 @@ class AudioPlayerStatus: ObservableObject {
         currentBookIndex = nil
         currentBookID = nil
         currentPlaylist = nil
+        
+        restoreplaylistIndex = nil
+        restorebookIndex = nil
+        restorePlayback = nil
+        restoreReady = nil
     }
     
-    @AppStorage("playlistID") var restoreplaylistID: Int?
-    @AppStorage("bookID") var restorebookID: Int?
+    func SavePlay() {
+        restoreplaylistIndex = CurrentPlaylistIndex()
+        restorebookIndex = CurrentBookIndex()
+        restoreReady = true
+        print("saved:", restorebookIndex, restoreplaylistIndex)
+    }
     
+    func restorePlay() {
+        print("restoring play")
+        currentPlaylist = restorePlaylist()
+        let book = currentPlaylist![restorebookIndex!]
+        let url = restoreURL(bookmarkData: book.urldata!)
+        currentBookID = book.id
+        bookname = book.name
+        playbackTime = restorePlayback!
+        PlayManager(play: url)
+        Stop()
+    }
     
-    func save() {
-        restoreplaylistID = CurrentPlaylistIndex()
-        restorebookID = CurrentBookIndex()
-        print("saved:", restorebookID, restoreplaylistID)
+    func restorePlaylist() -> Array<Book> {
+        let Playlist = allPlaylists![restoreplaylistIndex!].book!.sortedArray(using: [booksorting]) as! [Book]
+        return Playlist
     }
     
     func setupAudioSession() {
@@ -104,7 +129,6 @@ class AudioPlayerStatus: ObservableObject {
                 }
             }
             Play()
-            save()
         } catch let error {
             print("Player Error", error.localizedDescription)
         }
@@ -140,9 +164,10 @@ class AudioPlayerStatus: ObservableObject {
     // Defining index of currently playing book
     func CurrentBookIndex() -> Int {
         // Finding item that is currently playing
-        let newBookIndex = currentPlaylist!.firstIndex(where: { $0.id == currentBookID} )!
+            print("it's not nil")
+            let newBookIndex = currentPlaylist!.firstIndex(where: { $0.id == currentBookID} )!
         currentBookIndex = newBookIndex
-        return newBookIndex
+            return newBookIndex
     }
     
     func CurrentPlaylistIndex() -> Int {
@@ -211,6 +236,7 @@ class AudioPlayerStatus: ObservableObject {
             if status == .playing && !playerIsSeeking  {
                 let seconds = player?.currentTime
                 playbackTime = formatTimeFor(seconds: seconds ?? 0)
+                restorePlayback = playbackTime
             }
         }
     }

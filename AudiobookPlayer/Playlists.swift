@@ -26,6 +26,7 @@ struct Playlists: View {
     var allplaylists: FetchedResults<Playlist>
     @State private var showingPopover = false
     @State private var playlistName = "Playlist"
+
     
     
     var body: some View {
@@ -89,7 +90,7 @@ struct Playlists: View {
                         }
                     
                     ForEach(allplaylists) { playlist in
-                        NavigationLink(destination: Books(playlist: playlist, playlistName: playlist.name!).environmentObject(playerEngine))  {
+                        NavigationLink(destination: Books(playlist: playlist, allPlaylists: allplaylists, playlistName: playlist.name!).environmentObject(playerEngine))  {
                             Text(playlist.name ?? "Noname")
                                 .MainFont(Size: 40, Weight: .regular)
                                 .frame(height: 48)
@@ -103,9 +104,20 @@ struct Playlists: View {
                     .listRowBackground(darkColor)
                 }
                 .listStyle(.inset)
+                .onAppear {
+                    playerEngine.allPlaylists = allplaylists
+                    print("allplaylists recorded")
+                    
+                    if playerEngine.restoreReady ?? false {
+                        playerEngine.restorePlay()
+                        print("restored:", playerEngine.restorebookIndex, playerEngine.restoreplaylistIndex)
+                                    }
+                    
+                }
             }
         }
     }
+
     
     
     

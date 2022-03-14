@@ -105,11 +105,6 @@ struct PlayerUI: View {
             .padding(.bottom, 24)
         } //vstack
         .background(darkColor)
-        .onAppear {
-           
-                print("restored:", playerEngine.restorebookID, playerEngine.restoreplaylistID)
-            
-        }
     }
 }
 

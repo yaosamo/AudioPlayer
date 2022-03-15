@@ -27,8 +27,8 @@ struct Playlists: View {
     @State private var showingPopover = false
     @State private var playlistName = "Playlist"
     @State private var readytoRestore = true
-    
     @State private var newPlaylistIndex = 0
+    
     
     var body: some View {
         
@@ -89,16 +89,18 @@ struct Playlists: View {
                             })
                                 .padding(.bottom, 32)
                         }
-                    
+                  
                     ForEach(allplaylists) { playlist in
+                       
                         NavigationLink(destination: Books(playlist: playlist, allPlaylists: allplaylists, playlistName: playlist.name!).environmentObject(playerEngine))  {
+                
                             Text(playlist.name ?? "Noname")
                                 .MainFont(Size: 40, Weight: .regular)
                                 .frame(height: 48)
-                                .foregroundColor(colorslist[0])
+                                .foregroundColor( colorslist[0] )
                                 .navigationBarHidden(true)
                                 .padding(.bottom, 8)
-                        }
+                            }
                     } // allplaylists ForEach
                     .listRowSeparator(.hidden)
                     .listRowBackground(darkColor)

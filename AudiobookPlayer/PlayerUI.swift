@@ -18,11 +18,15 @@ let borderColor = Color(red: 0.08, green: 0.09, blue: 0.10)
 let signalRed = Color(red: 0.96, green: 0.42, blue: 0.42)
 
 // playlist colors
-var biege = UIColor(red: 0.88, green: 0.83, blue: 0.68, alpha: 1.00)
-let lightblue = UIColor(red: 0.62, green: 0.78, blue: 0.78, alpha: 1.00)
-let purple = UIColor(red: 0.40, green: 0.45, blue: 0.94, alpha: 1.00)
-let brown = UIColor(red: 0.69, green: 0.33, blue: 0.22, alpha: 1.00)
-var colorslist : [Color] = [Color(red: 0.88, green: 0.83, blue: 0.68), Color(red: 0.62, green: 0.78, blue: 0.78), Color(red: 0.40, green: 0.45, blue: 0.94), Color(red: 0.69, green: 0.33, blue: 0.22)]
+var biege = Color(red: 0.88, green: 0.83, blue: 0.68)
+let lightblue = Color(red: 0.62, green: 0.78, blue: 0.78)
+let purple = Color(red: 0.40, green: 0.45, blue: 0.94)
+let brown = Color(red: 0.69, green: 0.33, blue: 0.22)
+let pink = Color(red: 0.75, green: 0.51, blue: 0.82)
+let gray = Color(red: 0.68, green: 0.68, blue: 0.68)
+let green = Color(red: 0.34, green: 0.59, blue: 0.49)
+
+var colorslist = [biege, lightblue, purple, brown, pink, gray, green]
 
 
 

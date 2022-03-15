@@ -52,7 +52,7 @@ struct Books: View {
                 .font(.system(size: 100, weight: .medium, design: .rounded))
                 .padding(.trailing, -296)
                 .padding(.top, 200)
-                .foregroundColor(Color(red: 0.88, green: 0.83, blue: 0.68))
+                .foregroundColor(giveColor(allPlaylists, playlist))
             
             List {
                 if books != nil {
@@ -125,6 +125,7 @@ struct Books: View {
                 Spacer()
                 TextField("Name", text: $playlistName)
                     .font(.system(size: 64, weight: .medium, design: .rounded))
+                    .foregroundColor(giveColor(allPlaylists, playlist))
                     .multilineTextAlignment(.center)
                 Spacer()
                 Button(action: {

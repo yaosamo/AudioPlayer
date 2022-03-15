@@ -49,9 +49,11 @@ struct Playlists: View {
                             .padding([.top, .bottom], 16)
                     })
                         .listRowBackground(darkColor)
+                        .listRowSeparator(.hidden)
+
                     
                         .popover(isPresented: $showingPopover) {
-
+                            
                             ZStack {
                                 HStack {
                                     Spacer()
@@ -64,11 +66,11 @@ struct Playlists: View {
                                             .padding([.top, .trailing], 24)
                                     })
                                 }
-
+                                
                                 Text("Name")
                                     .foregroundColor(whiteColor)
                                     .padding(.top, 32)
-
+                                
                             }
                             Spacer()
                             TextField("Name", text: $playlistName)
@@ -85,31 +87,39 @@ struct Playlists: View {
                                     .frame(width: 64, height: 64, alignment: .center)
                                     .background(Color(red: 0.22, green: 0.23, blue: 0.24))
                                     .clipShape(Circle())
-
+                                
                             })
                                 .padding(.bottom, 32)
                         }
-                  
+                    
                     ForEach(allplaylists) { playlist in
-                       
-                        NavigationLink(destination: Books(playlist: playlist, allPlaylists: allplaylists, playlistName: playlist.name!).environmentObject(playerEngine))  {
-                
-                            Text(playlist.name ?? "Noname")
-                                .MainFont(Size: 40, Weight: .regular)
-                                .frame(height: 48)
-                                .foregroundColor( colorslist[0] )
-                                .navigationBarHidden(true)
-                                .padding(.bottom, 8)
+                        ZStack(alignment: .topLeading) {
+                            NavigationLink(destination: Books(playlist: playlist, allPlaylists: allplaylists, playlistName: playlist.name!).environmentObject(playerEngine))  {
+                                EmptyView()
                             }
-                    } // allplaylists ForEach
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(darkColor)
+                            .opacity(0.0)
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            HStack {
+                                Text(playlist.name ?? "Noname")
+                                    .MainFont(Size: 40, Weight: .regular)
+                                    .frame(height: 48)
+                                    .foregroundColor(giveColor(allplaylists, playlist))
+                                    .navigationBarHidden(true)
+                                    .padding(.bottom, 8)
+                                
+                            }
+                        } // allplaylists ForEach
+                        .listRowBackground(darkColor)
+                        .listRowSeparator(.hidden)
+                    }
+                    
                 }
                 .listStyle(.inset)
                 .onAppear {
                     playerEngine.allPlaylists = allplaylists
                     print("all playlists added")
-                    if (playerEngine.restorebookIndex != nil) && (playerEngine.restoreplaylistIndex != nil) && readytoRestore {
+                    if saveTorestore() {
                         playerEngine.restorePlay()
                         readytoRestore = false
                     }
@@ -119,6 +129,18 @@ struct Playlists: View {
     }
     
     
+    private func saveTorestore() -> Bool {
+        var answer = false
+        // trust me you don't want to fuck with this
+        if (playerEngine.restorebookIndex != nil) && (playerEngine.restoreplaylistIndex != nil) && readytoRestore {
+            if (playerEngine.restoreplaylistIndex! <= allplaylists.count-1) {
+                if (playerEngine.restorebookIndex! <= allplaylists[playerEngine.restoreplaylistIndex!].book!.count) {
+                    answer = true
+                }
+            }
+        }
+        return answer
+    }
     
     
     private func addPlaylist(name: String) {
@@ -130,7 +152,7 @@ struct Playlists: View {
             // check if created playlist's index is less than the one that saved, update saved index +1.
             let newIndex = allplaylists.firstIndex(where: { $0.id == newPlaylist.id} )!
             print("creating playlist at:", newIndex)
-
+            
             if newIndex <= playerEngine.restoreplaylistIndex ?? 0 {
                 let savedIndex = playerEngine.restoreplaylistIndex!
                 playerEngine.restoreplaylistIndex = savedIndex + 1
@@ -141,4 +163,18 @@ struct Playlists: View {
             let _ = print("new playlist created")
         }
     }
+}
+
+func giveColor(_ allplaylists: FetchedResults<Playlist>, _ playlist: Playlist) -> Color {
+    let currentID = allplaylists.firstIndex(of: playlist)!
+    if currentID <= colorslist.count-1 {
+        let color = colorslist[currentID]
+        return color
+    } else {
+//        let colorsCount = colorslist.count
+//        let offset = allplaylists.firstIndex(of: playlist)! - colorsCount //1
+//        let colorID = offset
+        return colorslist[0]
+    }
+    
 }

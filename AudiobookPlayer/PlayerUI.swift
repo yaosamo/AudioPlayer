@@ -113,6 +113,7 @@ struct PlayerUI: View {
 }
 
 
+
 func getHoursMinutesSecondsFrom(seconds: Double) -> (hours: Int, minutes: Int, seconds: Int) {
     let secs = Int(seconds)
     let hours = secs / 3600

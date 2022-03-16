@@ -242,7 +242,6 @@ struct Books: View {
     
     private func deleteBookItems(offsets: IndexSet, books: Array<Book>) {
         withAnimation {
-            
             offsets.map { books[$0] }.forEach(viewContext.delete)
             
             do {

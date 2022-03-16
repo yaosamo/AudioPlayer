@@ -39,6 +39,8 @@ class AudioPlayerStatus: ObservableObject {
 
     @Published var currentPlaylist : Array<Book>?
     @Published var allPlaylists : FetchedResults<Playlist>?
+    
+    @Published var proxy : ScrollViewProxy?
         
     private var audioSession : AVAudioSession
     

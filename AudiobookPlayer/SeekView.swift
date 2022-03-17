@@ -24,7 +24,6 @@ struct SeekView: View {
     @State private var seekingTimer : Timer?
     @State private var offset = CGFloat.zero
     @State private var dragInitiated = false
-    @State private var progress = 0.0
     @State private var validView = true
     @Namespace var currentProgress
     @Namespace var startPoint
@@ -35,25 +34,23 @@ struct SeekView: View {
             .fill(playerEngine.status == .empty ? inactiveColor : whiteColor)
             .frame(width: 2, height: 48, alignment: .trailing)
         //compensate 2 for caret
-            .padding([.leading], center-1)
+            .padding([.leading], center-2)
     }
-   
-
+    
     var body: some View {
-       
+        
         ScrollViewReader { proxy in
             
-            if validView {
             ScrollView(.horizontal) {
                 LazyHStack(alignment: .center, spacing: 0, pinnedViews: [.sectionHeaders], content: {
                     Section(header: caret) {
                         ZStack(alignment: .leading) {
                             // Book's Scroll
-                                
+                            
                             Rectangle()
                                 .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
                                 .frame(width: playerEngine.bookPlaybackWidth, height: 40)
-                            // Caret - playback position
+                                // Caret - offset
                                 .background(GeometryReader {
                                     Color.clear.preference(key: ViewOffsetKey.self,
                                                            value: -$0.frame(in: .named("scroll")).origin.x)
@@ -63,37 +60,19 @@ struct SeekView: View {
                                     offset = $0+center
                                 }
                             
-                            // starting trigger
                             Rectangle()
-                                .frame(width:0)
-                                .id(startPoint)
-                            
-                            // progressing bar
-                            ZStack(alignment: .trailing) {
-                            Rectangle()
-                                .fill(Color(red: 0.30, green: 0.30, blue: 0.30))
-                                .frame(width: (playerEngine.restorePlayback ?? progress), height: 40)
-                            
-                            // currentProgress trigger
-                            Rectangle()
-                                .frame(width: 0)
+                                .fill(.red)
+                                .frame(width: playerEngine.currentProgress ?? 0, height: 16)
                                 .id(currentProgress)
-                            }
                             
                         } // Zstack
-                        .onChange(of: progress) { _ in
-                            progressUpdate(proxy: proxy)
+                        .onChange(of: playerEngine.currentProgress) { _ in
+                            autoScroll(proxy: proxy)
                         }
-                        
-                    }
-                    // resets caret position to Start when new book started
-                    .onChange(of: playerEngine.bookPlaybackWidth) { _ in
-                        proxy.scrollTo(startPoint, anchor: .trailing)
                     }
                 })
                 // Trailing padding for whole lazy stack so caret and playback bounces off
                 .padding([.trailing], center)
-                
             }
             .frame(height: 96)
             .coordinateSpace(name: "scroll")
@@ -112,29 +91,24 @@ struct SeekView: View {
                     else { playerEngine.playbackTime = "00:00:00"}
                     
                     // if player exist delete it
-                    if seekingTimer != nil {seekingTimer!.invalidate()
-                    }
+                    if seekingTimer != nil { seekingTimer!.invalidate() }
                     // set player to nil and start seeking func
                     seekingTimer = nil
                     SeekPlayerTo(newValue)
                 }
             })
-            }
+            
         }
-        
     }
     
     
-    private func progressUpdate(proxy : ScrollViewProxy) {
-
-            if playerEngine.status == .playing && !playerEngine.playerIsSeeking  {
-                withAnimation {
-                    progress = player?.currentTime ?? 0
-                    proxy.scrollTo(currentProgress)
-                    print("scroll")
-                }
+    private func autoScroll(proxy : ScrollViewProxy) {
+        if playerEngine.status == .playing && !playerEngine.playerIsSeeking  {
+            withAnimation {
+                proxy.scrollTo(currentProgress, anchor: .trailing)
+                print("scroll")
             }
-        
+        }
     }
     
     func SeekPlayerTo(_ newTime: TimeInterval) {
@@ -144,7 +118,6 @@ struct SeekView: View {
             if time >= player?.duration ?? 0 { playerEngine.NextBook() }
             if time < 0 { time = 0}
             player?.currentTime = time
-            progress = time
             print("Set playback \(time)")
             seekingTimer?.invalidate()
             playerEngine.playerIsSeeking = false

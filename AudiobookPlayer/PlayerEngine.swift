@@ -29,6 +29,7 @@ class AudioPlayerStatus: ObservableObject {
     @Published var bookname : String?
     @Published var playbackTime = "00:00:00"
     @Published var bookPlaybackWidth = CGFloat(0)
+    @Published var currentProgress : Double?
     @Published var playerIsSeeking = false
     
     @Published var currentBookIndex : Int?
@@ -238,6 +239,7 @@ class AudioPlayerStatus: ObservableObject {
                 let seconds = player?.currentTime
                 playbackTime = formatTimeFor(seconds: seconds ?? 0)
                 restorePlayback = seconds
+                currentProgress = seconds
             }
         }
     }

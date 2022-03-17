@@ -46,7 +46,7 @@ class AudioPlayerStatus: ObservableObject {
     
     @AppStorage("playlistID") var restoreplaylistIndex: Int?
     @AppStorage("bookID") var restorebookIndex: Int?
-    @AppStorage("playbackTime") var restorePlayback: String?
+    @AppStorage("playbackTime") var restorePlayback: Double?
 
     
     init() {
@@ -86,7 +86,8 @@ class AudioPlayerStatus: ObservableObject {
         let url = restoreURL(bookmarkData: book.urldata!)
         currentBookID = book.id
         bookname = book.name
-        playbackTime = restorePlayback ?? "00:00:00"
+        playbackTime = formatTimeFor(seconds: restorePlayback ?? 0)
+        player?.currentTime = restorePlayback ?? 0
         PlayManager(play: url)
         Stop()
     }
@@ -156,7 +157,7 @@ class AudioPlayerStatus: ObservableObject {
         // Restore security scoped bookmark
         var bookmarkDataIsStale = false
         let URL = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
-        print("Please put \(URL!.lastPathComponent) on")
+         print("Please put \(URL!.lastPathComponent) on")
         return URL!
     }
     
@@ -236,7 +237,7 @@ class AudioPlayerStatus: ObservableObject {
             if status == .playing && !playerIsSeeking  {
                 let seconds = player?.currentTime
                 playbackTime = formatTimeFor(seconds: seconds ?? 0)
-                restorePlayback = playbackTime
+                restorePlayback = seconds
             }
         }
     }

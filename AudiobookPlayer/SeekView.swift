@@ -24,6 +24,8 @@ struct SeekView: View {
     @State private var seekingTimer : Timer?
     @State private var offset = CGFloat.zero
     @State private var dragInitiated = false
+    @State private var progress = 0.0
+    @State private var validView = true
     @Namespace var currentProgress
     @Namespace var startPoint
     let center = UIScreen.main.bounds.width / 2
@@ -35,27 +37,19 @@ struct SeekView: View {
         //compensate 2 for caret
             .padding([.leading], center-1)
     }
-    
-    
+   
+
     var body: some View {
-        
+       
         ScrollViewReader { proxy in
-        
+            
+            if validView {
             ScrollView(.horizontal) {
-                
                 LazyHStack(alignment: .center, spacing: 0, pinnedViews: [.sectionHeaders], content: {
-                    
-                    
                     Section(header: caret) {
-                        
                         ZStack(alignment: .leading) {
-                            
-                            // starting point
-                            Rectangle()
-                                .frame(width:0)
-                                .id(startPoint)
-                            
                             // Book's Scroll
+                                
                             Rectangle()
                                 .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
                                 .frame(width: playerEngine.bookPlaybackWidth, height: 40)
@@ -69,19 +63,32 @@ struct SeekView: View {
                                     offset = $0+center
                                 }
                             
-                            // progressing bar
+                            // starting trigger
                             Rectangle()
-                                .fill(whiteColor)
-                                .frame(width: (player?.currentTime ?? 0), height: 8)
+                                .frame(width:0)
+                                .id(startPoint)
+                            
+                            // progressing bar
+                            ZStack(alignment: .trailing) {
+                            Rectangle()
+                                .fill(Color(red: 0.30, green: 0.30, blue: 0.30))
+                                .frame(width: (playerEngine.restorePlayback ?? progress), height: 40)
+                            
+                            // currentProgress trigger
+                            Rectangle()
+                                .frame(width: 0)
                                 .id(currentProgress)
-             
+                            }
+                            
                         } // Zstack
-                        .onAppear {
+                        .onChange(of: progress) { _ in
                             progressUpdate(proxy: proxy)
                         }
+                        
                     }
-                    .onChange(of: playerEngine.bookPlaybackWidth) { newValue in
-                        proxy.scrollTo(startPoint, anchor: .bottomTrailing)
+                    // resets caret position to Start when new book started
+                    .onChange(of: playerEngine.bookPlaybackWidth) { _ in
+                        proxy.scrollTo(startPoint, anchor: .trailing)
                     }
                 })
                 // Trailing padding for whole lazy stack so caret and playback bounces off
@@ -112,27 +119,33 @@ struct SeekView: View {
                     SeekPlayerTo(newValue)
                 }
             })
+            }
         }
+        
     }
     
     
     private func progressUpdate(proxy : ScrollViewProxy) {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {(_) in
+
             if playerEngine.status == .playing && !playerEngine.playerIsSeeking  {
                 withAnimation {
+                    progress = player?.currentTime ?? 0
                     proxy.scrollTo(currentProgress)
                     print("scroll")
                 }
             }
-        }
+        
     }
     
     func SeekPlayerTo(_ newTime: TimeInterval) {
+        var time = newTime
         // newTime as var so i can change it
         seekingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if newTime >= player?.duration ?? 0 { playerEngine.NextBook() }
-            player?.currentTime = newTime
-            print("Set playback \(newTime)")
+            if time >= player?.duration ?? 0 { playerEngine.NextBook() }
+            if time < 0 { time = 0}
+            player?.currentTime = time
+            progress = time
+            print("Set playback \(time)")
             seekingTimer?.invalidate()
             playerEngine.playerIsSeeking = false
             dragInitiated = false

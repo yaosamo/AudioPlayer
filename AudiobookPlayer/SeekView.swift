@@ -32,25 +32,27 @@ struct SeekView: View {
     var caret: some View {
         Rectangle()
             .fill(playerEngine.status == .empty ? inactiveColor : whiteColor)
-            .frame(width: 2, height: 48, alignment: .trailing)
+            .frame(width: 2, height: 48)
         //compensate 2 for caret
-            .padding([.leading], center-2)
+        //            .padding([.leading], center-2)
     }
     
     var body: some View {
-        
+        if validView {
         ScrollViewReader { proxy in
             
             ScrollView(.horizontal) {
+             
                 LazyHStack(alignment: .center, spacing: 0, pinnedViews: [.sectionHeaders], content: {
                     Section(header: caret) {
                         ZStack(alignment: .leading) {
-                            // Book's Scroll
                             
+                            // Book's Scroll
                             Rectangle()
                                 .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
                                 .frame(width: playerEngine.bookPlaybackWidth, height: 40)
-                                // Caret - offset
+
+                            // Caret - offset
                                 .background(GeometryReader {
                                     Color.clear.preference(key: ViewOffsetKey.self,
                                                            value: -$0.frame(in: .named("scroll")).origin.x)
@@ -65,25 +67,36 @@ struct SeekView: View {
                                 .frame(width: playerEngine.currentProgress ?? 0, height: 16)
                                 .id(currentProgress)
                             
-                        } // Zstack
+                        }
                         .onChange(of: playerEngine.currentProgress) { _ in
                             autoScroll(proxy: proxy)
                         }
                     }
+               
+
                 })
                 // Trailing padding for whole lazy stack so caret and playback bounces off
-                .padding([.trailing], center)
+                .padding([.trailing, .leading], center)
+                
             }
-            .frame(height: 96)
+            .frame(height: 40)
+            .padding([.top, .bottom], 28)
             .coordinateSpace(name: "scroll")
+            .onChange(of: playerEngine.bookPlaybackWidth) { _ in
+                validView = false
+                validView = true
+            }
             // check if drag happened
             .gesture(DragGesture()
                 .onChanged({ _ in
                     dragInitiated = true
+                    playerEngine.Stop()
                 }))
             .onChange(of: offset, perform: { newValue in
                 // allow offset to process if drag happened
+                print("off", offset)
                 if dragInitiated {
+                    
                     playerEngine.playerIsSeeking = true
                     // check offset and if it's less than 0 set playback to 0.
                     if offset > 0 && playerEngine.status != .empty {
@@ -98,6 +111,7 @@ struct SeekView: View {
                 }
             })
             
+        }
         }
     }
     
@@ -122,6 +136,8 @@ struct SeekView: View {
             seekingTimer?.invalidate()
             playerEngine.playerIsSeeking = false
             dragInitiated = false
+            playerEngine.Play()
+            
         }
     }
 }

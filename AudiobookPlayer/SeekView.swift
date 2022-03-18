@@ -34,7 +34,7 @@ struct SeekView: View {
             .fill(playerEngine.status == .empty ? inactiveColor : whiteColor)
             .frame(width: 2, height: 48)
         //compensate 2 for caret
-        //            .padding([.leading], center-2)
+            .padding([.leading], center-2)
     }
     
     var body: some View {
@@ -75,8 +75,10 @@ struct SeekView: View {
                
 
                 })
+                .rotationEffect(Angle(degrees: 180))
+                .rotationEffect(Angle(degrees: 180))
                 // Trailing padding for whole lazy stack so caret and playback bounces off
-                .padding([.trailing, .leading], center)
+                .padding([.trailing], center)
                 
             }
             .frame(height: 40)

@@ -15,7 +15,6 @@ let whiteColor = Color(red: 0.91, green: 0.91, blue: 0.91)
 let darkColor = Color(red: 0.07, green: 0.07, blue: 0.08)   
 let inactiveColor = Color(red: 0.24, green: 0.25, blue: 0.28)
 let borderColor = Color(red: 0.08, green: 0.09, blue: 0.10)
-let signalRed = Color(red: 0.96, green: 0.42, blue: 0.42)
 let lightDark = Color(red: 0.32, green: 0.33, blue: 0.36)
 
 // playlist colors

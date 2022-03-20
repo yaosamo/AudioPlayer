@@ -44,6 +44,7 @@ struct Books: View {
         let books = playlist.book?.sortedArray(using: [booksorting]) as! [Book]?
         
         ZStack(alignment: .trailing) {
+            
             darkColor.edgesIgnoringSafeArea(.all)
             
             Text(playlist.name ?? "")
@@ -82,7 +83,7 @@ struct Books: View {
                                     .foregroundColor(inactive)
                             }
                         })
-                            .padding(.bottom, 8)
+                        .padding(.bottom, 8)
                     }
                     .onDelete(perform: { IndexSet in
                         deleteBookItems(offsets: IndexSet, books: books!)
@@ -94,66 +95,73 @@ struct Books: View {
             .listStyle(.inset)
             
             .toolbar {
-                Menu {
-                    Button("Import from iCloud", action: {presentImporter.toggle()})
-                    Button("Rename playlist", action: {showingPopover.toggle()})
-                    Button("Delete playlist", role: .destructive, action: { showConfirmation.toggle()})
+                    Menu {
+                        Button("Import from iCloud", action: {presentImporter.toggle()})
+                        Button("Rename playlist", action: {showingPopover.toggle()})
+                        Button("Delete playlist", role: .destructive, action: { showConfirmation.toggle()})
+                    }
+                label: { Label("Menu", systemImage: "ellipsis")
+                        .frame(width: 40, height: 48)
                 }
-            label: { Label("Menu", systemImage: "ellipsis")
-                    .frame(width: 48, height: 48)
-            }
+                .popover(isPresented: $showingPopover) {
+                    ZStack {
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                showingPopover = false
+                            }, label: {
+                                Image(systemName: "xmark")
+                                    .foregroundColor(whiteColor)
+                                    .font(.system(size: 24.0))
+                                    .padding([.top, .trailing], 24)
+                            })
+                        }
+                        
+                        Text("Name")
+                            .foregroundColor(whiteColor)
+                            .padding(.top, 32)
+                        
+                    }
+                    Spacer()
+                    TextField("Name", text: $playlistName)
+                        .font(.system(size: 64, weight: .medium, design: .rounded))
+                        .foregroundColor(giveColor(allPlaylists, playlist))
+                        .multilineTextAlignment(.center)
+                    Spacer()
+                    Button(action: {
+                        renamePlaylist(playlist: playlist)
+                        showingPopover = false
+                    }, label: {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 24, weight: .medium, design: .rounded))
+                            .foregroundColor(whiteColor)
+                            .frame(width: 64, height: 64, alignment: .center)
+                            .background(Color(red: 0.22, green: 0.23, blue: 0.24))
+                            .clipShape(Circle())
+                    })
+                    .padding(.bottom, 32)
+                }
                 
-            .popover(isPresented: $showingPopover) {
-                ZStack {
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            showingPopover = false
-                        }, label: {
-                            Image(systemName: "xmark")
-                                .foregroundColor(whiteColor)
-                                .font(.system(size: 24.0))
-                                .padding([.top, .trailing], 24)
-                        })
+                .confirmationDialog("Would you like to delete this playlist? \n It will be deleted on all devices", isPresented: $showConfirmation, titleVisibility: .visible) {
+                    Button("Delete", role: .destructive) {
+                        deletePlaylist()
+                        showConfirmation = false
                     }
                     
-                    Text("Name")
-                        .foregroundColor(whiteColor)
-                        .padding(.top, 32)
-                    
-                }
-                Spacer()
-                TextField("Name", text: $playlistName)
-                    .font(.system(size: 64, weight: .medium, design: .rounded))
-                    .foregroundColor(giveColor(allPlaylists, playlist))
-                    .multilineTextAlignment(.center)
-                Spacer()
-                Button(action: {
-                    renamePlaylist(playlist: playlist)
-                    showingPopover = false
-                }, label: {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 24, weight: .medium, design: .rounded))
-                        .foregroundColor(whiteColor)
-                        .frame(width: 64, height: 64, alignment: .center)
-                        .background(Color(red: 0.22, green: 0.23, blue: 0.24))
-                        .clipShape(Circle())
-                })
-                    .padding(.bottom, 32)
-            }
-                
-            .confirmationDialog("Would you like to delete this playlist? \n It will be deleted on all devices", isPresented: $showConfirmation, titleVisibility: .visible) {
-                Button("Delete", role: .destructive) {
-                    deletePlaylist()
-                    showConfirmation = false
-                    
-                }
-                
-                Button("Cancel") {
-                    showConfirmation = false
+                    Button("Cancel") {
+                        showConfirmation = false
+                    }
                 }
             }
+            if books!.count < 1 {
+                HStack {
+                    Text("Import first book")
+                        .MainFont(Size: 24, Weight: .regular)
+                    Image(systemName: "arrow.up")
+                }
+                .offset(x: -28, y: -UIScreen.main.bounds.height / 3.5)
             }
+
         } // Zstack
         
         .fileImporter(isPresented: $presentImporter, allowedContentTypes: [.mp3], allowsMultipleSelection: true, onCompletion: importBooks)

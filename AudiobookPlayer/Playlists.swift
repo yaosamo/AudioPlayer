@@ -38,7 +38,7 @@ struct Playlists: View {
                     .edgesIgnoringSafeArea(.all)
                 
                 List {
-                    
+                    VStack(alignment: .leading) {
                     // Add Playlist Button + pop-up
                     Button(action: {
                         showingPopover.toggle()
@@ -47,10 +47,15 @@ struct Playlists: View {
                             .foregroundColor(.white)
                             .font(.system(size: 32.0, weight: .regular, design: .rounded))
                             .padding([.top, .bottom], 16)
+                        
                     })
+                        if allplaylists.count < 1 {
+                            Text("Create first playlist")
+                                .MainFont(Size: 24, Weight: .regular)
+                        }
+                    }
                         .listRowBackground(darkColor)
                         .listRowSeparator(.hidden)
-
                     
                         .popover(isPresented: $showingPopover) {
                             
@@ -154,7 +159,7 @@ struct Playlists: View {
             print("creating playlist at:", newIndex)
             
             if newIndex <= playerEngine.restoreplaylistIndex ?? 0 {
-                let savedIndex = playerEngine.restoreplaylistIndex!
+                let savedIndex = playerEngine.restoreplaylistIndex ?? 0
                 playerEngine.restoreplaylistIndex = savedIndex + 1
                 print("saved new playlist index at:", playerEngine.restoreplaylistIndex)
             }

@@ -115,6 +115,7 @@ struct SeekView: View {
         }
     }
     
+    
     func SeekPlayerTo(_ newTime: TimeInterval) {
         var time = newTime
         // newTime as var so i can change it

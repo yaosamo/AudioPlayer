@@ -23,11 +23,9 @@ struct SeekView: View {
     
     @State private var seekingTimer : Timer?
     @State private var offset = CGFloat.zero
-    @State private var scroll = CGFloat.zero
     @State private var dragInitiated = false
-    @State private var validView = true
     @Namespace var currentProgress
-    @Namespace var startPoint
+    
     let center = UIScreen.main.bounds.width / 2
     
     var caret: some View {
@@ -48,7 +46,7 @@ struct SeekView: View {
                             path.addLine(to: CGPoint(x: playerEngine.bookPlaybackWidth, y: 20))
                         }
                         .stroke(style: StrokeStyle( lineWidth: 40, dash: [2]))
-                        .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .foregroundColor(darkProgressBar)
                         .frame(width: playerEngine.bookPlaybackWidth, height: 40)
                         
                         // Caret - offset
@@ -67,10 +65,9 @@ struct SeekView: View {
                             path.addLine(to: CGPoint(x: playerEngine.currentProgress ?? 0, y: 20))
                         }
                         .stroke(style: StrokeStyle( lineWidth: 40, dash: [2]))
-                        .foregroundColor(.red)
+                        .foregroundColor(lightDark)
                         .frame(width: playerEngine.currentProgress ?? 0, height: 40)
                         .id(currentProgress)
-                        
                     } // zStack
                     .onChange(of: playerEngine.currentProgress) { _ in
                         autoScroll(proxy: proxy)

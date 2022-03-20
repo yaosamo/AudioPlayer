@@ -171,10 +171,7 @@ func giveColor(_ allplaylists: FetchedResults<Playlist>, _ playlist: Playlist) -
         let color = colorslist[currentID]
         return color
     } else {
-//        let colorsCount = colorslist.count
-//        let offset = allplaylists.firstIndex(of: playlist)! - colorsCount //1
-//        let colorID = offset
-        return colorslist[0]
+        return colorslist[.random(in: 0...colorslist.count-1)]
     }
     
 }

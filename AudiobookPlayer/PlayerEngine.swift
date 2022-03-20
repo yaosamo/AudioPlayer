@@ -108,7 +108,6 @@ class AudioPlayerStatus: ObservableObject {
  
     // Receive URLdata to play -> initiate play
     func PlayManager(play: URL) {
-        
         do {
             // Start Playing
             player = try AVAudioPlayer(contentsOf: play)
@@ -165,21 +164,21 @@ class AudioPlayerStatus: ObservableObject {
     // Defining index of currently playing book
     func CurrentBookIndex() -> Int {
         // Finding item that is currently playing
-            let newBookIndex = currentPlaylist!.firstIndex(where: { $0.id == currentBookID} )!
+            let newBookIndex = currentPlaylist?.firstIndex(where: { $0.id == currentBookID} )
         currentBookIndex = newBookIndex
-            return newBookIndex
+        return newBookIndex ?? 0
     }
     
     func CurrentPlaylistIndex() -> Int {
-        let newPlaylistIndex = allPlaylists!.firstIndex(where: { $0.id == currentPlaylistID} )!
+        let newPlaylistIndex = allPlaylists!.firstIndex(where: { $0.id == currentPlaylistID} )
         currentPlaylistIndex = newPlaylistIndex
-        return newPlaylistIndex
+        return newPlaylistIndex ?? 0
     }
     
     
     // Checking if new book exists
     func skipToCurrentItem(offsetBy offset: Int) {
-        print("\(currentPlaylist!.count) books in current playlist")
+        print("\(currentPlaylist?.count) books in current playlist")
         let NextBookIndex = CurrentBookIndex() + offset
         if  (NextBookIndex <= currentPlaylist!.count-1) && (NextBookIndex >= 0) {
             print("Requested book exists at:", NextBookIndex)

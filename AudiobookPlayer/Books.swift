@@ -153,7 +153,7 @@ struct Books: View {
                     }
                 }
             }
-            if books!.count < 1 {
+            if books?.count ?? 0 < 1 {
                 HStack {
                     Text("Import first book")
                         .MainFont(Size: 24, Weight: .regular)

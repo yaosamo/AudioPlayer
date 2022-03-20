@@ -40,34 +40,43 @@ struct SeekView: View {
         
         ScrollViewReader { proxy in
             ZStack {
-                ScrollView(.horizontal) {
+                ScrollView(.horizontal, showsIndicators: false) {
                     ZStack(alignment: .leading) {
-                        // Book's Scroll
-                        Rectangle()
-                            .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
-                            .frame(width: playerEngine.bookPlaybackWidth, height: 40)
+                        // Book's width
+                        Path{ path in
+                            path.move(to: CGPoint(x: 0, y: 20))
+                            path.addLine(to: CGPoint(x: playerEngine.bookPlaybackWidth, y: 20))
+                        }
+                        .stroke(style: StrokeStyle( lineWidth: 40, dash: [2]))
+                        .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .frame(width: playerEngine.bookPlaybackWidth, height: 40)
+                        
                         // Caret - offset
-                            .background(GeometryReader {
-                                Color.clear.preference(key: ViewOffsetKey.self,
-                                                       value: -$0.frame(in: .named("scroll")).origin.x)
-                            })
-                            .onPreferenceChange(ViewOffsetKey.self) {
-                                // Updating offset and applying center to get caret offset
-                                offset = $0+center
-                            }
+                        .background(GeometryReader {
+                            Color.clear.preference(key: ViewOffsetKey.self,
+                                                   value: -$0.frame(in: .named("scroll")).origin.x)
+                        })
+                        .onPreferenceChange(ViewOffsetKey.self) {
+                            // Updating offset and applying center to get caret offset
+                            offset = $0+center
+                        }
                         
-                        Rectangle()
-                            .fill(.red)
-                            .frame(width: playerEngine.currentProgress ?? 0, height: 40)
-                            .id(currentProgress)
+                        // progress
+                        Path{ path in
+                            path.move(to: CGPoint(x: 0, y: 20))
+                            path.addLine(to: CGPoint(x: playerEngine.currentProgress ?? 0, y: 20))
+                        }
+                        .stroke(style: StrokeStyle( lineWidth: 40, dash: [2]))
+                        .foregroundColor(.red)
+                        .frame(width: playerEngine.currentProgress ?? 0, height: 40)
+                        .id(currentProgress)
                         
-                    }
+                    } // zStack
                     .onChange(of: playerEngine.currentProgress) { _ in
                         autoScroll(proxy: proxy)
                     }
-                    
                     .padding([.leading, .trailing], center)
-                }
+                } // scroll view
                 .frame(height: 56)
                 .padding([.top, .bottom], 12)
                 .coordinateSpace(name: "scroll")

@@ -301,7 +301,6 @@ class AudioPlayerStatus: ObservableObject {
         // Define Now Playing Info
         var nowPlayingInfo = [String : Any]()
         nowPlayingInfo[MPMediaItemPropertyTitle] = bookname
-        
         if let image = artwork {
             nowPlayingInfo[MPMediaItemPropertyArtwork] =
             MPMediaItemArtwork(boundsSize: image.size) { size in
@@ -366,7 +365,7 @@ class AudioPlayerStatus: ObservableObject {
             
         case .newDeviceAvailable: // New device found.
             setOutput()
-            
+
         default: setOutput()
             
         }

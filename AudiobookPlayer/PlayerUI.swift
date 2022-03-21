@@ -68,7 +68,7 @@ struct PlayerUI: View {
                     .foregroundColor(playerEngine.status == .empty ? inactiveColor : whiteColor)
             } // vStack meta block
             .padding([.leading, .trailing], 24)
-            .padding(.top, 32)
+            .padding(.top, 24)
             
             SeekView()
                 .environmentObject(playerEngine)

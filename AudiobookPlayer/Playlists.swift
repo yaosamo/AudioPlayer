@@ -75,7 +75,6 @@ struct Playlists: View {
                                 Text("Name")
                                     .foregroundColor(whiteColor)
                                     .padding(.top, 32)
-                                
                             }
                             Spacer()
                             TextField("Name", text: $playlistName)
@@ -92,7 +91,6 @@ struct Playlists: View {
                                     .frame(width: 64, height: 64, alignment: .center)
                                     .background(Color(red: 0.22, green: 0.23, blue: 0.24))
                                     .clipShape(Circle())
-                                
                             })
                                 .padding(.bottom, 32)
                         }
@@ -123,7 +121,7 @@ struct Playlists: View {
                 .listStyle(.inset)
                 .onAppear {
                     playerEngine.allPlaylists = allplaylists
-                    print("all playlists added")
+                    print("playlists array updated")
                     if saveTorestore() {
                         playerEngine.restorePlay()
                         readytoRestore = false
@@ -153,6 +151,7 @@ struct Playlists: View {
             let newPlaylist = Playlist(context: viewContext)
             newPlaylist.name = name
             try? viewContext.save()
+            playlistName = "Playlist"
             
             // check if created playlist's index is less than the one that saved, update saved index +1.
             let newIndex = allplaylists.firstIndex(where: { $0.id == newPlaylist.id} )!

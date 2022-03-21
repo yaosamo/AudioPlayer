@@ -249,6 +249,8 @@ struct Books: View {
     
     
     private func deleteBookItems(offsets: IndexSet, books: Array<Book>) {
+        playerEngine.Stop()
+        playerEngine.abortPlay()
         withAnimation {
             offsets.map { books[$0] }.forEach(viewContext.delete)
             

@@ -9,6 +9,10 @@ import SwiftUI
 import CoreData
 import AVKit
 
+func hapticSuccess() {
+    let generator = UINotificationFeedbackGenerator()
+    generator.notificationOccurred(.success)
+}
 
 struct ContentView: View {
     @EnvironmentObject private var playerEngine: AudioPlayerStatus

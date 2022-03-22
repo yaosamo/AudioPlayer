@@ -122,7 +122,7 @@ struct Playlists: View {
                 .onAppear {
                     playerEngine.allPlaylists = allplaylists
                     print("playlists array updated")
-                    if saveTorestore() {
+                    if readytoRestore {
                         playerEngine.restorePlay()
                         readytoRestore = false
                     }
@@ -130,21 +130,6 @@ struct Playlists: View {
             }
         }
     }
-    
-    
-    private func saveTorestore() -> Bool {
-        var answer = false
-        // trust me you don't want to fuck with this
-        if (playerEngine.restorebookIndex != nil) && (playerEngine.restoreplaylistIndex != nil) && readytoRestore {
-            if (playerEngine.restoreplaylistIndex! <= allplaylists.count-1) {
-                if (playerEngine.restorebookIndex! <= allplaylists[playerEngine.restoreplaylistIndex!].book!.count) {
-                    answer = true
-                }
-            }
-        }
-        return answer
-    }
-    
     
     private func addPlaylist(name: String) {
         withAnimation {
@@ -160,7 +145,7 @@ struct Playlists: View {
             if newIndex <= playerEngine.restoreplaylistIndex ?? 0 {
                 let savedIndex = playerEngine.restoreplaylistIndex ?? 0
                 playerEngine.restoreplaylistIndex = savedIndex + 1
-                print("saved new playlist index at:", playerEngine.restoreplaylistIndex)
+                print("saved new playlist index at:", playerEngine.restoreplaylistIndex as Any)
             }
             
             

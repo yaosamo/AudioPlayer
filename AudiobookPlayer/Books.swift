@@ -232,7 +232,7 @@ struct Books: View {
         if deletingplaylistIndex < playerEngine.restoreplaylistIndex ?? 0 {
             let savedIndex = playerEngine.restoreplaylistIndex!
             playerEngine.restoreplaylistIndex = savedIndex - 1
-            print("saved new playlist index at:", playerEngine.restoreplaylistIndex)
+            print("saved new playlist index at:", playerEngine.restoreplaylistIndex as Any)
         }
         
         withAnimation {

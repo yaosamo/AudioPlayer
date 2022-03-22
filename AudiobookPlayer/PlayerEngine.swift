@@ -80,10 +80,12 @@ class AudioPlayerStatus: ObservableObject {
     }
     
     func restorePlay() {
-        print("restoring play")
+        print("Checking if it's safe to restore")
+        if safeTorestore() {
         currentPlaylist = restorePlaylist()
         currentPlaylistID = allPlaylists![restoreplaylistIndex!].id
         let book = currentPlaylist![restorebookIndex!]
+        if book.urldata == nil {abortPlay()}
         let url = restoreURL(bookmarkData: book.urldata!)
         currentBookID = book.id
         bookname = book.name
@@ -91,7 +93,21 @@ class AudioPlayerStatus: ObservableObject {
         player?.currentTime = restorePlayback ?? 0
         PlayManager(play: url)
         Stop()
+        } else { print("it's not safe to restore, aborting storage")
+            abortPlay()
+        }
     }
+    
+    
+    func safeTorestore() -> Bool {
+        var answer = false
+        // trust me you don't want to fuck with this
+        if (restorebookIndex != nil) && (restoreplaylistIndex != nil) && (restoreplaylistIndex! <= allPlaylists!.count-1) && (restorebookIndex! <= allPlaylists![restoreplaylistIndex!].book!.count) {
+                    answer = true
+        }
+        return answer
+    }
+
     
     func restorePlaylist() -> Array<Book> {
         let Playlist = allPlaylists![restoreplaylistIndex!].book!.sortedArray(using: [booksorting]) as! [Book]
@@ -157,7 +173,7 @@ class AudioPlayerStatus: ObservableObject {
         // Restore security scoped bookmark
         var bookmarkDataIsStale = false
         let URL = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &bookmarkDataIsStale)
-         print("Please put \(URL!.lastPathComponent) on")
+        print("Please put \(String(describing: URL?.lastPathComponent)) on")
         return URL!
     }
     
@@ -178,7 +194,7 @@ class AudioPlayerStatus: ObservableObject {
     
     // Checking if new book exists
     func skipToCurrentItem(offsetBy offset: Int) {
-        print("\(currentPlaylist?.count) books in current playlist")
+        print("\(String(describing: currentPlaylist?.count)) books in current playlist")
         let NextBookIndex = CurrentBookIndex() + offset
         if  (NextBookIndex <= currentPlaylist!.count-1) && (NextBookIndex >= 0) {
             print("Requested book exists at:", NextBookIndex)

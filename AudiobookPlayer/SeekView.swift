@@ -90,11 +90,13 @@ struct SeekView: View {
                         playerEngine.playerIsSeeking = true
                         // check offset and if it's less than 0 set playback to 0.
                         if offset > 0 && playerEngine.status != .empty {
-                            playerEngine.playbackTime = formatTimeFor(seconds: offset)}
+                            playerEngine.playbackTime = formatTimeFor(seconds: offset)
+                        }
                         else { playerEngine.playbackTime = "00:00:00"}
                         
                         // if player exist delete it
                         if seekingTimer != nil { seekingTimer!.invalidate() }
+
                         // set player to nil and start seeking func
                         seekingTimer = nil
                         SeekPlayerTo(newValue)
@@ -123,7 +125,6 @@ struct SeekView: View {
             if time >= player?.duration ?? 0 { playerEngine.NextBook() }
             if time < 0 { time = 0}
             player?.currentTime = time
-            print("Set playback \(time)")
             seekingTimer?.invalidate()
             playerEngine.playerIsSeeking = false
             dragInitiated = false

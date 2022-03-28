@@ -268,38 +268,42 @@ struct Books: View {
 
 func metaData(url: URL) -> (bookTitle: String, bookAuthor: String) {
     let asset = AVAsset(url: url)
-    
     // return values
     var bookTitle = ""
     var bookAuthor = ""
-    
-    // Refactor https://developer.apple.com/documentation/avfoundation/media_assets_and_metadata/retrieving_media_metadata
-    
-    // check if meta is not empty getting meta for Title and artist
-    if asset.commonMetadata.count > 0  {
         
-        for info in asset.commonMetadata {
-            if info.commonKey?.rawValue == "title" {
-                let bookTitleraw = info.value as! String
-                bookTitle = converter(raw: bookTitleraw)
-            }
-            if info.commonKey?.rawValue == "artist" {
-                let bookAuthorraw = info.value as! String
-                bookAuthor = converter(raw: bookAuthorraw)
-            }
-        }
-        // if meta is empty assign title as file name & author to Unknown
+    // Filter metadata to find the asset's title and author
+    let titleItems = AVMetadataItem.metadataItems(from: asset.metadata,
+                                             filteredByIdentifier: .commonIdentifierTitle)
+    if let title = titleItems.first?.stringValue {
+        print("Title: ", title)
+        bookTitle = converter(raw: title)
+        print("Title recorded: ", bookTitle)
     } else {
         bookTitle = url.deletingPathExtension().lastPathComponent
-        print("Nothing found in data for Title & Author")
-        bookAuthor = "Unknown author 🤷"
-    }
+        print("Nothing found in data Title")
+         }
+
+
+    // Filter metadata to find the asset's artwork
+    let authorItems = AVMetadataItem.metadataItems(from: asset.metadata,
+                                              filteredByIdentifier: .commonIdentifierArtist)
+    if let author = authorItems.first?.stringValue {
+        print("Author: ", author)
+        bookAuthor = converter(raw: author)
+        print("Author recorded: ", bookAuthor)
+    } else {
+        bookAuthor = "Unknown author"
+        print("Nothing found in data for Author")
+         }
+    
     
     // converting cyrillic encoding 1251 if needed
     func converter(raw: String) -> String {
         var cleanData = ""
         let cp1252Data = raw.data(using: .windowsCP1252)
         let decoded = String(data: cp1252Data ?? Data(), encoding: .windowsCP1251)!
+       
         // checking if decoded string was success
         if decoded.count > 0 {
             // return decoded
@@ -307,7 +311,6 @@ func metaData(url: URL) -> (bookTitle: String, bookAuthor: String) {
         } else {
             // return original
             cleanData = raw
-            
         }
         return cleanData
     }

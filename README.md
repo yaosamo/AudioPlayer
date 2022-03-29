@@ -1,5 +1,5 @@
-# AudioPlayer
-iCloud audio books player
+# Chameleon / iCloud Audio Player
+iCloud audiobook player
 
 Website: https://yaosamo.com/things/chameleon
 

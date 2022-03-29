@@ -103,8 +103,11 @@ class AudioPlayerStatus: ObservableObject {
         var answer = false
         // trust me you don't want to fuck with this
         if (restorebookIndex != nil) && (restoreplaylistIndex != nil) && (restoreplaylistIndex! <= allPlaylists!.count-1) && (restorebookIndex! <= allPlaylists![restoreplaylistIndex!].book!.count) {
-                    answer = true
-        }
+            if !restorePlaylist().isEmpty {
+                answer = true
+            }
+            }
+
         return answer
     }
 
